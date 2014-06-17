@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CoreTweet.Streaming.Reactive</name>
+    </assembly>
+    <members>
+        <member name="T:CoreTweet.Streaming.Reactive.Extension">
+            <summary>
+            Extensions for Reactive Extension(Rx).
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.Reactive.Extension.StartObservableStream(CoreTweet.Streaming.StreamingApi,CoreTweet.Streaming.StreamingType,CoreTweet.Streaming.StreamingParameters)">
+            <summary>
+            Starts the stream.
+            </summary>
+            <returns>The observable object.</returns>
+            <param name="e">Tokens.</param>
+            <param name="type">Type of streaming API.</param>
+            <param name="parameters">Parameters.</param>
+        </member>
+    </members>
+</doc>
