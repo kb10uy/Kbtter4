@@ -17,6 +17,7 @@ namespace Kbtter4.ViewModels
 {
     public class MainWindowViewModel : ViewModel
     {
+        
         public void Initialize()
         {
         }

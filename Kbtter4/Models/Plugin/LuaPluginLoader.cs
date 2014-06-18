@@ -10,7 +10,7 @@ using NLua;
 
 namespace Kbtter4.Models.Plugin
 {
-    internal class LuaPluginLoader : Kbtter4PluginProvider
+    internal sealed class LuaPluginLoader : Kbtter4PluginProvider
     {
         Kbtter4PluginHandlerRegisterableEventProvider ep;
         Kbtter kbtter;
