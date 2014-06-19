@@ -32,8 +32,73 @@
 
     </i:Interaction.Triggers>
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <SolidColorBrush x:Key="BrushMenuBack" Color="#667F7F7F"/>
+        <SolidColorBrush x:Key="TwitterColorPrimary" Color="#55acee"/>
+        <SolidColorBrush x:Key="TwitterColorSecondary" Color="#292f33"/>
+        <SolidColorBrush x:Key="TwitterColorDarkGray" Color="#66757f"/>
+        <SolidColorBrush x:Key="TwitterColorGray" Color="#99aab5"/>
+        <SolidColorBrush x:Key="TwitterColorLightGrayBlue" Color="#ccd6dd"/>
+        <SolidColorBrush x:Key="TwitterColorLightBlue" Color="#e1e8ed"/>
+        <SolidColorBrush x:Key="TwitterColorWhite" Color="#f5f8fa"/>
+        
+        <Color x:Key="ColorTwitterDarkGray" A="255" R="102" G="117" B="127"/>
+
+        <ControlTemplate TargetType="ToggleButton" x:Key="NonDecorationToggleButton">
+            <Grid>
+                <ContentPresenter Panel.ZIndex="1"/>
+                <Ellipse Panel.ZIndex="0" Name="EllipseSelected" Visibility="Collapsed">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush GradientOrigin="0.5,0.75" Center="0.5,0.75" RadiusX="0.5" RadiusY="0.25">
+                            <GradientStop Color="DodgerBlue" Offset="0"/>
+                            <GradientStop Color="{StaticResource ColorTwitterDarkGray}" Offset="1"/>
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="EllipseSelected" Property="Visibility" Value="Visible"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
+
     <Grid>
-        <DockPanel Name="DockPanelMenu" Panel.ZIndex="10" Background="Gray" Width="240" HorizontalAlignment="Left" Margin="-200,0,0,0">
+
+        <Rectangle Name="RectangleMenuBack" Fill="{StaticResource BrushMenuBack}" IsEnabled="False" Opacity="0" Panel.ZIndex="9">
+            <Rectangle.Triggers>
+                <EventTrigger RoutedEvent="MouseLeftButtonDown">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <Storyboard>
+                                <ThicknessAnimation Storyboard.TargetName="DockPanelMenu" Storyboard.TargetProperty="Margin"
+                                                To="-200,0,0,0" Duration="0:0:0.150">
+                                    <ThicknessAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseInOut"/>
+                                    </ThicknessAnimation.EasingFunction>
+                                </ThicknessAnimation>
+                            </Storyboard>
+                            <Storyboard Storyboard.TargetName="RectangleMenuBack">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         Duration="0:0:0.25" To="0"/>
+                                <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsEnabled">
+                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
+                                </BooleanAnimationUsingKeyFrames>
+                            </Storyboard>
+                            <Storyboard>
+                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="ButtonMenuMenu" Storyboard.TargetProperty="IsChecked">
+                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                </BooleanAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Rectangle.Triggers>
+        </Rectangle>
+        <DockPanel Name="DockPanelMenu" Panel.ZIndex="10" Background="{StaticResource TwitterColorDarkGray}" Width="240" HorizontalAlignment="Left" Margin="-200,0,0,0">
             <Grid VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
@@ -61,12 +126,21 @@
                         <EventTrigger RoutedEvent="ToggleButton.Checked">
                             <BeginStoryboard>
                                 <Storyboard>
-                                    <ThicknessAnimation Storyboard.TargetName="DockPanelMenu" Storyboard.TargetProperty="Margin"
-                                                From="-200,0,0,0" To="0,0,0,0" Duration="0:0:0.150">
-                                        <ThicknessAnimation.EasingFunction>
-                                            <SineEase EasingMode="EaseOut"/>
-                                        </ThicknessAnimation.EasingFunction>
-                                    </ThicknessAnimation>
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="DockPanelMenu" Storyboard.TargetProperty="Margin"
+                                                To="0,0,0,0" Duration="0:0:0.150">
+                                            <ThicknessAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut"/>
+                                            </ThicknessAnimation.EasingFunction>
+                                        </ThicknessAnimation>
+                                    </Storyboard>
+                                    <Storyboard Storyboard.TargetName="RectangleMenuBack">
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         Duration="0:0:0.25" To="1"/>
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsEnabled">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
@@ -74,12 +148,21 @@
                         <EventTrigger RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>
                                 <Storyboard>
-                                    <ThicknessAnimation Storyboard.TargetName="DockPanelMenu" Storyboard.TargetProperty="Margin"
-                                                From="0,0,0,0" To="-200,0,0,0" Duration="0:0:0.150">
-                                        <ThicknessAnimation.EasingFunction>
-                                            <SineEase EasingMode="EaseOut"/>
-                                        </ThicknessAnimation.EasingFunction>
-                                    </ThicknessAnimation>
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="DockPanelMenu" Storyboard.TargetProperty="Margin"
+                                                To="-200,0,0,0" Duration="0:0:0.150">
+                                            <ThicknessAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut"/>
+                                            </ThicknessAnimation.EasingFunction>
+                                        </ThicknessAnimation>
+                                    </Storyboard>
+                                    <Storyboard Storyboard.TargetName="RectangleMenuBack">
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         Duration="0:0:0.25" To="0"/>
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsEnabled">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
@@ -89,66 +172,490 @@
                 <TextBlock Name="TextBlockMenuTimeline" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="1" FontSize="24"
                            Foreground="White">タイムライン</TextBlock>
-                <Button Name="ButtonMenuTimeline" Grid.Column="1" Grid.Row="1" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuTimeline" Grid.Column="1" Grid.Row="1" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/HomeStatusTimeline.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuNotification" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="2" FontSize="24"
                            Foreground="White">通知</TextBlock>
-                <Button Name="ButtonMenuNotification" Grid.Column="1" Grid.Row="2" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuNotification" Grid.Column="1" Grid.Row="2" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/Notification.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuDirectMessage" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="3" FontSize="19"
                            Foreground="White">ダイレクトメッセージ</TextBlock>
-                <Button Name="ButtonMenuDirectMessage" Grid.Column="1" Grid.Row="3" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuDirectMessage" Grid.Column="1" Grid.Row="3" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/DirectMessage.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuSearch" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="4" FontSize="24"
                            Foreground="White">検索</TextBlock>
-                <Button Name="ButtonMenuSearch" Grid.Column="1" Grid.Row="4" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuSearch" Grid.Column="1" Grid.Row="4" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuUser" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="5" FontSize="24"
                            Foreground="White">ユーザー</TextBlock>
-                <Button Name="ButtonMenuUser" Grid.Column="1" Grid.Row="5" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuUser" Grid.Column="1" Grid.Row="5" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/User.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuUserTimeline" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="6" FontSize="16"
                            Foreground="White">ユーザー定義タイムライン</TextBlock>
-                <Button Name="ButtonMenuUserTimeline" Grid.Column="1" Grid.Row="6" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuUserTimeline" Grid.Column="1" Grid.Row="6" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/UserStatusTimeline.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuUserNotification" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="7" FontSize="16"
                            Foreground="White">ユーザー定義通知</TextBlock>
-                <Button Name="ButtonMenuUserNotification" Grid.Column="1" Grid.Row="7" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuUserNotification" Grid.Column="1" Grid.Row="7" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/UserNotification.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSetting">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuSetting" TextAlignment="Right" VerticalAlignment="Center"
                            Grid.Column="0" Grid.Row="9" FontSize="24"
                            Foreground="White">設定</TextBlock>
-                <Button Name="ButtonMenuSetting" Grid.Column="1" Grid.Row="9" Margin="4"></Button>
+                <ToggleButton Name="ButtonMenuSetting" Grid.Column="1" Grid.Row="9" Margin="4" Template="{StaticResource NonDecorationToggleButton}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/Setting.png" OverridesDefaultStyle="False"/>
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <Storyboard Storyboard.TargetName="ButtonMenuTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuDirectMessage">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuSearch">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUser">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserTimeline">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+
+                                    <Storyboard Storyboard.TargetName="ButtonMenuUserNotification">
+                                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                                            <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
+                                        </BooleanAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
             </Grid>
         </DockPanel>
         <Grid Background="White">
-            <Grid.Triggers>
-                <EventTrigger RoutedEvent="MouseLeftButtonDown">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <Storyboard>
-                                <ThicknessAnimation Storyboard.TargetName="DockPanelMenu" Storyboard.TargetProperty="Margin"
-                                                To="-200,0,0,0" Duration="0:0:0.150">
-                                    <ThicknessAnimation.EasingFunction>
-                                        <SineEase EasingMode="EaseOut"/>
-                                    </ThicknessAnimation.EasingFunction>
-                                </ThicknessAnimation>
-                            </Storyboard>
-                            <Storyboard>
-                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="ButtonMenuMenu" Storyboard.TargetProperty="IsChecked">
-                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0:0" Value="False"/>
-                                </BooleanAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Grid.Triggers>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Name="GridHomeStatusTimeline" Background="DodgerBlue" Grid.Column="1" 
+                  Visibility="{Binding ElementName=ButtonMenuTimeline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridHomeNotificationTimeline" Background="Pink" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridDirectMessage" Background="Blue" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuDirectMessage,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridSearch" Background="Red" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuSearch,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridUser" Background="Gray" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuUser,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridUserStatusTimeline" Background="LightGreen" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuUserTimeline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridUserNotificationTimeline" Background="Yellow" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuUserNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
+            <Grid Name="GridSetting" Background="DarkBlue" Grid.Column="1"
+                  Visibility="{Binding ElementName=ButtonMenuSetting,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            </Grid>
         </Grid>
     </Grid>
 </Window>

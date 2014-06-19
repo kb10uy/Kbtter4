@@ -208,6 +208,17 @@
     <Content Include="Libraries\CoreTweet.Streaming.Reactive.dll" />
     <Resource Include="Libraries\CoreTweet.Streaming.Reactive.xml" />
     <Resource Include="Libraries\CoreTweet.xml" />
+    <Resource Include="Resources\DirectMessage.png" />
+    <Resource Include="Resources\Favorite.png" />
+    <Resource Include="Resources\Favorited.png" />
+    <Resource Include="Resources\HomeStatusTimeline.png" />
+    <Resource Include="Resources\Notification.png" />
+    <Resource Include="Resources\Retweet.png" />
+    <Resource Include="Resources\Retweeted.png" />
+    <Resource Include="Resources\Setting.png" />
+    <Resource Include="Resources\User.png" />
+    <Resource Include="Resources\UserNotification.png" />
+    <Resource Include="Resources\UserStatusTimeline.png" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -215,9 +226,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Kbtter3.Query\Kbtter3.Query.csproj">
       <Project>{8546db30-0f0b-4378-ba4e-b0a4f71f960c}</Project>
