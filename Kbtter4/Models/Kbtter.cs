@@ -143,7 +143,7 @@ namespace Kbtter4.Models
         }
         #endregion
 
-        internal async void Initialize()
+        public void Initialize()
         {
             OnStatus += Kbtter_OnStatus;
             OnEvent += Kbtter_OnEvent;
@@ -242,7 +242,7 @@ namespace Kbtter4.Models
             try
             {
                 var u = await Token.Users.ShowAsync(user_id => ac.UserId);
-                AuthenticatedUser = new Kbtter4User(u);
+                AuthenticatedUser.RefreshWith(u);
             }
             catch (TwitterException)
             {
@@ -270,7 +270,7 @@ namespace Kbtter4.Models
 
         #region プラグイン
 
-        internal void InitializePlugins()
+        private void InitializePlugins()
         {
             Task.Run(() =>
             {

@@ -36,6 +36,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Kbtter4_icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CoreTweet, Version=0.3.3.30509, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -166,7 +169,16 @@
     <Compile Include="Models\Plugin\Kbtter4PluginProvider.cs" />
     <Compile Include="Models\Plugin\LuaPluginLoader.cs" />
     <Compile Include="Models\StatusTimeline.cs" />
+    <Compile Include="ViewModels\DirectMessageTimelineViewModel.cs" />
+    <Compile Include="ViewModels\DirectMessageViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewViewModel.cs" />
+    <Compile Include="ViewModels\NotificationTimelineViewModel.cs" />
+    <Compile Include="ViewModels\NotificationViewModel.cs" />
+    <Compile Include="ViewModels\StatusTimelineViewModel.cs" />
+    <Compile Include="ViewModels\StatusViewModel.cs" />
+    <Compile Include="ViewModels\UserViewModel.cs" />
+    <Compile Include="Views\Behaviors.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -219,6 +231,11 @@
     <Resource Include="Resources\User.png" />
     <Resource Include="Resources\UserNotification.png" />
     <Resource Include="Resources\UserStatusTimeline.png" />
+    <Resource Include="Resources\Search.png" />
+    <Resource Include="Resources\Kbtter4.png" />
+    <Resource Include="Resources\Menu.png" />
+    <Resource Include="Resources\Kbtter4-270.png" />
+    <Resource Include="Resources\Kbtter4_icon.ico" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

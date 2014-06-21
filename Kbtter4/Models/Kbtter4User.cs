@@ -21,5 +21,10 @@ namespace Kbtter4.Models
         {
             SourceUser = user;
         }
+
+        public void RefreshWith(User user)
+        {
+            SourceUser = user;
+        }
     }
 }
