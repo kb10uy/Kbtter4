@@ -69,7 +69,23 @@ namespace Kbtter4.Models
         public ObservableSynchronizedCollection<Kbtter4User> Users { get; private set; }
         public ObservableSynchronizedCollection<Kbtter4Account> Accounts { get; private set; }
 
-        public Kbtter4User AuthenticatedUser { get; private set; }
+
+        #region AuthenticatedUser変更通知プロパティ
+        private Kbtter4User _AuthenticatedUser;
+
+        public Kbtter4User AuthenticatedUser
+        {
+            get
+            { return _AuthenticatedUser; }
+            private set
+            {
+                if (_AuthenticatedUser == value)
+                    return;
+                _AuthenticatedUser = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
         private event Kbtter4StatusReceivedEventHandler OnStatus;
         private event Kbtter4EventReceivedEventHandler OnEvent;
@@ -157,6 +173,7 @@ namespace Kbtter4.Models
         {
             if (!Directory.Exists(ConfigurationFolderName)) Directory.CreateDirectory(ConfigurationFolderName);
             Setting = Kbtter4Extension.LoadJson<Kbtter4Setting>(ConfigurationFileName);
+            foreach (var i in Setting.Accounts) Accounts.Add(i);
         }
 
         public void SaveSetting()
@@ -221,17 +238,33 @@ namespace Kbtter4.Models
             return await OAuth.AuthorizeAsync(Setting.Consumer.Key, Setting.Consumer.Secret);
         }
 
-        public async Task RegisterAccount(OAuth.OAuthSession session, string pin)
+        public async Task<bool> RegisterAccount(OAuth.OAuthSession session, string pin)
         {
-            var t = await OAuth.GetTokensAsync(session, pin);
-            var ac = new Kbtter4Account();
-            ac.AccessToken = t.AccessToken;
-            ac.AccessTokenSecret = t.AccessTokenSecret;
-            ac.ScreenName = t.ScreenName;
-            ac.UserId = t.UserId;
-            Accounts.Add(ac);
+            try
+            {
+                var t = await OAuth.GetTokensAsync(session, pin);
+                var ac = new Kbtter4Account();
+                ac.AccessToken = t.AccessToken;
+                ac.AccessTokenSecret = t.AccessTokenSecret;
+                ac.ScreenName = t.ScreenName;
+                ac.UserId = t.UserId;
+                Accounts.Add(ac);
 
-            Setting.Accounts.Add(ac);
+                Setting.Accounts.Add(ac);
+                SaveSetting();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+
+        }
+
+        public void RemoveAccount(Kbtter4Account ac)
+        {
+            Setting.Accounts.Remove(ac);
+            Accounts.Remove(ac);
             SaveSetting();
         }
 
@@ -242,7 +275,7 @@ namespace Kbtter4.Models
             try
             {
                 var u = await Token.Users.ShowAsync(user_id => ac.UserId);
-                AuthenticatedUser.RefreshWith(u);
+                AuthenticatedUser = new Kbtter4User(u);
             }
             catch (TwitterException)
             {

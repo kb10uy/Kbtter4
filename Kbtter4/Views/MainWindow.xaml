@@ -47,81 +47,7 @@
     </i:Interaction.Triggers>
 
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <SolidColorBrush x:Key="BrushMenuBack" Color="#667F7F7F"/>
-        <SolidColorBrush x:Key="TwitterColorPrimary" Color="#55acee"/>
-        <SolidColorBrush x:Key="TwitterColorSecondary" Color="#292f33"/>
-        <SolidColorBrush x:Key="TwitterColorDarkGray" Color="#66757f"/>
-        <SolidColorBrush x:Key="TwitterColorGray" Color="#99aab5"/>
-        <SolidColorBrush x:Key="TwitterColorLightGrayBlue" Color="#ccd6dd"/>
-        <SolidColorBrush x:Key="TwitterColorLightBlue" Color="#e1e8ed"/>
-        <SolidColorBrush x:Key="TwitterColorWhite" Color="#f5f8fa"/>
-
-        <Color x:Key="ColorTwitterDarkGray" A="255" R="102" G="117" B="127"/>
-
-        <ControlTemplate TargetType="ToggleButton" x:Key="NonDecorationToggleButton">
-            <Grid>
-                <ContentPresenter Panel.ZIndex="1"/>
-                <Ellipse Panel.ZIndex="0" Name="EllipseSelected" Opacity="0">
-                    <Ellipse.Fill>
-                        <RadialGradientBrush GradientOrigin="0.5,0.75" Center="0.5,0.75" RadiusX="0.5" RadiusY="0.25">
-                            <GradientStop Color="DodgerBlue" Offset="0"/>
-                            <GradientStop Color="{StaticResource ColorTwitterDarkGray}" Offset="1"/>
-                        </RadialGradientBrush>
-                    </Ellipse.Fill>
-                </Ellipse>
-                <Ellipse Panel.ZIndex="0" Name="EllipseOver" Opacity="0">
-                    <Ellipse.Fill>
-                        <RadialGradientBrush GradientOrigin="0.5,0.75" Center="0.5,0.75" RadiusX="0.5" RadiusY="0.25">
-                            <GradientStop Color="DodgerBlue" Offset="0"/>
-                            <GradientStop Color="{StaticResource ColorTwitterDarkGray}" Offset="1"/>
-                        </RadialGradientBrush>
-                    </Ellipse.Fill>
-                </Ellipse>
-            </Grid>
-            <ControlTemplate.Triggers>
-                <EventTrigger RoutedEvent="ToggleButton.Checked">
-                    <BeginStoryboard>
-                        <Storyboard Storyboard.TargetName="EllipseSelected" Storyboard.TargetProperty="Opacity">
-                            <DoubleAnimation To="1" Duration="0:0:0"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="ToggleButton.Unchecked">
-                    <BeginStoryboard>
-                        <Storyboard Storyboard.TargetName="EllipseSelected" Storyboard.TargetProperty="Opacity">
-                            <DoubleAnimation To="0" Duration="0:0:0"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseEnter">
-                    <BeginStoryboard>
-                        <Storyboard Storyboard.TargetName="EllipseOver" Storyboard.TargetProperty="Opacity">
-                            <DoubleAnimation To="0.4" Duration="0:0:0"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseLeave">
-                    <BeginStoryboard>
-                        <Storyboard Storyboard.TargetName="EllipseOver" Storyboard.TargetProperty="Opacity">
-                            <DoubleAnimation To="0" Duration="0:0:0"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-
-        <ControlTemplate TargetType="ToggleButton" x:Key="ImageToggleButton">
-            <Grid>
-                <ContentPresenter Panel.ZIndex="1"/>
-            </Grid>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
+        <ResourceDictionary Source="Resources.xaml"/>
     </Window.Resources>
 
     <Grid>
@@ -214,7 +140,7 @@
                 </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuTimeline" TextAlignment="Right" VerticalAlignment="Center"
-                                    Grid.Column="0" Grid.Row="1" FontSize="24"
+                                    Grid.Column="0" Grid.Row="1" FontSize="16"
                                     Foreground="White">タイムライン</TextBlock>
                 <ToggleButton Name="ButtonMenuTimeline" Grid.Column="1" Grid.Row="1" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
                               IsChecked="{Binding View.IsHomeStatusTimelineVisible}" Command="{Binding View.ChangeToHomeStatusTimelineCommand}">
@@ -222,7 +148,7 @@
                 </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuNotification" TextAlignment="Right" VerticalAlignment="Center"
-                                    Grid.Column="0" Grid.Row="2" FontSize="24"
+                                    Grid.Column="0" Grid.Row="2" FontSize="16"
                                     Foreground="White">通知</TextBlock>
                 <ToggleButton Name="ButtonMenuNotification" Grid.Column="1" Grid.Row="2" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
                               IsChecked="{Binding View.IsHomeNotificationTimelineVisible}" Command="{Binding View.ChangeToHomeNotificationTimelineCommand}">
@@ -230,7 +156,7 @@
                 </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuDirectMessage" TextAlignment="Right" VerticalAlignment="Center"
-                                    Grid.Column="0" Grid.Row="3" FontSize="19"
+                                    Grid.Column="0" Grid.Row="3" FontSize="16"
                                     Foreground="White">ダイレクトメッセージ</TextBlock>
                 <ToggleButton Name="ButtonMenuDirectMessage" Grid.Column="1" Grid.Row="3" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
                               IsChecked="{Binding View.IsDirectMessageVisible}" Command="{Binding View.ChangeToDirectMessageCommand}">
@@ -238,7 +164,7 @@
                 </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuSearch" TextAlignment="Right" VerticalAlignment="Center"
-                                    Grid.Column="0" Grid.Row="4" FontSize="24"
+                                    Grid.Column="0" Grid.Row="4" FontSize="16"
                                     Foreground="White">検索</TextBlock>
                 <ToggleButton Name="ButtonMenuSearch" Grid.Column="1" Grid.Row="4" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
                               IsChecked="{Binding View.IsSearchVisible}" Command="{Binding View.ChangeToSearchCommand}">
@@ -246,7 +172,7 @@
                 </ToggleButton>
 
                 <TextBlock Name="TextBlockMenuUser" TextAlignment="Right" VerticalAlignment="Center"
-                                    Grid.Column="0" Grid.Row="5" FontSize="24"
+                                    Grid.Column="0" Grid.Row="5" FontSize="16"
                                     Foreground="White">ユーザー</TextBlock>
                 <ToggleButton Name="ButtonMenuUser" Grid.Column="1" Grid.Row="5" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
                               IsChecked="{Binding View.IsUserVisible}" Command="{Binding View.ChangeToUserCommand}">
@@ -278,25 +204,32 @@
                 </ToggleButton>
 
                 <StackPanel VerticalAlignment="Center" Grid.Row="10" Margin="4">
-                    <TextBlock FontSize="18" Foreground="{StaticResource TwitterColorLightGrayBlue}"
+                    <TextBlock FontSize="16" Foreground="{StaticResource TwitterColorLightGrayBlue}"
                                Text="{Binding LoginUser.Name}" TextAlignment="Right"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorLightBlue}">@</TextBlock>
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorLightBlue}"
                                    Text="{Binding LoginUser.ScreenName}" TextAlignment="Right"/>
+                        <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}" Margin="8,0,0,0">(</TextBlock>
+                        <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}" Text="{Binding LoginUser.IdString}"/>
+                        <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}">)</TextBlock>
                     </StackPanel>
                 </StackPanel>
                 <ToggleButton Name="ToggleButtonMenuLoginUser" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center"
                               Template="{StaticResource ImageToggleButton}" ToolTip="クリックでログイン">
-                    <Border Background="{StaticResource TwitterColorSecondary}" BorderBrush="{StaticResource TwitterColorWhite}" BorderThickness="2" CornerRadius="3">
-                        <Image Name="ImageLoginUser" Width="32" Height="32" />
+                    <Border BorderBrush="{StaticResource TwitterColorWhite}" Background="{StaticResource TwitterColorSecondary}" BorderThickness="2" CornerRadius="3">
+                        <Image Name="ImageLoginUser" Width="32" Height="32">
+                            <i:Interaction.Behaviors>
+                                <v:ImageWebLazyBindBehavior UriSource="{Binding LoginUser.ProfileImageUri}"/>
+                            </i:Interaction.Behaviors>
+                        </Image>
                     </Border>
                     <ToggleButton.Triggers>
                         <EventTrigger RoutedEvent="ToggleButton.Checked">
                             <BeginStoryboard>
                                 <Storyboard>
                                     <Storyboard Storyboard.TargetName="GridLogin">
-                                        <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" From="0" To="160">
+                                        <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" From="0" To="240">
                                             <DoubleAnimation.EasingFunction>
                                                 <QuarticEase EasingMode="EaseInOut"/>
                                             </DoubleAnimation.EasingFunction>
@@ -313,7 +246,7 @@
                         <EventTrigger RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>
                                 <Storyboard Storyboard.TargetName="GridLogin">
-                                    <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" From="160" To="0">
+                                    <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" From="240" To="0">
                                         <DoubleAnimation.EasingFunction>
                                             <QuarticEase EasingMode="EaseInOut"/>
                                         </DoubleAnimation.EasingFunction>
@@ -327,16 +260,49 @@
 
                 <Grid Name="GridLogin" Grid.Row="11" Grid.ColumnSpan="2" Background="{StaticResource TwitterColorSecondary}" Height="0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Margin="4" FontSize="20" Foreground="{StaticResource TwitterColorWhite}">ログイン</TextBlock>
-                    <ListBox Grid.Row="1" Margin="4" ScrollViewer.VerticalScrollBarVisibility="Visible" 
-                                 ScrollViewer.CanContentScroll="False">
-
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="4" FontSize="20" Foreground="{StaticResource TwitterColorWhite}">アカウント</TextBlock>
+                    <ListBox Grid.Row="1" Grid.ColumnSpan="2" Margin="4" ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                                 ScrollViewer.CanContentScroll="False"
+                             ItemsSource="{Binding Accounts}" ItemTemplate="{StaticResource AccountTemplate}"
+                             SelectedItem="{Binding SelectedAccount,UpdateSourceTrigger=PropertyChanged}">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="{Binding LoginCommand}">
+                                    <MenuItem.Header>
+                                        <TextBlock FontWeight="Bold">ログイン</TextBlock>
+                                    </MenuItem.Header>
+                                </MenuItem>
+                                <MenuItem Header="削除" Command="{Binding RemoveAccountCommand}"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
                     </ListBox>
-                    <Button Margin="4" Grid.Row="2">ログイン</Button>
+                    <Button Margin="4" Grid.Row="2" Grid.Column="1" Command="{Binding LoginCommand}">ログイン</Button>
+                    <Button Margin="4" Grid.Row="2">
+                        新規登録
+                        <i:Interaction.Triggers>
+                            <l:RoutedEventTrigger RoutedEvent="Button.Click">
+                                <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="StartRegisteringAccount"/>
+                            </l:RoutedEventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+
+                    <Grid Grid.Row="3" Grid.ColumnSpan="2" Visibility="{Binding View.IsNewAccountPanelVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="64"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding PinCode,UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                        <Button Command="{Binding RegisterAccountCommand}" Grid.Column="1" Margin="4">登録</Button>
+                    </Grid>
                 </Grid>
             </Grid>
         </DockPanel>
@@ -367,12 +333,57 @@
                     </BeginStoryboard>
                 </EventTrigger>
             </Grid.Triggers>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
 
-            <Grid Name="GridHomeStatusTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" 
+            <StackPanel Orientation="Horizontal" Background="{StaticResource TwitterColorPrimary}" Grid.Column="1">
+
+            </StackPanel>
+
+            <Expander Name="ExpanderNewTweet" Grid.Row="1" Grid.Column="1" Header="新しいツイート">
+                <Grid VerticalAlignment="Stretch" MinHeight="120">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="400"/>
+                        <ColumnDefinition MaxWidth="160"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox AcceptsReturn="True" AcceptsTab="True" Margin="4"/>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">残り</TextBlock>
+                            <TextBlock VerticalAlignment="Center" FontSize="20">140</TextBlock>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1">
+                            <TextBlock TextAlignment="Center">画像</TextBlock>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Margin="4" Grid.Column="0">手描き</Button>
+                                <Button Margin="4" Grid.Column="1">追加</Button>
+                            </Grid>
+                        </StackPanel>
+                        <Button Grid.Row="2" Margin="4">ツイート</Button>
+                    </Grid>
+                </Grid>
+            </Expander>
+
+            <Grid Name="GridHomeStatusTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuTimeline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -381,7 +392,7 @@
                 <TextBlock FontSize="32" Margin="4">タイムライン</TextBlock>
 
             </Grid>
-            <Grid Name="GridHomeNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridHomeNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -389,7 +400,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">通知</TextBlock>
             </Grid>
-            <Grid Name="GridDirectMessage" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridDirectMessage" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuDirectMessage,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -397,7 +408,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ダイレクトメッセージ</TextBlock>
             </Grid>
-            <Grid Name="GridSearch" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridSearch" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuSearch,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -405,7 +416,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">検索</TextBlock>
             </Grid>
-            <Grid Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUser,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -413,7 +424,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー</TextBlock>
             </Grid>
-            <Grid Name="GridUserStatusTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridUserStatusTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUserTimeline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -421,7 +432,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー定義タイムライン</TextBlock>
             </Grid>
-            <Grid Name="GridUserNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridUserNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUserNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -429,7 +440,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー定義通知</TextBlock>
             </Grid>
-            <Grid Name="GridSetting" Background="{StaticResource TwitterColorWhite}" Grid.Column="1"
+            <Grid Name="GridSetting" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuSetting,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -437,6 +448,49 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">設定</TextBlock>
             </Grid>
+            <StackPanel Grid.Row="3" Grid.Column="1" Name="StackPanelPopupNotification">
+                <StackPanel.Resources>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Background" Value="Transparent"/>
+                    </Style>
+                </StackPanel.Resources>
+                <TextBlock Name="TextBlockPopupNotification" Margin="8,40,4,8" FontSize="20" TextAlignment="Right" HorizontalAlignment="Right"
+                           Text="{Binding View.PopupNotificationText,Mode=OneWay,NotifyOnTargetUpdated=True}"
+                           TargetUpdated="TextBlockPopupNotification_TargetUpdated">
+                    <TextBlock.Resources>
+                        <Storyboard Name="StoryboardPopupNotify" x:Key="Storyboard">
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="StackPanelPopupNotification"
+                                                Storyboard.TargetProperty="Background.Color"
+                                                Duration="0:0:2" From="{StaticResource ColorTwitterPrimary}"
+                                                To="Transparent" >
+                                    <ColorAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseIn"/>
+                                    </ColorAnimation.EasingFunction>
+                                </ColorAnimation>
+                            </Storyboard>
+                            <Storyboard>
+                                <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="TextBlockPopupNotification"
+                                                                  Storyboard.TargetProperty="(TextBlock.Margin)"
+                                                                  Duration="0:0:3">
+                                    <LinearThicknessKeyFrame Value="8,40,4,8" KeyTime="0:0:0"/>
+                                    <EasingThicknessKeyFrame Value="8,4,4,8" KeyTime="0:0:0.500">
+                                        <EasingThicknessKeyFrame.EasingFunction>
+                                            <ElasticEase Springiness="4" EasingMode="EaseOut"/>
+                                        </EasingThicknessKeyFrame.EasingFunction>
+                                    </EasingThicknessKeyFrame>
+                                    <LinearThicknessKeyFrame Value="8,4,4,8" KeyTime="0:0:2.750"/>
+                                    <EasingThicknessKeyFrame Value="8,40,4,8" KeyTime="0:0:3">
+                                        <EasingThicknessKeyFrame.EasingFunction>
+                                            <SineEase EasingMode="EaseInOut"/>
+                                        </EasingThicknessKeyFrame.EasingFunction>
+                                    </EasingThicknessKeyFrame>
+                                </ThicknessAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </Storyboard>
+                    </TextBlock.Resources>
+                </TextBlock>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

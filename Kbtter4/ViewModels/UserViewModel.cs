@@ -18,16 +18,21 @@ namespace Kbtter4.ViewModels
     public class UserViewModel : ViewModel
     {
         Kbtter4User src;
+        PropertyChangedEventListener listener;
 
         public UserViewModel(Kbtter4User user)
         {
             src = user;
+            Name = src.Name;
+            ScreenName = src.ScreenName;
+            IdString = src.Id.ToString();
+            ProfileImageUri = src.ProfileImageUri;
         }
 
         public void Initialize()
         {
-        }
 
+        }
 
         #region Name変更通知プロパティ
         private string _Name = "Name";
@@ -48,7 +53,7 @@ namespace Kbtter4.ViewModels
 
 
         #region ScreenName変更通知プロパティ
-        private string _ScreenName="ScreenName";
+        private string _ScreenName = "ScreenName";
 
         public string ScreenName
         {
@@ -59,6 +64,42 @@ namespace Kbtter4.ViewModels
                 if (_ScreenName == value)
                     return;
                 _ScreenName = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IdString変更通知プロパティ
+        private string _IdString = "";
+
+        public string IdString
+        {
+            get
+            { return _IdString; }
+            set
+            {
+                if (_IdString == value)
+                    return;
+                _IdString = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ProfileImageUri変更通知プロパティ
+        private Uri _ProfileImageUri = null;
+
+        public Uri ProfileImageUri
+        {
+            get
+            { return _ProfileImageUri; }
+            set
+            {
+                if (_ProfileImageUri == value)
+                    return;
+                _ProfileImageUri = value;
                 RaisePropertyChanged();
             }
         }

@@ -12,6 +12,7 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter4.Models;
+using System.Diagnostics;
 
 namespace Kbtter4.ViewModels
 {
@@ -21,6 +22,7 @@ namespace Kbtter4.ViewModels
         {
         }
 
+        #region SystemCommands的なやつ
 
         #region WindowCloseCommand
         private ViewModelCommand _WindowCloseCommand;
@@ -109,6 +111,9 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+        #endregion
+
+        #region 画面タブ遷移
 
         #region IsHomeStatusTimelineVisible変更通知プロパティ
         private bool _IsHomeStatusTimelineVisible;
@@ -485,5 +490,66 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+        #endregion
+
+        #region メニュー要素
+
+        #region IsNewAccountPanelVisible変更通知プロパティ
+        private bool _IsNewAccountPanelVisible = false;
+
+        public bool IsNewAccountPanelVisible
+        {
+            get
+            { return _IsNewAccountPanelVisible; }
+            set
+            { 
+                if (_IsNewAccountPanelVisible == value)
+                    return;
+                _IsNewAccountPanelVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #endregion
+
+        #region デフォで開くあれ
+
+        public void OpenInDefault(Uri uri)
+        {
+            Process.Start(uri.ToString());
+        }
+
+        public void OpenInDefault(string f)
+        {
+            Process.Start(f);
+        }
+
+        #endregion
+
+        #region ポップアップ通知
+
+        #region PopupNotificationText変更通知プロパティ
+        private string _PopupNotificationText;
+
+        public string PopupNotificationText
+        {
+            get
+            { return _PopupNotificationText; }
+            set
+            { 
+                _PopupNotificationText = value;
+            }
+        }
+        #endregion
+
+        public void Notify(string text)
+        {
+            PopupNotificationText = text;
+            RaisePropertyChanged(()=>PopupNotificationText);
+        }
+
+        #endregion
     }
 }

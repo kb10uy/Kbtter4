@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media.Animation;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -30,6 +31,13 @@ namespace Kbtter4.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void TextBlockPopupNotification_TargetUpdated(object sender, DataTransferEventArgs e)
+        {
+            if (e.Property != TextBlock.TextProperty) return;
+            var sb = TextBlockPopupNotification.TryFindResource("Storyboard") as Storyboard;
+            sb.Begin();
         }
     }
 }
