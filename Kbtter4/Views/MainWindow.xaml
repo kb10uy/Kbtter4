@@ -216,7 +216,8 @@
                     </StackPanel>
                 </StackPanel>
                 <ToggleButton Name="ToggleButtonMenuLoginUser" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center"
-                              Template="{StaticResource ImageToggleButton}" ToolTip="クリックでログイン">
+                              Template="{StaticResource ImageToggleButton}" ToolTip="クリックでログイン" 
+                              >
                     <Border BorderBrush="{StaticResource TwitterColorWhite}" Background="{StaticResource TwitterColorSecondary}" BorderThickness="2" CornerRadius="3">
                         <Image Name="ImageLoginUser" Width="32" Height="32">
                             <i:Interaction.Behaviors>
@@ -355,7 +356,39 @@
                         <ColumnDefinition Width="*" MinWidth="400"/>
                         <ColumnDefinition MaxWidth="160"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox AcceptsReturn="True" AcceptsTab="True" Margin="4"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Height="32" Orientation="Horizontal" Visibility="{Binding IsReplying,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Button Margin="4">キャンセル</Button>
+                            <Image Name="ImageReplyingUser" Width="24" Height="24" Margin="4">
+                                <i:Interaction.Behaviors>
+                                    <v:ImageWebLazyBindBehavior UriSource="{Binding ReplyingStatus.User.ProfileImageUri}"/>
+                                </i:Interaction.Behaviors>
+                            </Image>
+                            <TextBlock Margin="4" Text="{Binding ReplyingStatus.OnelineText}"/>
+                        </StackPanel>
+                        <ListBox Grid.Row="1" MaxHeight="80" MinHeight="24" Margin="4" 
+                                 Visibility="{Binding HasMedia,Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 ItemsSource="{Binding Medias}" SelectedItem="{Binding SelectedMedia}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:MainWindowSendingMediaViewModel}">
+                                    <TextBlock Text="{Binding Path}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="削除" Command="{Binding RemoveMediaCommand}"/>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
+                        </ListBox>
+                        <TextBox AcceptsReturn="True" AcceptsTab="True" Margin="4" Grid.Row="2" FontSize="16"
+                                 Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged}" MinHeight="80"/>
+                        
+                    </Grid>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -365,7 +398,7 @@
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">残り</TextBlock>
-                            <TextBlock VerticalAlignment="Center" FontSize="20">140</TextBlock>
+                            <TextBlock VerticalAlignment="Center" FontSize="20" Text="{Binding UpdateStatusTextLength}"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1">
                             <TextBlock TextAlignment="Center">画像</TextBlock>
@@ -375,10 +408,22 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Margin="4" Grid.Column="0">手描き</Button>
-                                <Button Margin="4" Grid.Column="1">追加</Button>
+                                <Button Margin="4" Grid.Column="1">
+                                    追加
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <l:OpenFileDialogInteractionMessageAction>
+                                                <l:DirectInteractionMessage CallbackCommand="{Binding AddMediaCommand,Mode=OneWay}">
+                                                    <l:OpeningFileSelectionMessage Filter="アップロード可能なファイル(*.jpg;*.png;*.gif)|*.jpg;*.png;*.gif"
+                                                                                   Title="アップロードする画像を選択" MultiSelect="True"/>
+                                                </l:DirectInteractionMessage>
+                                            </l:OpenFileDialogInteractionMessageAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
                             </Grid>
                         </StackPanel>
-                        <Button Grid.Row="2" Margin="4">ツイート</Button>
+                        <Button Grid.Row="2" Margin="4" Command="{Binding UpdateStatusCommand}">ツイート</Button>
                     </Grid>
                 </Grid>
             </Expander>

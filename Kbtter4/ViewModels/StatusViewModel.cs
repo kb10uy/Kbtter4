@@ -17,13 +17,80 @@ namespace Kbtter4.ViewModels
 {
     public class StatusViewModel : ViewModel
     {
+
+        public Kbtter4Status SourceStatus { get; private set; }
+
         public void Initialize()
         {
         }
 
         public StatusViewModel(Kbtter4Status st)
         {
+            SourceStatus = st;
+            User = new UserViewModel(st.User);
+            Text = SourceStatus.Text
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">")
+                .Replace("&amp;", "&");
+            OnelineText = Text
+                .Replace("\r", " ")
+                .Replace("\n", " ");
 
         }
+
+
+        #region User変更通知プロパティ
+        private UserViewModel _User;
+
+        public UserViewModel User
+        {
+            get
+            { return _User; }
+            set
+            {
+                if (_User == value)
+                    return;
+                _User = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Text変更通知プロパティ
+        private string _Text = "";
+
+        public string Text
+        {
+            get
+            { return _Text; }
+            set
+            {
+                if (_Text == value)
+                    return;
+                _Text = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region OnelineText変更通知プロパティ
+        private string _OnelineText = "";
+
+        public string OnelineText
+        {
+            get
+            { return _OnelineText; }
+            set
+            {
+                if (_OnelineText == value)
+                    return;
+                _OnelineText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
     }
 }

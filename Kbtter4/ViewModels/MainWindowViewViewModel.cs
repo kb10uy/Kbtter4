@@ -512,6 +512,23 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region IsAccountPanelVisible変更通知プロパティ
+        private bool _IsAccountPanelVisible;
+
+        public bool IsAccountPanelVisible
+        {
+            get
+            { return _IsAccountPanelVisible; }
+            set
+            { 
+                if (_IsAccountPanelVisible == value)
+                    return;
+                _IsAccountPanelVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
         #endregion
 
         #region デフォで開くあれ

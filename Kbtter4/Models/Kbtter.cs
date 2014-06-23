@@ -268,18 +268,18 @@ namespace Kbtter4.Models
             SaveSetting();
         }
 
-        public async void Authenticate(Kbtter4Account ac)
+        public async Task<string> Authenticate(Kbtter4Account ac)
         {
             Token = Tokens.Create(Setting.Consumer.Key, Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
-
             try
             {
                 var u = await Token.Users.ShowAsync(user_id => ac.UserId);
                 AuthenticatedUser = new Kbtter4User(u);
+                return "";
             }
-            catch (TwitterException)
+            catch (TwitterException e)
             {
-
+                return e.Message;
             }
         }
         #endregion

@@ -15,6 +15,7 @@ namespace Kbtter4.Models
         public Kbtter4Status(Status src)
         {
             SourceStatus = src;
+            User = new Kbtter4User(src.User);
         }
 
         public long Id { get { return SourceStatus.Id; } }
@@ -78,10 +79,11 @@ namespace Kbtter4.Models
         public string Source { get { return SourceStatus.Source; } }
 
         public string Text { get { return SourceStatus.Text; } }
-       
-        /*
-        public Place Place { get { return SourceStatus.Place; } }
 
+
+        public Kbtter4User User { get; private set; }
+
+        /*
         public Place Place { get { return SourceStatus.Place; } }
 
         public Place Place { get { return SourceStatus.Place; } }

@@ -172,6 +172,7 @@
     <Compile Include="ViewModels\AccountViewModel.cs" />
     <Compile Include="ViewModels\DirectMessageTimelineViewModel.cs" />
     <Compile Include="ViewModels\DirectMessageViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowSendingMediaViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewViewModel.cs" />
     <Compile Include="ViewModels\NotificationTimelineViewModel.cs" />

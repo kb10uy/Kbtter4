@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Livet;
@@ -28,6 +29,7 @@ namespace Kbtter4.ViewModels
         public MainWindowViewModel()
         {
             View = new MainWindowViewViewModel();
+            Medias = new ObservableSynchronizedCollection<MainWindowSendingMediaViewModel>();
         }
 
         public void Initialize()
@@ -37,11 +39,16 @@ namespace Kbtter4.ViewModels
 
             HomeTimeline = new StatusTimelineViewModel(Kbtter.HomeStatusTimeline);
             LoginUser = new UserViewModel(Kbtter.AuthenticatedUser);
-            Accounts = ViewModelHelper.CreateReadOnlyDispatcherCollection(Kbtter.Accounts, p => new AccountViewModel(p), DispatcherHelper.UIDispatcher);
+            Accounts = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.Accounts,
+                p => new AccountViewModel(p),
+                DispatcherHelper.UIDispatcher);
+
             Kbtter.Initialize();
 
             InitializeEventListeners();
             View.ChangeToHomeStatusTimeline();
+            View.IsAccountPanelVisible = true;
         }
 
         private void InitializeEventListeners()
@@ -53,6 +60,7 @@ namespace Kbtter4.ViewModels
             {
                 LoginUser.Dispose();
                 LoginUser = new UserViewModel(Kbtter.AuthenticatedUser);
+                UpdateStatusCommand.RaiseCanExecuteChanged();
             });
         }
 
@@ -210,9 +218,19 @@ namespace Kbtter4.ViewModels
             return SelectedAccount != null;
         }
 
-        public void Login()
+        public async void Login()
         {
-            Kbtter.Authenticate(SelectedAccount.SourceAccount);
+            var res = await Kbtter.Authenticate(SelectedAccount.SourceAccount);
+
+            if (res == "")
+            {
+                View.Notify("ログインに成功しました。");
+                View.IsAccountPanelVisible = false;
+            }
+            else
+            {
+                View.Notify("ログインに失敗しました : " + res);
+            }
         }
         #endregion
 
@@ -263,6 +281,257 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+
+        #endregion
+
+
+        #region ﾂｲｰﾖ送信
+
+        #region UpdateStatusTextLength変更通知プロパティ
+        private int _UpdateStatusTextLength = 140;
+
+        public int UpdateStatusTextLength
+        {
+            get
+            {
+                var s = _UpdateStatusText;
+                s = s.Replace("https://", " http://");
+                s = Regex.Replace(s, "https?://(([\\w]|[^ -~])+(([\\w\\-]|[^ -~])+([\\w]|[^ -~]))?\\.)+(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)(?![\\w])(/([\\w\\.\\-\\$&%/:=#~!]*\\??[\\w\\.\\-\\$&%/:=#~!]*[\\w\\-\\$/#])?)?", "                      ");
+                s = s.Replace("\r", "");
+                if (HasMedia) s += "there is a imageaddress";
+                _UpdateStatusTextLength = 140 - s.Length;
+                return _UpdateStatusTextLength;
+            }
+        }
+        #endregion
+
+
+        #region UpdateStatusText変更通知プロパティ
+        private string _UpdateStatusText = "";
+
+        public string UpdateStatusText
+        {
+            get
+            { return _UpdateStatusText; }
+            set
+            {
+                if (_UpdateStatusText == value)
+                    return;
+                _UpdateStatusText = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(() => UpdateStatusTextLength);
+                UpdateStatusCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region HasMedia変更通知プロパティ
+        private bool _HasMedia;
+
+        public bool HasMedia
+        {
+            get
+            { return Medias.Count != 0; }
+        }
+        #endregion
+
+
+        #region Medias変更通知プロパティ
+        private ObservableSynchronizedCollection<MainWindowSendingMediaViewModel> _Medias;
+
+        public ObservableSynchronizedCollection<MainWindowSendingMediaViewModel> Medias
+        {
+            get
+            { return _Medias; }
+            set
+            {
+                if (_Medias == value)
+                    return;
+                _Medias = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region SelectedMedia変更通知プロパティ
+        private MainWindowSendingMediaViewModel _SelectedMedia;
+
+        public MainWindowSendingMediaViewModel SelectedMedia
+        {
+            get
+            { return _SelectedMedia; }
+            set
+            {
+                if (_SelectedMedia == value)
+                    return;
+                _SelectedMedia = value;
+                RaisePropertyChanged();
+                RemoveMediaCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region AddMediaCommand
+        private ListenerCommand<OpeningFileSelectionMessage> _AddMediaCommand;
+
+        public ListenerCommand<OpeningFileSelectionMessage> AddMediaCommand
+        {
+            get
+            {
+                if (_AddMediaCommand == null)
+                {
+                    _AddMediaCommand = new ListenerCommand<OpeningFileSelectionMessage>(AddMedia);
+                }
+                return _AddMediaCommand;
+            }
+        }
+
+        public void AddMedia(OpeningFileSelectionMessage parameter)
+        {
+            foreach (var i in parameter.Response)
+            {
+                if (Medias.Count < 4) Medias.Add(new MainWindowSendingMediaViewModel(i));
+            }
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+            RaisePropertyChanged(() => HasMedia);
+            RaisePropertyChanged(() => UpdateStatusTextLength);
+        }
+        #endregion
+
+
+        #region RemoveMediaCommand
+        private ViewModelCommand _RemoveMediaCommand;
+
+        public ViewModelCommand RemoveMediaCommand
+        {
+            get
+            {
+                if (_RemoveMediaCommand == null)
+                {
+                    _RemoveMediaCommand = new ViewModelCommand(RemoveMedia, CanRemoveMedia);
+                }
+                return _RemoveMediaCommand;
+            }
+        }
+
+        public bool CanRemoveMedia()
+        {
+            return SelectedMedia != null;
+        }
+
+        public void RemoveMedia()
+        {
+            SelectedMedia.Dispose();
+            Medias.Remove(SelectedMedia);
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+            RaisePropertyChanged(() => HasMedia);
+            RaisePropertyChanged(() => UpdateStatusTextLength);
+        }
+        #endregion
+
+
+        #region UpdateStatusCommand
+        private ViewModelCommand _UpdateStatusCommand;
+
+        public ViewModelCommand UpdateStatusCommand
+        {
+            get
+            {
+                if (_UpdateStatusCommand == null)
+                {
+                    _UpdateStatusCommand = new ViewModelCommand(UpdateStatus, CanUpdateStatus);
+                }
+                return _UpdateStatusCommand;
+            }
+        }
+
+        bool taken = false;
+        public bool CanUpdateStatus()
+        {
+            return
+                LoginUser != null && !string.IsNullOrEmpty(LoginUser.ScreenName) &&
+                140 > UpdateStatusTextLength && 0 <= UpdateStatusTextLength &&
+                !taken;
+        }
+
+        public async void UpdateStatus()
+        {
+            taken = true;
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+
+            var opt = new Dictionary<string, object>();
+            opt["status"] = UpdateStatusText;
+            if (IsReplying) opt["in_reply_to_status_id"] = ReplyingStatus.SourceStatus.Id;
+
+            try
+            {
+                if (HasMedia)
+                {
+                    var iil = new List<long>();
+                    foreach (var i in Medias) iil.Add((await Kbtter.Token.Media.UploadAsync(media => i.MediaStream)).MediaId);
+                    opt["media_ids"] = iil;
+                }
+
+                await Kbtter.Token.Statuses.UpdateAsync(opt);
+                View.Notify("ツイート送信に成功しました。");
+            }
+            catch (Exception te)
+            {
+                View.Notify("ツイート送信中にエラーが発生しました : " + te.Message);
+            }
+
+
+            foreach (var i in Medias) i.Dispose();
+            Medias.Clear();
+            RaisePropertyChanged(() => HasMedia);
+            IsReplying = false;
+
+            taken = false;
+            UpdateStatusText = "";
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+            AddMediaCommand.RaiseCanExecuteChanged();
+            RemoveMediaCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
+
+        #region ReplyingStatus変更通知プロパティ
+        private StatusViewModel _ReplyingStatus;
+
+        public StatusViewModel ReplyingStatus
+        {
+            get
+            { return _ReplyingStatus; }
+            set
+            {
+                if (_ReplyingStatus == value)
+                    return;
+                _ReplyingStatus = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsReplying変更通知プロパティ
+        private bool _IsReplying;
+
+        public bool IsReplying
+        {
+            get
+            { return _IsReplying; }
+            set
+            {
+                if (_IsReplying == value)
+                    return;
+                _IsReplying = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
         #endregion
     }
