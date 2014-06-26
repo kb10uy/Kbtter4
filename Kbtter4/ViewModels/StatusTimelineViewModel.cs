@@ -24,7 +24,7 @@ namespace Kbtter4.ViewModels
 
         public StatusTimelineViewModel(StatusTimeline tl)
         {
-            ViewModelHelper.CreateReadOnlyDispatcherCollection(tl.Statuses, (p) => new StatusViewModel(p), DispatcherHelper.UIDispatcher);
+            Statuses = ViewModelHelper.CreateReadOnlyDispatcherCollection(tl.Statuses, (p) => new StatusViewModel(p), DispatcherHelper.UIDispatcher);
         }
 
         public void Initialize()

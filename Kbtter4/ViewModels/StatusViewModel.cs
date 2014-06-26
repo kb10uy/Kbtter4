@@ -12,19 +12,20 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter4.Models;
+using CoreTweet;
 
 namespace Kbtter4.ViewModels
 {
     public class StatusViewModel : ViewModel
     {
 
-        public Kbtter4Status SourceStatus { get; private set; }
+        public Status SourceStatus { get; private set; }
 
         public void Initialize()
         {
         }
 
-        public StatusViewModel(Kbtter4Status st)
+        public StatusViewModel(Status st)
         {
             SourceStatus = st;
             User = new UserViewModel(st.User);

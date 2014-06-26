@@ -65,15 +65,15 @@ namespace Kbtter4.Models
         public NotificationTimeline HomeNotificationTimeline { get; private set; }
         public ObservableSynchronizedCollection<StatusTimeline> StatusTimelines { get; private set; }
         public ObservableSynchronizedCollection<NotificationTimeline> NotificationTimelines { get; private set; }
-        public ObservableSynchronizedCollection<DirectMessageTimeline> DirectMessageTimelines { get; private set; }
-        public ObservableSynchronizedCollection<Kbtter4User> Users { get; private set; }
+        //public ObservableSynchronizedCollection<DirectMessageTimeline> DirectMessageTimelines { get; private set; }
+        public ObservableSynchronizedCollection<User> Users { get; private set; }
         public ObservableSynchronizedCollection<Kbtter4Account> Accounts { get; private set; }
 
 
         #region AuthenticatedUser変更通知プロパティ
-        private Kbtter4User _AuthenticatedUser;
+        private User _AuthenticatedUser;
 
-        public Kbtter4User AuthenticatedUser
+        public User AuthenticatedUser
         {
             get
             { return _AuthenticatedUser; }
@@ -94,23 +94,14 @@ namespace Kbtter4.Models
 
         public Kbtter4Setting Setting { get; set; }
 
-        public IList<Kbtter4PluginProvider> GlobalPlugins { get; private set; }
-        public int PluginErrorCount { get; private set; }
+        public IList<Kbtter4Plugin> GlobalPlugins { get; private set; }
+        public IList<Kbtter4PluginLoader> PluginLoaders { get; private set; }
+
         public object PluginMonitoringToken { get; private set; }
 
         public Kbtter3Query GlobalMuteQuery { get; private set; }
 
         public List<string> Logs { get; set; }
-
-        private SQLiteConnection CacheDatabaseConnection { get; set; }
-        private DataContext CacheContext { get; set; }
-        private SQLiteCommand AddFavoriteCacheCommand { get; set; }
-        private SQLiteCommand AddRetweetCacheCommand { get; set; }
-        private SQLiteCommand RemoveFavoriteCacheCommand { get; set; }
-        private SQLiteCommand RemoveRetweetCacheCommand { get; set; }
-        private SQLiteCommand IsFavoritedCommand { get; set; }
-        private SQLiteCommand IsRetweetedCommand { get; set; }
-        private SQLiteCommand IsMyRetweetCommand { get; set; }
 
         #region コンストラクタ・デストラクタ
         private Kbtter()
@@ -119,15 +110,17 @@ namespace Kbtter4.Models
 
             HomeStatusTimeline = new StatusTimeline("true");
             HomeNotificationTimeline = new NotificationTimeline("true");
-            DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
+            //DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
             StatusTimelines = new ObservableSynchronizedCollection<StatusTimeline>();
             NotificationTimelines = new ObservableSynchronizedCollection<NotificationTimeline>();
-            Users = new ObservableSynchronizedCollection<Kbtter4User>();
+            Users = new ObservableSynchronizedCollection<User>();
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
 
-            AuthenticatedUser = new Kbtter4User();
+            AuthenticatedUser = new User();
 
-            GlobalPlugins = new List<Kbtter4PluginProvider>();
+            GlobalPlugins = new List<Kbtter4Plugin>();
+            PluginLoaders = new List<Kbtter4PluginLoader>();
+            PluginMonitoringToken = new object();
 
             GlobalMuteQuery = new Kbtter3Query("false");
 
@@ -140,6 +133,7 @@ namespace Kbtter4.Models
         ~Kbtter()
         {
             StopStreaming();
+            foreach (var i in GlobalPlugins) i.Dispose();
         }
         #endregion
 
@@ -166,7 +160,15 @@ namespace Kbtter4.Models
             OnDirectMessage += Kbtter_OnDirectMessage;
             OnId += Kbtter_OnId;
 
+            CreateFolders();
             LoadSetting();
+            InitializePlugins();
+        }
+
+
+        private void CreateFolders()
+        {
+            if (!Directory.Exists(PluginFolderName)) Directory.CreateDirectory(PluginFolderName);
         }
 
         private void LoadSetting()
@@ -189,12 +191,29 @@ namespace Kbtter4.Models
                 new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
                 .Publish();
 
-            StreamManager.Add(Streaming.OfType<StatusMessage>().Subscribe(p => OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(p))));
-            StreamManager.Add(Streaming.OfType<EventMessage>().Subscribe(p => OnEvent(this, new Kbtter4MessageReceivedEventArgs<EventMessage>(p))));
-            StreamManager.Add(Streaming.OfType<DirectMessageMessage>().Subscribe(p => OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(p))));
-            StreamManager.Add(Streaming.OfType<IdMessage>().Subscribe(p => OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p))));
-
+            StreamManager.Add(Streaming.Subscribe(
+                (p) =>
+                {
+                    Task.Run(() =>
+                    {
+                        if (p is StatusMessage) OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(p as StatusMessage));
+                        if (p is EventMessage) OnEvent(this, new Kbtter4MessageReceivedEventArgs<EventMessage>(p as EventMessage));
+                        if (p is IdMessage) OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p as IdMessage));
+                        if (p is DirectMessageMessage) OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(p as DirectMessageMessage));
+                    });
+                },
+                (ex) =>
+                {
+                    //throw ex;
+                },
+                () =>
+                {
+                    Console.WriteLine("Completed!?");
+                    throw new InvalidOperationException("何故かUserStreamが切れました");
+                }
+            ));
             StreamManager.Add(Streaming.Connect());
+            foreach (var i in GlobalPlugins) i.OnStartStreaming();
         }
 
         public void RestartStreaming()
@@ -207,6 +226,7 @@ namespace Kbtter4.Models
         {
             foreach (var i in StreamManager) i.Dispose();
             StreamManager.Clear();
+            foreach (var i in GlobalPlugins) i.OnStopStreaming();
         }
         #endregion
 
@@ -214,11 +234,35 @@ namespace Kbtter4.Models
         private void Kbtter_OnStatus(object sender, Kbtter4MessageReceivedEventArgs<StatusMessage> e)
         {
 
+            GlobalMuteQuery.ClearVariables();
+            GlobalMuteQuery.SetVariable("Status", e.Message.Status);
+            if (GlobalMuteQuery.Execute().AsBoolean()) return;
+
+            var s = e.Message;
+            foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy());
+
+            HomeStatusTimeline.TryAddStatus(s.Status);
+            foreach (var tl in StatusTimelines)
+            {
+                tl.TryAddStatus(s.Status);
+            }
+
+            foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy());
         }
 
         private void Kbtter_OnEvent(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e)
         {
+            var s = e.Message;
+            foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy());
+            var k4n = new Kbtter4Notification(s);
 
+            HomeNotificationTimeline.TryAddNotification(k4n);
+            foreach (var tl in NotificationTimelines)
+            {
+                tl.TryAddNotification(k4n);
+            }
+
+            foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
         }
 
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)
@@ -270,11 +314,16 @@ namespace Kbtter4.Models
 
         public async Task<string> Authenticate(Kbtter4Account ac)
         {
+            StopStreaming();
+            foreach (var i in GlobalPlugins) i.OnLogout(AuthenticatedUser);
+
             Token = Tokens.Create(Setting.Consumer.Key, Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             try
             {
                 var u = await Token.Users.ShowAsync(user_id => ac.UserId);
-                AuthenticatedUser = new Kbtter4User(u);
+                AuthenticatedUser = u;
+                foreach (var i in GlobalPlugins) i.OnLogin(AuthenticatedUser);
+                StartStreaming();
                 return "";
             }
             catch (TwitterException e)
@@ -285,7 +334,20 @@ namespace Kbtter4.Models
         #endregion
 
         #region キャッシュ
+        private void UpdateUserInformation(User user)
+        {
+            for (int i = 0; i < Users.Count; i++)
+            {
+                if (Users[i].Id == user.Id) Users[i] = user;
+            }
+            if (AuthenticatedUser.Id == user.Id) AuthenticatedUser = user;
+        }
 
+        private void AddUserToUsersList(User user)
+        {
+            if (Users.Any(p => p.Id == user.Id)) return;
+            Users.Add(user);
+        }
         #endregion
 
         #region 固有機能
@@ -307,20 +369,23 @@ namespace Kbtter4.Models
         {
             Task.Run(() =>
             {
-                var asmtypes = GetType().Assembly.GetTypes().Where(p => p.IsSubclassOf(typeof(Kbtter4PluginProvider)));
+                var asmtypes = GetType().Assembly.GetTypes().Where(p => p.IsSubclassOf(typeof(Kbtter4PluginLoader)));
                 foreach (var i in asmtypes)
                 {
-                    GlobalPlugins.Add(Activator.CreateInstance(i) as Kbtter4PluginProvider);
+                    PluginLoaders.Add(Activator.CreateInstance(i) as Kbtter4PluginLoader);
                 }
 
-                foreach (var p in GlobalPlugins) p.Initialize(this);
-
                 var pflist = Directory.GetFiles(PluginFolderName);
-                PluginErrorCount = 0;
-                foreach (var p in GlobalPlugins) PluginErrorCount += p.Load(pflist);
+
+                foreach (var pl in PluginLoaders)
+                {
+                    foreach (var p in pl.Load(this, pflist))
+                    {
+                        GlobalPlugins.Add(p);
+                    }
+                }
                 SaveLog();
-                if (PluginErrorCount != 0) RaisePropertyChanged("PluginErrorCount");
-                foreach (var p in GlobalPlugins) p.PluginInitialze();
+                foreach (var p in GlobalPlugins) p.Initialize();
             });
         }
 

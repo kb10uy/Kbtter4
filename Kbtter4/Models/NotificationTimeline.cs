@@ -24,5 +24,12 @@ namespace Kbtter4.Models
             Notifications = new ObservableSynchronizedCollection<Kbtter4Notification>();
             Query = new Kbtter3Query(q);
         }
+
+        public void TryAddNotification(Kbtter4Notification nt)
+        {
+            Query.ClearVariables();
+            Query.SetVariable("Notification", nt);
+            if (Query.Execute().AsBoolean()) Notifications.Insert(0, nt);
+        }
     }
 }

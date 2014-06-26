@@ -156,18 +156,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\Caching\CacheModels.cs" />
-    <Compile Include="Models\DirectMessageTimeline.cs" />
     <Compile Include="Models\Kbtter.cs" />
     <Compile Include="Models\Kbtter4Account.cs" />
     <Compile Include="Models\Kbtter4DirectMessage.cs" />
     <Compile Include="Models\Kbtter4Notification.cs" />
+    <Compile Include="Models\Plugin\Kbtter4IronPythonPlugin.cs" />
+    <Compile Include="Models\Plugin\Kbtter4Plugin.cs" />
     <Compile Include="Models\Kbtter4Setting.cs" />
-    <Compile Include="Models\Kbtter4Status.cs" />
-    <Compile Include="Models\Kbtter4User.cs" />
     <Compile Include="Models\NotificationTimeline.cs" />
-    <Compile Include="Models\Plugin\IronPythonPluginLoader.cs" />
-    <Compile Include="Models\Plugin\Kbtter4PluginProvider.cs" />
-    <Compile Include="Models\Plugin\LuaPluginLoader.cs" />
     <Compile Include="Models\StatusTimeline.cs" />
     <Compile Include="ViewModels\AccountViewModel.cs" />
     <Compile Include="ViewModels\DirectMessageTimelineViewModel.cs" />

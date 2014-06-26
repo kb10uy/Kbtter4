@@ -91,4 +91,22 @@
             </StackPanel>
         </StackPanel>
     </DataTemplate>
+    
+    <DataTemplate DataType="{x:Type vm:StatusViewModel}" x:Key="StatusTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding User.Name}" Margin="4" FontSize="16"/>
+                <TextBlock Text="{Binding Text}" Grid.Row="1" Margin="4" FontSize="14"/>
+            </Grid>
+            
+        </Grid>
+    </DataTemplate>
 </ResourceDictionary>

@@ -12,21 +12,22 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter4.Models;
+using CoreTweet;
 
 namespace Kbtter4.ViewModels
 {
     public class UserViewModel : ViewModel
     {
-        Kbtter4User src;
+        User src;
         PropertyChangedEventListener listener;
 
-        public UserViewModel(Kbtter4User user)
+        public UserViewModel(User user)
         {
             src = user;
             Name = src.Name;
             ScreenName = src.ScreenName;
             IdString = src.Id.ToString();
-            ProfileImageUri = src.ProfileImageUri;
+            ProfileImageUri = src.ProfileImageUrlHttps;
         }
 
         public void Initialize()
