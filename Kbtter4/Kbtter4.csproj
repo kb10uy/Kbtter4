@@ -223,12 +223,8 @@
     <Resource Include="Libraries\CoreTweet.Streaming.Reactive.xml" />
     <Resource Include="Libraries\CoreTweet.xml" />
     <Resource Include="Resources\DirectMessage.png" />
-    <Resource Include="Resources\Favorite.png" />
-    <Resource Include="Resources\Favorited.png" />
     <Resource Include="Resources\HomeStatusTimeline.png" />
     <Resource Include="Resources\Notification.png" />
-    <Resource Include="Resources\Retweet.png" />
-    <Resource Include="Resources\Retweeted.png" />
     <Resource Include="Resources\Setting.png" />
     <Resource Include="Resources\User.png" />
     <Resource Include="Resources\UserNotification.png" />
@@ -238,6 +234,18 @@
     <Resource Include="Resources\Menu.png" />
     <Resource Include="Resources\Kbtter4-270.png" />
     <Resource Include="Resources\Kbtter4_icon.ico" />
+    <Resource Include="Resources\icon_block.png" />
+    <Resource Include="Resources\icon_cancel.png" />
+    <Resource Include="Resources\icon_delete.png" />
+    <Resource Include="Resources\icon_fav.png" />
+    <Resource Include="Resources\icon_favno.png" />
+    <Resource Include="Resources\icon_list.png" />
+    <Resource Include="Resources\icon_listno.png" />
+    <Resource Include="Resources\icon_reply.png" />
+    <Resource Include="Resources\icon_rt.png" />
+    <Resource Include="Resources\icon_rtno.png" />
+    <Resource Include="Resources\icon_user.png" />
+    <Resource Include="Resources\icon_userno.png" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -37,7 +37,7 @@ namespace Kbtter4.ViewModels
             Kbtter = Kbtter.Instance;
 
 
-            HomeTimeline = new StatusTimelineViewModel(Kbtter.HomeStatusTimeline);
+            HomeTimeline = new StatusTimelineViewModel(this, Kbtter.HomeStatusTimeline);
             LoginUser = new UserViewModel(Kbtter.AuthenticatedUser);
             Accounts = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 Kbtter.Accounts,

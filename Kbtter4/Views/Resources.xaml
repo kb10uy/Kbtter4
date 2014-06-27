@@ -20,6 +20,19 @@
     <Color x:Key="ColorTwitterDarkGray" A="255" R="102" G="117" B="127"/>
     <Color x:Key="ColorTwitterPrimary" A="255" R="85" G="172" B="238"/>
 
+    <LinearGradientBrush x:Key="Kbtter4StatusBackColor" StartPoint="0,0" EndPoint="0,1" Opacity="0.4">
+        <GradientStop Offset="0" Color="White"/>
+        <GradientStop Offset="1" Color="DarkGray"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Kbtter4RetweetBackColor" Color="#669FFF72"/>
+    <SolidColorBrush x:Key="Kbtter4ReplyBackColor" Color="#66FFBC5A"/>
+    <SolidColorBrush x:Key="Kbtter4ErrorColor" Color="#66FF6161"/>
+
+    <SolidColorBrush x:Key="Kbtter4GeneralRed" Color="#20FF4466"/>
+    <SolidColorBrush x:Key="Kbtter4GeneralGreen" Color="#2066FF66"/>
+    <SolidColorBrush x:Key="Kbtter4GeneralBlue" Color="#206666FF"/>
+    <SolidColorBrush x:Key="Kbtter4GeneralYellow" Color="#20FFF74B"/>
+
     <ControlTemplate TargetType="ToggleButton" x:Key="NonDecorationToggleButton">
         <Grid>
             <ContentPresenter Panel.ZIndex="1"/>
@@ -93,11 +106,28 @@
     </DataTemplate>
     
     <DataTemplate DataType="{x:Type vm:StatusViewModel}" x:Key="StatusTemplate">
-        <Grid>
+        <Grid Background="{StaticResource Kbtter4StatusBackColor}" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="24"/>
+                </Grid.RowDefinitions>
+                <Image Margin="4" Width="32">
+                    <i:Interaction.Behaviors>
+                        <v:ImageWebLazyBindBehavior UriSource="{Binding User.ProfileImageUri}"/>
+                    </i:Interaction.Behaviors>
+                </Image>
+                <Image Width="16" Height="16" Grid.Row="1">
+                    <i:Interaction.Behaviors>
+                        <v:Kbtter4NotificationIconBehavior IconKind="{Binding FavoriteIcon}"/>
+                    </i:Interaction.Behaviors>
+                </Image>
+            </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

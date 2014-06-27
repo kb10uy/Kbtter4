@@ -436,7 +436,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">タイムライン</TextBlock>
                 <ListBox ItemTemplate="{StaticResource StatusTemplate}" ItemsSource="{Binding HomeTimeline.Statuses}" 
-                         Margin="4" Grid.Row="1"/>
+                         Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"/>
             </Grid>
             <Grid Name="GridHomeNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">

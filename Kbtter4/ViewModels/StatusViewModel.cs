@@ -21,12 +21,25 @@ namespace Kbtter4.ViewModels
 
         public Status SourceStatus { get; private set; }
 
+        public Kbtter Kbtter;
+        public MainWindowViewModel main;
+        public PropertyChangedEventListener listener;
+
         public void Initialize()
         {
         }
 
-        public StatusViewModel(Status st)
+        public StatusViewModel(MainWindowViewModel mw, Status st)
         {
+            Kbtter = Kbtter.Instance;
+            main = mw;
+            listener = new PropertyChangedEventListener(Kbtter);
+            CompositeDisposable.Add(listener);
+            listener.Add("Favorites", (s, e) =>
+            {
+                IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+            });
+
             SourceStatus = st;
             User = new UserViewModel(st.User);
             Text = SourceStatus.Text
@@ -93,5 +106,95 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+
+        #region ToggleFavoriteCommand
+        private ViewModelCommand _ToggleFavoriteCommand;
+
+        public ViewModelCommand ToggleFavoriteCommand
+        {
+            get
+            {
+                if (_ToggleFavoriteCommand == null)
+                {
+                    _ToggleFavoriteCommand = new ViewModelCommand(ToggleFavorite);
+                }
+                return _ToggleFavoriteCommand;
+            }
+        }
+
+        public async void ToggleFavorite()
+        {
+            try
+            {
+                if (IsFavorited)
+                {
+                    await Kbtter.Token.Favorites.DestroyAsync(id => SourceStatus.Id);
+                }
+                else
+                {
+                    await Kbtter.Token.Favorites.DestroyAsync(id => SourceStatus.Id);
+                }
+            }
+            catch (Exception e)
+            {
+                main.View.Notify("お気に入り操作に失敗しました : " + e.Message);
+            }
+
+        }
+        #endregion
+
+
+        #region IsFavorited変更通知プロパティ
+        private bool _IsFavorited;
+
+        public bool IsFavorited
+        {
+            get
+            { return _IsFavorited; }
+            set
+            {
+                if (_IsFavorited == value)
+                    return;
+                _IsFavorited = value;
+                FavoriteIcon = value ? Kbtter4NotificationIconKind.Favorited : Kbtter4NotificationIconKind.Unfavorited;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region FavoriteIcon変更通知プロパティ
+        private Kbtter4NotificationIconKind _FavoriteIcon = Kbtter4NotificationIconKind.Unfavorited;
+
+        public Kbtter4NotificationIconKind FavoriteIcon
+        {
+            get
+            { return _FavoriteIcon; }
+            set
+            {
+                if (_FavoriteIcon == value)
+                    return;
+                _FavoriteIcon = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+    }
+
+    public enum Kbtter4NotificationIconKind
+    {
+        Undefined,
+        None,
+        Favorited,
+        Unfavorited,
+        Followed,
+        Unfollowed,
+        Retweeted,
+        Blocked,
+        Unblocked,
+        ListAdded,
+        ListRemoved,
     }
 }

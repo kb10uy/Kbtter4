@@ -69,6 +69,8 @@ namespace Kbtter4.Models
         public ObservableSynchronizedCollection<User> Users { get; private set; }
         public ObservableSynchronizedCollection<Kbtter4Account> Accounts { get; private set; }
 
+        public IList<long> FavoritedIds { get; private set; }
+        public IList<long> RetweetedIds { get; private set; }
 
         #region AuthenticatedUser変更通知プロパティ
         private User _AuthenticatedUser;
@@ -117,6 +119,9 @@ namespace Kbtter4.Models
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
 
             AuthenticatedUser = new User();
+
+            FavoritedIds = new List<long>();
+            RetweetedIds = new List<long>();
 
             GlobalPlugins = new List<Kbtter4Plugin>();
             PluginLoaders = new List<Kbtter4PluginLoader>();
@@ -240,6 +245,7 @@ namespace Kbtter4.Models
 
             var s = e.Message;
             foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy());
+            foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy());
 
             HomeStatusTimeline.TryAddStatus(s.Status);
             foreach (var tl in StatusTimelines)
@@ -247,22 +253,35 @@ namespace Kbtter4.Models
                 tl.TryAddStatus(s.Status);
             }
 
-            foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy());
+
         }
 
         private void Kbtter_OnEvent(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e)
         {
             var s = e.Message;
+            if (s.Target.Id != AuthenticatedUser.Id) return;
+
+            switch (s.Event)
+            {
+                case EventCode.Favorite:
+                    FavoritedIds.Add(s.TargetStatus.Id);
+                    RaisePropertyChanged("Favorites");
+                    break;
+                case EventCode.Unfavorite:
+                    if (FavoritedIds.Contains(s.TargetStatus.Id)) FavoritedIds.Remove(s.TargetStatus.Id);
+                    RaisePropertyChanged("Favorites");
+                    break;
+            }
+
             foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy());
             var k4n = new Kbtter4Notification(s);
+            foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
 
             HomeNotificationTimeline.TryAddNotification(k4n);
             foreach (var tl in NotificationTimelines)
             {
                 tl.TryAddNotification(k4n);
             }
-
-            foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
         }
 
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)
@@ -360,6 +379,11 @@ namespace Kbtter4.Models
         public async void InitializeDirectMessages()
         {
 
+        }
+
+        public bool CheckFavorited(long id)
+        {
+            return FavoritedIds.Contains(id);
         }
         #endregion
 

@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Interactivity;
 
+using Kbtter4.ViewModels;
 
 namespace Kbtter4.Views
 {
@@ -132,7 +133,7 @@ namespace Kbtter4.Views
                 "Text",
                 typeof(string),
                 typeof(TextBlockTextChangedStoryboardBehavior),
-                new FrameworkPropertyMetadata(null,FrameworkPropertyMetadataOptions.None,TextChanged,null,false,UpdateSourceTrigger.PropertyChanged));
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, TextChanged, null, false, UpdateSourceTrigger.PropertyChanged));
 
         public static DependencyProperty StoryboardProperty =
             DependencyProperty.Register(
@@ -176,7 +177,83 @@ namespace Kbtter4.Views
         protected override void OnApply(DependencyProperty dp, Type targetType)
         {
             base.OnApply(dp, targetType);
-            
+
+        }
+    }
+
+    public sealed class Kbtter4NotificationIconBehavior : Behavior<Image>
+    {
+        public static DependencyProperty IconKindProperty =
+            DependencyProperty.RegisterAttached(
+                "IconKind",
+                typeof(Kbtter4NotificationIconKind),
+                typeof(Kbtter4NotificationIconBehavior),
+                new UIPropertyMetadata(
+                    Kbtter4NotificationIconKind.Undefined,
+                    IconChanged)
+            );
+
+        public Kbtter4NotificationIconKind IconKind
+        {
+            get { return (Kbtter4NotificationIconKind)GetValue(IconKindProperty); }
+            set { SetValue(IconKindProperty, value); }
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+        }
+
+        private static void IconChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var bh = sender as Kbtter4NotificationIconBehavior;
+            try
+            {
+                Uri uri;
+                switch (bh.IconKind)
+                {
+                    case Kbtter4NotificationIconKind.Unfavorited:
+                        uri = new Uri("/Resources/icon_favno.png", UriKind.Relative);
+                        break;
+                    case Kbtter4NotificationIconKind.Favorited:
+                        uri = new Uri("/Resources/icon_fav.png", UriKind.Relative);
+                        break;
+
+                    case Kbtter4NotificationIconKind.Followed:
+                        uri = new Uri("/Resources/icon_user.png", UriKind.Relative);
+                        break;
+                    case Kbtter4NotificationIconKind.Unfollowed:
+                        uri = new Uri("/Resources/icon_userno.png", UriKind.Relative);
+                        break;
+
+                    case Kbtter4NotificationIconKind.ListAdded:
+                        uri = new Uri("/Resources/icon_list.png", UriKind.Relative);
+                        break;
+                    case Kbtter4NotificationIconKind.ListRemoved:
+                        uri = new Uri("/Resources/icon_listno.png", UriKind.Relative);
+                        break;
+
+                    case Kbtter4NotificationIconKind.Blocked:
+                        uri = new Uri("/Resources/icon_block.png", UriKind.Relative);
+                        break;
+
+                    default:
+                        uri = new Uri("/Resources/icon_cancel.png", UriKind.Relative);
+                        break;
+                }
+                var bi = new BitmapImage(uri);
+                bh.AssociatedObject.Source = bi;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
     }
 }
