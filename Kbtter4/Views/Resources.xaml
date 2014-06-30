@@ -96,6 +96,42 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="FavoriteToggleButton" TargetType="ToggleButton">
+        <Border Name="Main" SnapsToDevicePixels="True">
+            <Border.Background>
+                <ImageBrush ImageSource="/Kbtter4;component/Resources/icon_favno.png" Stretch="None"/>
+            </Border.Background>
+            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Main" Property="Background">
+                    <Setter.Value>
+                        <ImageBrush ImageSource="/Kbtter4;component/Resources/icon_fav.png" Stretch="None"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RetweetToggleButton" TargetType="ToggleButton">
+        <Border Name="Main" SnapsToDevicePixels="True">
+            <Border.Background>
+                <ImageBrush ImageSource="/Kbtter4;component/Resources/icon_rtno.png" Stretch="None"/>
+            </Border.Background>
+            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Main" Property="Background">
+                    <Setter.Value>
+                        <ImageBrush ImageSource="/Kbtter4;component/Resources/icon_rt.png" Stretch="None"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
     <DataTemplate DataType="{x:Type vm:AccountViewModel}" x:Key="AccountTemplate">
         <StackPanel>
             <StackPanel Orientation="Horizontal">
@@ -122,11 +158,12 @@
                         <v:ImageWebLazyBindBehavior UriSource="{Binding User.ProfileImageUri}"/>
                     </i:Interaction.Behaviors>
                 </Image>
-                <Image Width="16" Height="16" Grid.Row="1">
-                    <i:Interaction.Behaviors>
-                        <v:Kbtter4NotificationIconBehavior IconKind="{Binding FavoriteIcon}"/>
-                    </i:Interaction.Behaviors>
-                </Image>
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4">
+                    <ToggleButton Template="{StaticResource FavoriteToggleButton}" Width="16" Height="16"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4">
+                    <ToggleButton Template="{StaticResource RetweetToggleButton}" Width="16" Height="16"/>
+                </StackPanel>
             </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>

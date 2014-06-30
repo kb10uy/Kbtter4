@@ -48,12 +48,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libraries\CoreTweet.Streaming.Reactive.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="IronPython">
       <HintPath>..\packages\IronPython.2.7.4\lib\Net45\IronPython.dll</HintPath>
     </Reference>
@@ -100,17 +94,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Data.SQLite, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.92.0\lib\net45\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.EF6">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.92.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.92.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.2.4\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -246,18 +229,20 @@
     <Resource Include="Resources\icon_rtno.png" />
     <Resource Include="Resources\icon_user.png" />
     <Resource Include="Resources\icon_userno.png" />
-    <Content Include="x64\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Kbtter3.Query\Kbtter3.Query.csproj">
       <Project>{8546db30-0f0b-4378-ba4e-b0a4f71f960c}</Project>
       <Name>Kbtter3.Query</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kbtter4.HinanawiTenshi\Kbtter4.HinanawiTenshi.csproj">
+      <Project>{a37e0c79-8537-455c-893a-8a86239d10c9}</Project>
+      <Name>Kbtter4.HinanawiTenshi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kbtter4.KomichiAya\Kbtter4.KomichiAya.csproj">
+      <Project>{5f526061-a309-4ce3-a266-cfe4dfd27c54}</Project>
+      <Name>Kbtter4.KomichiAya</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

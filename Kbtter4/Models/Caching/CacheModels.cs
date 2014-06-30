@@ -3,23 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SQLite;
-using System.Data.SQLite.Linq;
 using System.Data.Linq.Mapping;
+
 
 namespace Kbtter4.Models.Caching
 {
-
     [Table(Name = "Favorites")]
     internal class FavoriteCache : IEqualityComparer<FavoriteCache>
     {
-        [Column(Name = "ID")]
+        [Column(Name = "ID", IsPrimaryKey = true)]
         public long Id { get; set; }
 
-        [Column(Name = "DATE", DbType = "DATETIME")]
+        [Column(Name = "DATE")]
         public DateTime CreatedDate { get; set; }
 
-        [Column(Name = "NAME", DbType = "TEXT")]
+        [Column(Name = "NAME")]
         public string ScreenName { get; set; }
 
         public bool Equals(FavoriteCache x, FavoriteCache y)
@@ -37,16 +35,16 @@ namespace Kbtter4.Models.Caching
     [Table(Name = "Retweets")]
     internal class RetweetCache : IEqualityComparer<RetweetCache>
     {
-        [Column(Name = "ID")]
+        [Column(Name = "ID", IsPrimaryKey = true)]
         public long Id { get; set; }
 
         [Column(Name = "ORIGINALID")]
         public long OriginalId { get; set; }
 
-        [Column(Name = "DATE", DbType = "DATETIME")]
+        [Column(Name = "DATE")]
         public DateTime CreatedDate { get; set; }
 
-        [Column(Name = "NAME", DbType = "TEXT")]
+        [Column(Name = "NAME")]
         public string ScreenName { get; set; }
 
         public bool Equals(RetweetCache x, RetweetCache y)
@@ -64,19 +62,19 @@ namespace Kbtter4.Models.Caching
     [Table(Name = "Bookmarks")]
     internal class BookmarkCache : IEqualityComparer<BookmarkCache>
     {
-        [Column(Name = "ID")]
+        [Column(Name = "ID", IsPrimaryKey = true)]
         public long Id { get; set; }
 
-        [Column(Name = "DATE", DbType = "DATETIME")]
+        [Column(Name = "DATE")]
         public DateTime CreatedDate { get; set; }
 
-        [Column(Name = "SCREENNAME", DbType = "TEXT")]
+        [Column(Name = "SCREENNAME")]
         public string ScreenName { get; set; }
 
-        [Column(Name = "NAME", DbType = "TEXT")]
+        [Column(Name = "NAME")]
         public string Name { get; set; }
 
-        [Column(Name = "STATUS", DbType = "TEXT")]
+        [Column(Name = "STATUS")]
         public string Text { get; set; }
 
         public bool Equals(BookmarkCache x, BookmarkCache y)

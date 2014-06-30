@@ -37,7 +37,8 @@ namespace Kbtter4.ViewModels
             CompositeDisposable.Add(listener);
             listener.Add("Favorites", (s, e) =>
             {
-                IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+                _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+                RaisePropertyChanged(() => IsFavorited);
             });
 
             SourceStatus = st;
@@ -50,6 +51,12 @@ namespace Kbtter4.ViewModels
                 .Replace("\r", " ")
                 .Replace("\n", " ");
 
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            CompositeDisposable.Dispose();
         }
 
 
@@ -103,43 +110,6 @@ namespace Kbtter4.ViewModels
                 _OnelineText = value;
                 RaisePropertyChanged();
             }
-        }
-        #endregion
-
-
-        #region ToggleFavoriteCommand
-        private ViewModelCommand _ToggleFavoriteCommand;
-
-        public ViewModelCommand ToggleFavoriteCommand
-        {
-            get
-            {
-                if (_ToggleFavoriteCommand == null)
-                {
-                    _ToggleFavoriteCommand = new ViewModelCommand(ToggleFavorite);
-                }
-                return _ToggleFavoriteCommand;
-            }
-        }
-
-        public async void ToggleFavorite()
-        {
-            try
-            {
-                if (IsFavorited)
-                {
-                    await Kbtter.Token.Favorites.DestroyAsync(id => SourceStatus.Id);
-                }
-                else
-                {
-                    await Kbtter.Token.Favorites.DestroyAsync(id => SourceStatus.Id);
-                }
-            }
-            catch (Exception e)
-            {
-                main.View.Notify("お気に入り操作に失敗しました : " + e.Message);
-            }
-
         }
         #endregion
 
