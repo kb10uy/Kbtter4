@@ -202,6 +202,7 @@ develop-eggs/
 .installed.cfg
 
 Kbtter4.sln.ide/
+!Kbtter4.Cache
 
 # Installer logs
 pip-log.txt
