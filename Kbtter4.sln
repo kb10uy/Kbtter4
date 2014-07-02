@@ -14,32 +14,34 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B05299
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kbtter3.Query", "Kbtter3.Query\Kbtter3.Query.csproj", "{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kbtter4.KomichiAya", "Kbtter4.KomichiAya\Kbtter4.KomichiAya.csproj", "{5F526061-A309-4CE3-A266-CFE4DFD27C54}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kbtter4.HinanawiTenshi", "Kbtter4.HinanawiTenshi\Kbtter4.HinanawiTenshi.csproj", "{A37E0C79-8537-455C-893A-8A86239D10C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kbtter4.Cache", "Kbtter4.Cache\Kbtter4.Cache.csproj", "{494DF5BB-1735-4F3C-843F-6C9EEA93D660}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA460E68-2BE4-47DF-A441-B59B31A26A65}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{BA460E68-2BE4-47DF-A441-B59B31A26A65}.Debug|x86.ActiveCfg = Debug|x86
 		{BA460E68-2BE4-47DF-A441-B59B31A26A65}.Debug|x86.Build.0 = Debug|x86
+		{BA460E68-2BE4-47DF-A441-B59B31A26A65}.Release|Any CPU.ActiveCfg = Release|x86
 		{BA460E68-2BE4-47DF-A441-B59B31A26A65}.Release|x86.ActiveCfg = Release|x86
 		{BA460E68-2BE4-47DF-A441-B59B31A26A65}.Release|x86.Build.0 = Release|x86
+		{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}.Debug|x86.ActiveCfg = Debug|x86
 		{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}.Debug|x86.Build.0 = Debug|x86
+		{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}.Release|Any CPU.ActiveCfg = Release|x86
 		{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}.Release|x86.ActiveCfg = Release|x86
 		{8546DB30-0F0B-4378-BA4E-B0A4F71F960C}.Release|x86.Build.0 = Release|x86
-		{5F526061-A309-4CE3-A266-CFE4DFD27C54}.Debug|x86.ActiveCfg = Debug|x86
-		{5F526061-A309-4CE3-A266-CFE4DFD27C54}.Debug|x86.Build.0 = Debug|x86
-		{5F526061-A309-4CE3-A266-CFE4DFD27C54}.Release|x86.ActiveCfg = Release|x86
-		{5F526061-A309-4CE3-A266-CFE4DFD27C54}.Release|x86.Build.0 = Release|x86
-		{A37E0C79-8537-455C-893A-8A86239D10C9}.Debug|x86.ActiveCfg = Debug|x86
-		{A37E0C79-8537-455C-893A-8A86239D10C9}.Debug|x86.Build.0 = Debug|x86
-		{A37E0C79-8537-455C-893A-8A86239D10C9}.Release|x86.ActiveCfg = Release|x86
-		{A37E0C79-8537-455C-893A-8A86239D10C9}.Release|x86.Build.0 = Release|x86
+		{494DF5BB-1735-4F3C-843F-6C9EEA93D660}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{494DF5BB-1735-4F3C-843F-6C9EEA93D660}.Debug|x86.ActiveCfg = Debug|x86
+		{494DF5BB-1735-4F3C-843F-6C9EEA93D660}.Debug|x86.Build.0 = Debug|x86
+		{494DF5BB-1735-4F3C-843F-6C9EEA93D660}.Release|Any CPU.ActiveCfg = Release|x86
+		{494DF5BB-1735-4F3C-843F-6C9EEA93D660}.Release|x86.ActiveCfg = Release|x86
+		{494DF5BB-1735-4F3C-843F-6C9EEA93D660}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

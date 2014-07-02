@@ -56,6 +56,7 @@ LICENSE.txtを参照してください。
   + JSON.NET
   + NLua
   + Irony
+  + Dapper
  - 以下はzlib/pngライセンスのライブラリです。
   + Livet
  - 以下はApache License 2.0のライブラリです。

@@ -30,6 +30,10 @@ namespace Kbtter4.ViewModels
             ProfileImageUri = src.ProfileImageUrlHttps;
         }
 
+        public UserViewModel()
+        {
+        }
+
         public void Initialize()
         {
 

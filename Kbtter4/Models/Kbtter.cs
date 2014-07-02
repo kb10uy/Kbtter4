@@ -23,13 +23,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-using System.Data.SQLite;
-using System.Data.SQLite.Linq;
-using System.Data.Linq;
-using System.Data;
-
-using Kbtter4.Models.Caching;
 using Kbtter4.Models.Plugin;
+using Kbtter4.Cache;
 using Kbtter3.Query;
 
 using Livet;
@@ -50,9 +45,9 @@ namespace Kbtter4.Models
         public static readonly string ConfigurationFileName = ConfigurationFolderName + "/config.json";
 
         private static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
-        private static readonly string CacheUserImageFileNameSuffix = "-icon.png";
-        private static readonly string CacheUserBackgroundImageFileNameSuffix = "-background.png";
-        private static readonly string CacheUserProfileFileNameSuffix = "-profile.json";
+        //private static readonly string CacheUserImageFileNameSuffix = "-icon.png";
+        //private static readonly string CacheUserBackgroundImageFileNameSuffix = "-background.png";
+        //private static readonly string CacheUserProfileFileNameSuffix = "-profile.json";
 
 
         public Tokens Token { get; set; }
@@ -69,8 +64,7 @@ namespace Kbtter4.Models
         public ObservableSynchronizedCollection<User> Users { get; private set; }
         public ObservableSynchronizedCollection<Kbtter4Account> Accounts { get; private set; }
 
-        public IList<long> FavoritedIds { get; private set; }
-        public IList<long> RetweetedIds { get; private set; }
+        public Kbtter4Cache AuthenticatedUserCache { get; private set; }
 
         #region AuthenticatedUser変更通知プロパティ
         private User _AuthenticatedUser;
@@ -119,9 +113,6 @@ namespace Kbtter4.Models
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
 
             AuthenticatedUser = new User();
-
-            FavoritedIds = new List<long>();
-            RetweetedIds = new List<long>();
 
             GlobalPlugins = new List<Kbtter4Plugin>();
             PluginLoaders = new List<Kbtter4PluginLoader>();
@@ -174,6 +165,7 @@ namespace Kbtter4.Models
         private void CreateFolders()
         {
             if (!Directory.Exists(PluginFolderName)) Directory.CreateDirectory(PluginFolderName);
+            if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
         }
 
         private void LoadSetting()
@@ -209,7 +201,7 @@ namespace Kbtter4.Models
                 },
                 (ex) =>
                 {
-                    //throw ex;
+                    throw ex;
                 },
                 () =>
                 {
@@ -259,20 +251,27 @@ namespace Kbtter4.Models
         private void Kbtter_OnEvent(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e)
         {
             var s = e.Message;
-            if (s.Target.Id != AuthenticatedUser.Id) return;
 
-            switch (s.Event)
+            if (s.Source.Id == AuthenticatedUser.Id)
             {
-                case EventCode.Favorite:
-                    FavoritedIds.Add(s.TargetStatus.Id);
-                    RaisePropertyChanged("Favorites");
-                    break;
-                case EventCode.Unfavorite:
-                    if (FavoritedIds.Contains(s.TargetStatus.Id)) FavoritedIds.Remove(s.TargetStatus.Id);
-                    RaisePropertyChanged("Favorites");
-                    break;
+                switch (s.Event)
+                {
+                    case EventCode.Favorite:
+                        AuthenticatedUserCache.AddFavorite(
+                            new Kbtter4FavoriteCache
+                            {
+                                Id = s.TargetStatus.Id,
+                                ScreenName = s.TargetStatus.User.ScreenName,
+                                CreatedDate = s.TargetStatus.CreatedAt.LocalDateTime
+                            });
+                        RaisePropertyChanged("Favorites");
+                        break;
+                    case EventCode.Unfavorite:
+                        AuthenticatedUserCache.RemoveFavorite(s.TargetStatus.Id);
+                        RaisePropertyChanged("Favorites");
+                        break;
+                }
             }
-
             foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy());
             var k4n = new Kbtter4Notification(s);
             foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
@@ -341,6 +340,7 @@ namespace Kbtter4.Models
             {
                 var u = await Token.Users.ShowAsync(user_id => ac.UserId);
                 AuthenticatedUser = u;
+                AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
                 foreach (var i in GlobalPlugins) i.OnLogin(AuthenticatedUser);
                 StartStreaming();
                 return "";
@@ -383,7 +383,7 @@ namespace Kbtter4.Models
 
         public bool CheckFavorited(long id)
         {
-            return FavoritedIds.Contains(id);
+            return AuthenticatedUserCache.Favorites().Where(p => p.Id == id).Count() != 0;
         }
         #endregion
 

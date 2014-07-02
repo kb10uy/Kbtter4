@@ -6,7 +6,9 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:Kbtter4.Views"
         xmlns:vm="clr-namespace:Kbtter4.ViewModels">
+    
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <v:Int32ToShortenNumberStringConverter x:Key="Int32ShortenConverter"/>
 
     <SolidColorBrush x:Key="BrushMenuBack" Color="#667F7F7F"/>
     <SolidColorBrush x:Key="TwitterColorPrimary" Color="#55acee"/>
@@ -140,13 +142,18 @@
             </StackPanel>
         </StackPanel>
     </DataTemplate>
-    
+
     <DataTemplate DataType="{x:Type vm:StatusViewModel}" x:Key="StatusTemplate">
         <Grid Background="{StaticResource Kbtter4StatusBackColor}" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="64"/>
+                <ColumnDefinition Width="48"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+
+            <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" 
+                   Fill="{StaticResource Kbtter4RetweetBackColor}" Panel.ZIndex="-100" 
+                   Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
@@ -159,21 +166,33 @@
                     </i:Interaction.Behaviors>
                 </Image>
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4">
-                    <ToggleButton Template="{StaticResource FavoriteToggleButton}" Width="16" Height="16"/>
+                    <ToggleButton Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited}"  Width="16" Height="16"/>
+                    <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding FavoriteCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4">
                     <ToggleButton Template="{StaticResource RetweetToggleButton}" Width="16" Height="16"/>
+                    <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding RetweetCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
             </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding User.Name}" Margin="4" FontSize="16"/>
-                <TextBlock Text="{Binding Text}" Grid.Row="1" Margin="4" FontSize="14"/>
+                <TextBlock Text="{Binding User.Name}" Margin="4,0,4,0" FontSize="16"/>
+                <TextBlock Text="{Binding Text}" Grid.Row="1" Margin="4,0,4,0" FontSize="14"/>
+                <StackPanel Grid.Row="2" Visibility="{Binding IsRetweet,Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Orientation="Horizontal">
+                    <Image Margin="4" Width="24" Height="24">
+                        <i:Interaction.Behaviors>
+                            <v:ImageWebLazyBindBehavior UriSource="{Binding RetweetingUser.ProfileImageUri}"/>
+                        </i:Interaction.Behaviors>
+                    </Image>
+                    <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="Gray" Margin="4,0,0,0">Retweeted by</TextBlock>
+                    <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="Gray" Margin="8,0,0,0" Text="{Binding RetweetingUser.Name}"/>
+                </StackPanel>
             </Grid>
-            
         </Grid>
     </DataTemplate>
 </ResourceDictionary>

@@ -21,6 +21,8 @@ namespace Kbtter4.ViewModels
 
         public Status SourceStatus { get; private set; }
 
+        private Status rted;
+
         public Kbtter Kbtter;
         public MainWindowViewModel main;
         public PropertyChangedEventListener listener;
@@ -42,7 +44,18 @@ namespace Kbtter4.ViewModels
             });
 
             SourceStatus = st;
-            User = new UserViewModel(st.User);
+            if (SourceStatus.RetweetedStatus != null)
+            {
+                rted = SourceStatus;
+                SourceStatus = SourceStatus.RetweetedStatus;
+                IsRetweet = true;
+                RetweetingUser = new UserViewModel(rted.User);
+            }
+
+            _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+            RaisePropertyChanged(() => IsFavorited);
+            
+            User = new UserViewModel(SourceStatus.User);
             Text = SourceStatus.Text
                 .Replace("&lt;", "<")
                 .Replace("&gt;", ">")
@@ -50,6 +63,8 @@ namespace Kbtter4.ViewModels
             OnelineText = Text
                 .Replace("\r", " ")
                 .Replace("\n", " ");
+            FavoriteCount = SourceStatus.FavoriteCount ?? 0;
+            RetweetCount = SourceStatus.RetweetCount ?? 0;
 
         }
 
@@ -126,25 +141,78 @@ namespace Kbtter4.ViewModels
                 if (_IsFavorited == value)
                     return;
                 _IsFavorited = value;
-                FavoriteIcon = value ? Kbtter4NotificationIconKind.Favorited : Kbtter4NotificationIconKind.Unfavorited;
                 RaisePropertyChanged();
             }
         }
         #endregion
 
 
-        #region FavoriteIcon変更通知プロパティ
-        private Kbtter4NotificationIconKind _FavoriteIcon = Kbtter4NotificationIconKind.Unfavorited;
+        #region IsRetweet変更通知プロパティ
+        private bool _IsRetweet;
 
-        public Kbtter4NotificationIconKind FavoriteIcon
+        public bool IsRetweet
         {
             get
-            { return _FavoriteIcon; }
+            { return _IsRetweet; }
             set
             {
-                if (_FavoriteIcon == value)
+                if (_IsRetweet == value)
                     return;
-                _FavoriteIcon = value;
+                _IsRetweet = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region RetweetingUser変更通知プロパティ
+        private UserViewModel _RetweetingUser = new UserViewModel();
+
+        public UserViewModel RetweetingUser
+        {
+            get
+            { return _RetweetingUser; }
+            set
+            {
+                if (_RetweetingUser == value)
+                    return;
+                _RetweetingUser = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region FavoriteCount変更通知プロパティ
+        private long _FavoriteCount;
+
+        public long FavoriteCount
+        {
+            get
+            { return _FavoriteCount; }
+            set
+            {
+                if (_FavoriteCount == value)
+                    return;
+                _FavoriteCount = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region RetweetCount変更通知プロパティ
+        private long _RetweetCount;
+
+        public long RetweetCount
+        {
+            get
+            { return _RetweetCount; }
+            set
+            {
+                if (_RetweetCount == value)
+                    return;
+                _RetweetCount = value;
                 RaisePropertyChanged();
             }
         }
