@@ -15,7 +15,11 @@ namespace Kbtter3.Query.Grammer
     [Language("Kbtter3Query", "1.0.0", "Kbtter3 Query")]
     public class Kbtter3QueryGrammar : Grammar
     {
-        public Kbtter3QueryGrammar() : base(false)
+        /// <summary>
+        /// 使うな
+        /// </summary>
+        public Kbtter3QueryGrammar()
+            : base()
         {
             //コメント
             var comment = new CommentTerminal("Comment", "/*", "*/");
@@ -58,7 +62,7 @@ namespace Kbtter3.Query.Grammer
 
             Root = Expression;
             MarkPunctuation("(", ")");
-            MarkTransient(Expression,ParExpression, Value, Operator, Term);
+            MarkTransient(Expression, ParExpression, Value, Operator, Term);
         }
     }
 }

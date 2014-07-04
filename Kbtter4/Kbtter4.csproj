@@ -203,6 +203,7 @@
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
     <Content Include="Libraries\CoreTweet.dll" />
     <Content Include="Libraries\CoreTweet.Streaming.Reactive.dll" />
+    <Resource Include="Resources\Commandline.png" />
     <Resource Include="Libraries\CoreTweet.Streaming.Reactive.xml" />
     <Resource Include="Libraries\CoreTweet.xml" />
     <Resource Include="Resources\DirectMessage.png" />
@@ -239,6 +240,10 @@
     <ProjectReference Include="..\Kbtter4.Cache\Kbtter4.Cache.csproj">
       <Project>{494df5bb-1735-4f3c-843f-6c9eea93d660}</Project>
       <Name>Kbtter4.Cache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kbtter4.Tenko\Kbtter4.Tenko.csproj">
+      <Project>{b1d0ac72-5934-4c48-adbf-e5c7125d6b28}</Project>
+      <Name>Kbtter4.Tenko</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -13,10 +13,20 @@ Livetを基盤としてCoreTweetを使うTwitterクライアント
 ##機能
 * 一般的なTwitterクライアントの機能
 * マルチアカウント
-* IronPython,IronRuby,Lua,Javascriptによるプラグイン機能
+* IronPython,Luaによるプラグイン機能
 * 独自クエリによるユーザー定義タイムライン
  - Krile、Shrimpのそれとは別物
  - Kbtter3からの引き継ぎ
+
+##構成
+* Kbtter4
+ - メインの実行ファイル
+* Kbtter4.Cache
+ - キャッシュ機構専用ライブラリ
+* Kbtter4.Tenko
+ - コマンドライン専用ライブラリ
+* Kbtter3.Cache
+ - クエリ用ライブラリ
 
 ## 参考にしました
 Kbtter3はいろいろなTwitterクライアントを参考にします。

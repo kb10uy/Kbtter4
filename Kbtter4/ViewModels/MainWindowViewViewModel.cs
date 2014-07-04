@@ -241,6 +241,24 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region IsCommandlineVisible変更通知プロパティ
+        private bool _IsCommandlineVisible;
+
+        public bool IsCommandlineVisible
+        {
+            get
+            { return _IsCommandlineVisible; }
+            set
+            {
+                if (_IsCommandlineVisible == value)
+                    return;
+                _IsCommandlineVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region IsSettingVisible変更通知プロパティ
         private bool _IsSettingVisible;
 
@@ -283,6 +301,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = false;
         }
         #endregion
@@ -312,6 +331,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = false;
         }
         #endregion
@@ -341,6 +361,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = false;
         }
         #endregion
@@ -370,6 +391,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = false;
         }
         #endregion
@@ -399,6 +421,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = true;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = false;
         }
         #endregion
@@ -428,6 +451,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = true;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = false;
         }
         #endregion
@@ -457,6 +481,37 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = true;
+            IsCommandlineVisible = false;
+            IsSettingVisible = false;
+        }
+        #endregion
+
+
+        #region ChangeToCommandlineCommand
+        private ViewModelCommand _ChangeToCommandlineCommand;
+
+        public ViewModelCommand ChangeToCommandlineCommand
+        {
+            get
+            {
+                if (_ChangeToCommandlineCommand == null)
+                {
+                    _ChangeToCommandlineCommand = new ViewModelCommand(ChangeToCommandline);
+                }
+                return _ChangeToCommandlineCommand;
+            }
+        }
+
+        public void ChangeToCommandline()
+        {
+            IsHomeStatusTimelineVisible = false;
+            IsHomeNotificationTimelineVisible = false;
+            IsDirectMessageVisible = false;
+            IsSearchVisible = false;
+            IsUserVisible = false;
+            IsUserStatusTimelineVisible = false;
+            IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = true;
             IsSettingVisible = false;
         }
         #endregion
@@ -486,6 +541,7 @@ namespace Kbtter4.ViewModels
             IsUserVisible = false;
             IsUserStatusTimelineVisible = false;
             IsUserNotificationTimelineVisible = false;
+            IsCommandlineVisible = false;
             IsSettingVisible = true;
         }
         #endregion
@@ -502,7 +558,7 @@ namespace Kbtter4.ViewModels
             get
             { return _IsNewAccountPanelVisible; }
             set
-            { 
+            {
                 if (_IsNewAccountPanelVisible == value)
                     return;
                 _IsNewAccountPanelVisible = value;
@@ -520,7 +576,7 @@ namespace Kbtter4.ViewModels
             get
             { return _IsAccountPanelVisible; }
             set
-            { 
+            {
                 if (_IsAccountPanelVisible == value)
                     return;
                 _IsAccountPanelVisible = value;
@@ -555,7 +611,7 @@ namespace Kbtter4.ViewModels
             get
             { return _PopupNotificationText; }
             set
-            { 
+            {
                 _PopupNotificationText = value;
             }
         }
@@ -564,7 +620,7 @@ namespace Kbtter4.ViewModels
         public void Notify(string text)
         {
             PopupNotificationText = text;
-            RaisePropertyChanged(()=>PopupNotificationText);
+            RaisePropertyChanged(() => PopupNotificationText);
         }
 
         #endregion

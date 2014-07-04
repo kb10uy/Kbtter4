@@ -24,8 +24,10 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 using Kbtter4.Models.Plugin;
+using Kbtter4.Tenko;
 using Kbtter4.Cache;
 using Kbtter3.Query;
+
 
 using Livet;
 
@@ -93,6 +95,8 @@ namespace Kbtter4.Models
         public IList<Kbtter4Plugin> GlobalPlugins { get; private set; }
         public IList<Kbtter4PluginLoader> PluginLoaders { get; private set; }
 
+        public Kbtter4CommandManager CommandManager { get; private set; }
+
         public object PluginMonitoringToken { get; private set; }
 
         public Kbtter3Query GlobalMuteQuery { get; private set; }
@@ -119,6 +123,8 @@ namespace Kbtter4.Models
             PluginMonitoringToken = new object();
 
             GlobalMuteQuery = new Kbtter3Query("false");
+
+            CommandManager = new Kbtter4CommandManager();
 
             Logs = new List<string>();
         }
@@ -159,6 +165,7 @@ namespace Kbtter4.Models
             CreateFolders();
             LoadSetting();
             InitializePlugins();
+            RegisterCommands();
         }
 
 
@@ -260,7 +267,7 @@ namespace Kbtter4.Models
                 }
             }
 
-            foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy());
+            foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s;
             foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy());
 
             HomeStatusTimeline.TryAddStatus(s.Status);
@@ -296,7 +303,7 @@ namespace Kbtter4.Models
                         break;
                 }
             }
-            foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy());
+            foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s;
             var k4n = new Kbtter4Notification(s);
             foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
 
@@ -315,7 +322,7 @@ namespace Kbtter4.Models
         private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<IdMessage> e)
         {
             var mes = e.Message;
-            foreach (var i in GlobalPlugins) mes = i.OnIdEventDestructive(mes.DeepCopy());
+            foreach (var i in GlobalPlugins) mes = i.OnIdEventDestructive(mes.DeepCopy()) ?? mes;
             foreach (var i in GlobalPlugins) i.OnIdEvent(mes.DeepCopy());
 
             switch (mes.Type)
@@ -391,7 +398,7 @@ namespace Kbtter4.Models
                     return e.Message;
                 }
             });
-            
+
         }
         #endregion
 
@@ -502,6 +509,59 @@ namespace Kbtter4.Models
                 File.WriteAllLines(LoggingFileName, Logs);
             }
         }
+        #endregion
+
+        #region コマンド
+        //private string CommandHoge(IDictionary<string, object> args)
+
+        private void RegisterCommands()
+        {
+            CommandManager.AddCommand(new Kbtter4Command
+            {
+                Name = "update",
+                Description = "ツイートします。",
+                Function = CommandUpdate,
+                Parameters = new[] {
+                    new Kbtter4CommandParameter{Name="text",IsRequired=true},
+                }
+            });
+            CommandManager.AddCommand(new Kbtter4Command
+            {
+                Name = "louise",
+                Description = "????????",
+                Function = CommandLouise,
+            });
+        }
+
+        private string CommandUpdate(IDictionary<string, object> args)
+        {
+            if (args["text"] as string == "") return "テキストを入力してください";
+            Token.Statuses.UpdateAsync(status => args["text"]);
+            return "投稿しました";
+        }
+
+        private string CommandLouise(IDictionary<string, object> args)
+        {
+            return "ルイズ！ルイズ！ルイズ！ルイズぅぅうううわぁああああああああああああああああああああああん！！！\n" +
+                    "あぁああああ…ああ…あっあっー！あぁああああああ！！！ルイズルイズルイズぅううぁわぁああああ！！！\n" +
+                    "あぁクンカクンカ！クンカクンカ！スーハースーハー！スーハースーハー！いい匂いだなぁ…くんくん\n" +
+                    "んはぁっ！ルイズ・フランソワーズたんの桃色ブロンドの髪をクンカクンカしたいお！クンカクンカ！あぁあ！！\n" +
+                    "間違えた！モフモフしたいお！モフモフ！モフモフ！髪髪モフモフ！カリカリモフモフ…きゅんきゅんきゅい！！\n" +
+                    "小説12巻のルイズたんかわいかったよぅ！！あぁぁああ…あああ…あっあぁああああ！！ふぁぁあああんんっ！！\n" +
+                    "アニメ2期放送されて良かったねルイズたん！あぁあああああ！かわいい！ルイズたん！かわいい！あっああぁああ！\n" +
+                    "コミック2巻も発売されて嬉し…いやぁああああああ！！！にゃああああああああん！！ぎゃああああああああ！！\n" +
+                    "ぐあああああああああああ！！！コミックなんて現実じゃない！！！！あ…小説もアニメもよく考えたら…\n" +
+                    "ル イ ズ ち ゃ ん は 現実 じ ゃ な い？にゃあああああああああああああん！！うぁああああああああああ！！\n" +
+                    "そんなぁああああああ！！いやぁぁぁあああああああああ！！はぁああああああん！！ハルケギニアぁああああ！！\n" +
+                    "この！ちきしょー！やめてやる！！現実なんかやめ…て…え！？見…てる？表紙絵のルイズちゃんが僕を見てる？\n" +
+                    "表紙絵のルイズちゃんが僕を見てるぞ！ルイズちゃんが僕を見てるぞ！挿絵のルイズちゃんが僕を見てるぞ！！\n" +
+                    "アニメのルイズちゃんが僕に話しかけてるぞ！！！よかった…世の中まだまだ捨てたモンじゃないんだねっ！\n" +
+                    "いやっほぉおおおおおおお！！！僕にはルイズちゃんがいる！！やったよケティ！！ひとりでできるもん！！！\n" +
+                    "あ、コミックのルイズちゃああああああああああああああん！！いやぁあああああああああああああああ！！！！\n" +
+                    "あっあんああっああんあアン様ぁあ！！シ、シエスター！！アンリエッタぁああああああ！！！タバサｧぁあああ！！\n" +
+                    "ううっうぅうう！！俺の想いよルイズへ届け！！ハルゲニアのルイズへ届け";
+        }
+
         #endregion
     }
 

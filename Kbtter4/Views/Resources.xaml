@@ -183,7 +183,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Visibility="{Binding User.IsProtected,Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="Goldenrod">🔓</TextBlock>
+                    <TextBlock Visibility="{Binding User.IsProtected,Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" FontSize="14" Foreground="Goldenrod">🔓</TextBlock>
                     <TextBlock Text="{Binding User.Name}" FontFamily="MS UI Gothic" FontWeight="Bold" Margin="4" FontSize="16" Foreground="DarkBlue"/>
                     <TextBlock VerticalAlignment="Center">
                         <Hyperlink Command="{Binding User.ShowUserInformationCommand}">

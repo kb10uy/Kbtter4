@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kbtter4.Tenko;
 using CoreTweet;
 using CoreTweet.Streaming;
 
@@ -49,5 +50,15 @@ namespace Kbtter4.Models.Plugin
         }
 
         public Kbtter Instance { get; private set; }
+
+        public void AddCommand(Kbtter4Command cmd)
+        {
+            Instance.CommandManager.AddCommand(cmd);
+        }
+
+        public Kbtter4Command CreateCommand()
+        {
+            return new Kbtter4Command();
+        }
     }
 }

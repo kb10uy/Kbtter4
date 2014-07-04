@@ -9,10 +9,20 @@ using Dapper;
 
 namespace Kbtter4.Cache
 {
+    /// <summary>
+    /// Kbtter4用各種キャッシュを提供します。
+    /// </summary>
     public sealed class Kbtter4Cache : IDisposable
     {
+        /// <summary>
+        /// 接続
+        /// </summary>
         public SQLiteConnection Connection { get; private set; }
 
+        /// <summary>
+        /// 新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="fileName">ファイル名</param>
         public Kbtter4Cache(string fileName)
         {
             var csb = new SQLiteConnectionStringBuilder()
@@ -46,6 +56,10 @@ namespace Kbtter4.Cache
             }
         }
 
+        /// <summary>
+        /// お気に入りを追加
+        /// </summary>
+        /// <param name="data">お気に入りキャッシュ用データ</param>
         public void AddFavorite(Kbtter4FavoriteCache data)
         {
             using (var tr = Connection.BeginTransaction())
@@ -62,6 +76,10 @@ namespace Kbtter4.Cache
             }
         }
 
+        /// <summary>
+        /// お気に入りを削除
+        /// </summary>
+        /// <param name="id">ID</param>
         public void RemoveFavorite(long id)
         {
             using (var tr = Connection.BeginTransaction())
@@ -78,12 +96,19 @@ namespace Kbtter4.Cache
             }
         }
 
+        /// <summary>
+        /// お気に入りを取得
+        /// </summary>
+        /// <returns>お気に入りキャッシュリスト</returns>
         public IEnumerable<Kbtter4FavoriteCache> Favorites()
         {
             return Connection.Query<Kbtter4FavoriteCache>("select * from Favorites");
         }
 
-
+        /// <summary>
+        /// リツイートを追加
+        /// </summary>
+        /// <param name="data">リツイートキャッシュ用データ</param>
         public void AddRetweet(Kbtter4RetweetCache data)
         {
             using (var tr = Connection.BeginTransaction())
@@ -100,6 +125,10 @@ namespace Kbtter4.Cache
             }
         }
 
+        /// <summary>
+        /// リツイートを削除
+        /// </summary>
+        /// <param name="id">RT元ID</param>
         public void RemoveRetweet(long id)
         {
             using (var tr = Connection.BeginTransaction())
@@ -116,12 +145,18 @@ namespace Kbtter4.Cache
             }
         }
 
+        /// <summary>
+        /// リツイートを取得
+        /// </summary>
+        /// <returns>リツイートキャッシュリスト</returns>
         public IEnumerable<Kbtter4RetweetCache> Retweets()
         {
             return Connection.Query<Kbtter4RetweetCache>("select * from Retweets");
         }
 
-
+        /// <summary>
+        /// 開放
+        /// </summary>
         public void Dispose()
         {
             Connection.Dispose();

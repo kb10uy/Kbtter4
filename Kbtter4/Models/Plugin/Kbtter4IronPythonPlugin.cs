@@ -277,15 +277,18 @@ namespace Kbtter4.Models.Plugin
                 try
                 {
                     var scope = engine.CreateScope();
-                    scope.SetVariable("Kbtter3", new Kbtter4PluginProvider(instance));
+                    scope.SetVariable("Kbtter4", new Kbtter4PluginProvider(instance));
                     var src = engine.CreateScriptSourceFromFile(i);
                     var code = src.Compile();
                     code.Execute(scope);
                     var p = new Kbtter4IronPythonPlugin(scope);
                     ret.Add(p);
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    instance.LogError(String.Format("プラグイン読み込み中にエラーが発生しました : {0}\n{1}", i, e.Message));
+                    
+                }
             }
 
             return ret;

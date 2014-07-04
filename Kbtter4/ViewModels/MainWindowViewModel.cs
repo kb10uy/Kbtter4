@@ -327,7 +327,6 @@ namespace Kbtter4.ViewModels
 
 
         #region HasMedia変更通知プロパティ
-        private bool _HasMedia;
 
         public bool HasMedia
         {
@@ -530,6 +529,102 @@ namespace Kbtter4.ViewModels
                 _IsReplying = value;
                 RaisePropertyChanged();
             }
+        }
+        #endregion
+
+        #endregion
+
+        #region コマンド
+
+        #region CommandResults変更通知プロパティ
+        private string _CommandResults = "";
+
+        public string CommandResults
+        {
+            get
+            { return _CommandResults; }
+            set
+            {
+                if (_CommandResults == value)
+                    return;
+                _CommandResults = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region CommandText変更通知プロパティ
+        private string _CommandText = "";
+
+        public string CommandText
+        {
+            get
+            { return _CommandText; }
+            set
+            {
+                if (_CommandText == value)
+                    return;
+                _CommandText = value;
+                RaisePropertyChanged();
+                ExecuteCommandCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region ExecuteCommandCommand
+        private ViewModelCommand _ExecuteCommandCommand;
+
+        public ViewModelCommand ExecuteCommandCommand
+        {
+            get
+            {
+                if (_ExecuteCommandCommand == null)
+                {
+                    _ExecuteCommandCommand = new ViewModelCommand(ExecuteCommand, CanExecuteCommand);
+                }
+                return _ExecuteCommandCommand;
+            }
+        }
+
+        public bool CanExecuteCommand()
+        {
+            return CommandText != "";
+        }
+
+        public void ExecuteCommand()
+        {
+            Task.Run(() =>
+            {
+                var c = CommandText;
+                CommandText = "";
+                CommandResults += "$ " + c + "\n";
+                CommandResults += Kbtter.CommandManager.Execute(c) + "\n";
+                CommandResults += "\n";
+            });
+        }
+        #endregion
+
+
+        #region ResetCommandResultsCommand
+        private ViewModelCommand _ResetCommandResultsCommand;
+
+        public ViewModelCommand ResetCommandResultsCommand
+        {
+            get
+            {
+                if (_ResetCommandResultsCommand == null)
+                {
+                    _ResetCommandResultsCommand = new ViewModelCommand(ResetCommandResults);
+                }
+                return _ResetCommandResultsCommand;
+            }
+        }
+
+        public void ResetCommandResults()
+        {
+            CommandResults = "";
         }
         #endregion
 

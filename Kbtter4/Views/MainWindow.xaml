@@ -65,6 +65,7 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="64"/>
@@ -195,15 +196,23 @@
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/UserNotification.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
 
+                <TextBlock Name="TextBlockMenuCommandline" TextAlignment="Right" VerticalAlignment="Center"
+                                    Grid.Column="0" Grid.Row="8" FontSize="16"
+                                    Foreground="White">コマンド</TextBlock>
+                <ToggleButton Name="ButtonMenuCommandline" Grid.Column="1" Grid.Row="8" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
+                              IsChecked="{Binding View.IsCommandlineVisible}" Command="{Binding View.ChangeToCommandlineCommand}">
+                    <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/Commandline.png" OverridesDefaultStyle="False"/>
+                </ToggleButton>
+
                 <TextBlock Name="TextBlockMenuSetting" TextAlignment="Right" VerticalAlignment="Center"
-                                    Grid.Column="0" Grid.Row="9" FontSize="24"
+                                    Grid.Column="0" Grid.Row="10" FontSize="24"
                                     Foreground="White">設定</TextBlock>
-                <ToggleButton Name="ButtonMenuSetting" Grid.Column="1" Grid.Row="9" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
+                <ToggleButton Name="ButtonMenuSetting" Grid.Column="1" Grid.Row="10" Margin="4" Template="{StaticResource NonDecorationToggleButton}"
                               IsChecked="{Binding View.IsSettingVisible}" Command="{Binding View.ChangeToSettingCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/Setting.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
 
-                <StackPanel VerticalAlignment="Center" Grid.Row="10" Margin="4">
+                <StackPanel VerticalAlignment="Center" Grid.Row="11" Margin="4">
 
                     <TextBlock TextAlignment="Right">
                         <Hyperlink Command="{Binding LoginUser.ShowUserInformationCommand}">
@@ -226,7 +235,7 @@
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}">)</TextBlock>
                     </StackPanel>
                 </StackPanel>
-                <ToggleButton Name="ToggleButtonMenuLoginUser" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center"
+                <ToggleButton Name="ToggleButtonMenuLoginUser" Grid.Column="1" Grid.Row="11" VerticalAlignment="Center" HorizontalAlignment="Center"
                               Template="{StaticResource ImageToggleButton}" ToolTip="クリックでログイン" 
                               >
                     <Border BorderBrush="{StaticResource TwitterColorWhite}" Background="{StaticResource TwitterColorSecondary}" BorderThickness="2" CornerRadius="3">
@@ -241,7 +250,7 @@
                             <BeginStoryboard>
                                 <Storyboard>
                                     <Storyboard Storyboard.TargetName="GridLogin">
-                                        <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" From="0" To="240">
+                                        <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" To="160">
                                             <DoubleAnimation.EasingFunction>
                                                 <QuarticEase EasingMode="EaseInOut"/>
                                             </DoubleAnimation.EasingFunction>
@@ -258,7 +267,7 @@
                         <EventTrigger RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>
                                 <Storyboard Storyboard.TargetName="GridLogin">
-                                    <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" From="240" To="0">
+                                    <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.5" To="0">
                                         <DoubleAnimation.EasingFunction>
                                             <QuarticEase EasingMode="EaseInOut"/>
                                         </DoubleAnimation.EasingFunction>
@@ -270,7 +279,7 @@
                 </ToggleButton>
 
 
-                <Grid Name="GridLogin" Grid.Row="11" Grid.ColumnSpan="2" Background="{StaticResource TwitterColorSecondary}" Height="0">
+                <Grid Name="GridLogin" Grid.Row="12" Grid.ColumnSpan="2" Background="{StaticResource TwitterColorSecondary}" Height="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -496,6 +505,22 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー定義通知</TextBlock>
+            </Grid>
+            <Grid Name="GridCommandline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
+                            Visibility="{Binding ElementName=ButtonMenuCommandline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock FontSize="32" Margin="4">コマンドライン</TextBlock>
+                <TextBox Grid.Row="1" Margin="4" FontSize="16" Text="{Binding CommandText,UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding ExecuteCommandCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+                <TextBox Grid.Row="2" AcceptsReturn="True" IsReadOnly="True" Margin="4"  Text="{Binding CommandResults}"
+                         ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
             </Grid>
             <Grid Name="GridSetting" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuSetting,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
