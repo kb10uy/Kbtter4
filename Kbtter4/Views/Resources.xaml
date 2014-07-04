@@ -6,7 +6,7 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:Kbtter4.Views"
         xmlns:vm="clr-namespace:Kbtter4.ViewModels">
-    
+
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     <v:Int32ToShortenNumberStringConverter x:Key="Int32ShortenConverter"/>
 
@@ -156,7 +156,7 @@
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="44"/>
                     <RowDefinition Height="24"/>
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
@@ -170,7 +170,7 @@
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding FavoriteCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4">
-                    <ToggleButton Template="{StaticResource RetweetToggleButton}" Width="16" Height="16"/>
+                    <ToggleButton Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted}" Width="16" Height="16"/>
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding RetweetCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
             </Grid>
@@ -179,10 +179,31 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding User.Name}" Margin="4,0,4,0" FontSize="16"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Visibility="{Binding User.IsProtected,Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="Goldenrod">🔓</TextBlock>
+                    <TextBlock Text="{Binding User.Name}" FontFamily="MS UI Gothic" FontWeight="Bold" Margin="4" FontSize="16" Foreground="DarkBlue"/>
+                    <TextBlock VerticalAlignment="Center">
+                        <Hyperlink Command="{Binding User.ShowUserInformationCommand}">
+                            <i:Interaction.Behaviors>
+                                <v:HyperlinkMouseOverColorChangeBehavior MouseLeftForeground="DarkBlue" MouseEnteredForeground="Red"/>
+                            </i:Interaction.Behaviors>
+                            @<TextBlock Text="{Binding User.ScreenName}"/>
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+
                 <TextBlock Text="{Binding Text}" Grid.Row="1" Margin="4,0,4,0" FontSize="14"/>
-                <StackPanel Grid.Row="2" Visibility="{Binding IsRetweet,Converter={StaticResource BooleanToVisibilityConverter}}"
+
+                <StackPanel Grid.Row="2" Margin="4,4,4,0" Orientation="Horizontal">
+                    <TextBlock Foreground="DarkBlue" Text="{Binding CreatedTimeText}"/>
+                    <TextBlock Foreground="Gray" Margin="4,0,4,0">via</TextBlock>
+                    <TextBlock Foreground="Gray" Text="{Binding Via}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Visibility="{Binding IsRetweet,Converter={StaticResource BooleanToVisibilityConverter}}"
                             Orientation="Horizontal">
                     <Image Margin="4" Width="24" Height="24">
                         <i:Interaction.Behaviors>
@@ -190,7 +211,14 @@
                         </i:Interaction.Behaviors>
                     </Image>
                     <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="Gray" Margin="4,0,0,0">Retweeted by</TextBlock>
-                    <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="Gray" Margin="8,0,0,0" Text="{Binding RetweetingUser.Name}"/>
+                    <TextBlock VerticalAlignment="Center" Margin="8,0,0,0">
+                        <Hyperlink Foreground="Gray" Command="{Binding RetweetingUser.ShowUserInformationCommand}">
+                            <TextBlock FontSize="12" Text="{Binding RetweetingUser.Name}"/>
+                            <i:Interaction.Behaviors>
+                                <v:HyperlinkMouseOverUnderlineBehavior/>
+                            </i:Interaction.Behaviors>
+                        </Hyperlink>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
         </Grid>

@@ -38,7 +38,7 @@ namespace Kbtter4.ViewModels
 
 
             HomeTimeline = new StatusTimelineViewModel(this, Kbtter.HomeStatusTimeline);
-            LoginUser = new UserViewModel(Kbtter.AuthenticatedUser);
+            LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
             Accounts = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 Kbtter.Accounts,
                 p => new AccountViewModel(p),
@@ -59,7 +59,7 @@ namespace Kbtter4.ViewModels
             listener.Add("AuthenticatedUser", (s, e) =>
             {
                 LoginUser.Dispose();
-                LoginUser = new UserViewModel(Kbtter.AuthenticatedUser);
+                LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
                 UpdateStatusCommand.RaiseCanExecuteChanged();
             });
         }

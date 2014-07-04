@@ -90,7 +90,7 @@ namespace Kbtter4.Cache
             {
                 try
                 {
-                    Connection.Execute("insert or ignore into Favorites values(@Id,@OriginalId,@CreatedDate,@ScreenName)", data);
+                    Connection.Execute("insert or ignore into Retweets values(@Id,@OriginalId,@CreatedDate,@ScreenName)", data);
                     tr.Commit();
                 }
                 catch

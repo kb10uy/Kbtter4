@@ -73,7 +73,35 @@ namespace Kbtter4.Views
         {
             AssociatedObject.Foreground = MouseLeftForeground;
         }
+    }
 
+    public class HyperlinkMouseOverUnderlineBehavior : Behavior<Hyperlink>
+    {
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            AssociatedObject.MouseEnter += AssociatedObject_MouseEnter;
+            AssociatedObject.MouseLeave += AssociatedObject_MouseLeave;
+            AssociatedObject.TextDecorations = null;
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            AssociatedObject.MouseEnter -= AssociatedObject_MouseEnter;
+            AssociatedObject.MouseLeave -= AssociatedObject_MouseLeave;
+        }
+
+        private void AssociatedObject_MouseEnter(object sender, MouseEventArgs e)
+        {
+            AssociatedObject.TextDecorations = TextDecorations.Underline;
+        }
+
+        private void AssociatedObject_MouseLeave(object sender, MouseEventArgs e)
+        {
+            AssociatedObject.TextDecorations = null;
+        }
     }
 
     public sealed class ImageWebLazyBindBehavior : Behavior<Image>

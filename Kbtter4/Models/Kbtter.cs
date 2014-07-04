@@ -236,6 +236,30 @@ namespace Kbtter4.Models
             if (GlobalMuteQuery.Execute().AsBoolean()) return;
 
             var s = e.Message;
+            RaisePropertyChanged("Statuses");
+
+            if (s.Status.RetweetedStatus != null)
+            {
+                //自分がRTした
+                if (s.Status.User.Id == AuthenticatedUser.Id)
+                {
+                    AuthenticatedUserCache.AddRetweet(
+                        new Kbtter4RetweetCache
+                        {
+                            CreatedDate = s.Status.RetweetedStatus.CreatedAt.LocalDateTime,
+                            Id = s.Status.Id,
+                            OriginalId = s.Status.RetweetedStatus.Id,
+                            ScreenName = s.Status.RetweetedStatus.User.ScreenName
+                        });
+                    RaisePropertyChanged("Retweets");
+                }
+                //自分のがRTされた
+                if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id)
+                {
+
+                }
+            }
+
             foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy());
             foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy());
 
@@ -290,7 +314,22 @@ namespace Kbtter4.Models
 
         private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<IdMessage> e)
         {
+            var mes = e.Message;
+            foreach (var i in GlobalPlugins) mes = i.OnIdEventDestructive(mes.DeepCopy());
+            foreach (var i in GlobalPlugins) i.OnIdEvent(mes.DeepCopy());
 
+            switch (mes.Type)
+            {
+                case MessageType.DeleteStatus:
+                    if (AuthenticatedUserCache.Retweets().Where(p => p.Id == mes.UpToStatusId).Count() != 0)
+                    {
+                        AuthenticatedUserCache.RemoveRetweet(mes.UpToStatusId ?? 0);
+                        RaisePropertyChanged("Retweets");
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
         #endregion
 
@@ -330,25 +369,29 @@ namespace Kbtter4.Models
             SaveSetting();
         }
 
-        public async Task<string> Authenticate(Kbtter4Account ac)
+        public Task<string> Authenticate(Kbtter4Account ac)
         {
-            StopStreaming();
-            foreach (var i in GlobalPlugins) i.OnLogout(AuthenticatedUser);
+            return Task<string>.Run(async () =>
+            {
+                StopStreaming();
+                foreach (var i in GlobalPlugins) i.OnLogout(AuthenticatedUser);
 
-            Token = Tokens.Create(Setting.Consumer.Key, Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
-            try
-            {
-                var u = await Token.Users.ShowAsync(user_id => ac.UserId);
-                AuthenticatedUser = u;
-                AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
-                foreach (var i in GlobalPlugins) i.OnLogin(AuthenticatedUser);
-                StartStreaming();
-                return "";
-            }
-            catch (TwitterException e)
-            {
-                return e.Message;
-            }
+                Token = Tokens.Create(Setting.Consumer.Key, Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
+                try
+                {
+                    var u = await Token.Users.ShowAsync(user_id => ac.UserId);
+                    AuthenticatedUser = u;
+                    AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
+                    foreach (var i in GlobalPlugins) i.OnLogin(AuthenticatedUser);
+                    StartStreaming();
+                    return "";
+                }
+                catch (TwitterException e)
+                {
+                    return e.Message;
+                }
+            });
+            
         }
         #endregion
 
@@ -384,6 +427,11 @@ namespace Kbtter4.Models
         public bool CheckFavorited(long id)
         {
             return AuthenticatedUserCache.Favorites().Where(p => p.Id == id).Count() != 0;
+        }
+
+        public bool CheckRetweeted(long id)
+        {
+            return AuthenticatedUserCache.Retweets().Where(p => p.OriginalId == id).Count() != 0;
         }
         #endregion
 

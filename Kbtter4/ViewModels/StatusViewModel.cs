@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 using Livet;
 using Livet.Commands;
@@ -21,7 +23,8 @@ namespace Kbtter4.ViewModels
 
         public Status SourceStatus { get; private set; }
 
-        private Status rted;
+        public Status ReceivedStatus { get; private set; }
+        private long rtid = 0;
 
         public Kbtter Kbtter;
         public MainWindowViewModel main;
@@ -35,27 +38,29 @@ namespace Kbtter4.ViewModels
         {
             Kbtter = Kbtter.Instance;
             main = mw;
-            listener = new PropertyChangedEventListener(Kbtter);
-            CompositeDisposable.Add(listener);
-            listener.Add("Favorites", (s, e) =>
-            {
-                _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
-                RaisePropertyChanged(() => IsFavorited);
-            });
+
+            RegisterEventListeners();
 
             SourceStatus = st;
+            ReceivedStatus = SourceStatus;
             if (SourceStatus.RetweetedStatus != null)
             {
-                rted = SourceStatus;
                 SourceStatus = SourceStatus.RetweetedStatus;
                 IsRetweet = true;
-                RetweetingUser = new UserViewModel(rted.User);
+                RetweetingUser = new UserViewModel(ReceivedStatus.User, main);
             }
 
             _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
             RaisePropertyChanged(() => IsFavorited);
-            
-            User = new UserViewModel(SourceStatus.User);
+
+            _IsRetweeted = Kbtter.CheckRetweeted(SourceStatus.Id);
+            RaisePropertyChanged(() => IsRetweeted);
+
+            _CreatedTimeText = SourceStatus.CreatedAt.LocalDateTime;
+            RaisePropertyChanged(() => CreatedTimeText);
+
+            User = new UserViewModel(SourceStatus.User, main);
+
             Text = SourceStatus.Text
                 .Replace("&lt;", "<")
                 .Replace("&gt;", ">")
@@ -63,8 +68,11 @@ namespace Kbtter4.ViewModels
             OnelineText = Text
                 .Replace("\r", " ")
                 .Replace("\n", " ");
+
             FavoriteCount = SourceStatus.FavoriteCount ?? 0;
             RetweetCount = SourceStatus.RetweetCount ?? 0;
+
+            ExtractVia();
 
         }
 
@@ -140,8 +148,27 @@ namespace Kbtter4.ViewModels
             {
                 if (_IsFavorited == value)
                     return;
-                _IsFavorited = value;
-                RaisePropertyChanged();
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        if (value)
+                        {
+                            Kbtter.Token.Favorites.Create(id => SourceStatus.Id);
+                        }
+                        else
+                        {
+                            Kbtter.Token.Favorites.Destroy(id => SourceStatus.Id);
+                        }
+                    }
+                    catch (TwitterException e)
+                    {
+                        main.View.Notify("お気に入り操作に失敗しました : " + e.Message);
+                    }
+
+                    _IsFavorited = value;
+                    RaisePropertyChanged();
+                });
             }
         }
         #endregion
@@ -160,6 +187,46 @@ namespace Kbtter4.ViewModels
                     return;
                 _IsRetweet = value;
                 RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsRetweeted変更通知プロパティ
+        private bool _IsRetweeted;
+
+        public bool IsRetweeted
+        {
+            get
+            { return _IsRetweeted; }
+            set
+            {
+                if (_IsRetweeted == value)
+                    return;
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        if (value)
+                        {
+                            rtid = Kbtter.Token.Statuses.Retweet(id => SourceStatus.Id).Id;
+                        }
+                        else
+                        {
+                            if (rtid == 0)
+                            {
+                                rtid = Kbtter.Token.Statuses.Show(include_my_retweet => true, id => SourceStatus.Id).Id;
+                            }
+                            Kbtter.Token.Favorites.Destroy(id => rtid);
+                        }
+                    }
+                    catch (TwitterException e)
+                    {
+                        main.View.Notify("リツイート操作に失敗しました : " + e.Message);
+                    }
+                    _IsRetweeted = value;
+                    RaisePropertyChanged();
+                });
             }
         }
         #endregion
@@ -218,6 +285,98 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+
+        #region CreatedTimeText変更通知プロパティ
+        internal DateTime _CreatedTimeText;
+
+        public string CreatedTimeText
+        {
+            get
+            {
+                var ts = (DateTime.Now - _CreatedTimeText);
+                if (ts.Days >= 10)
+                {
+                    return _CreatedTimeText.ToString();
+                }
+                else if (ts.Days >= 1)
+                {
+                    return String.Format("{0}日前", ts.Days);
+                }
+                else if (ts.Hours >= 1)
+                {
+                    return String.Format("{0}時間前", ts.Hours);
+                }
+                else if (ts.Minutes >= 1)
+                {
+                    return String.Format("{0}分前", ts.Minutes);
+                }
+                else if (ts.Seconds >= 10)
+                {
+                    return String.Format("{0}秒前", ts.Seconds);
+                }
+                else
+                {
+                    return "今";
+                }
+            }
+        }
+        #endregion
+
+
+        #region Via変更通知プロパティ
+        private string _Via = "";
+
+        public string Via
+        {
+            get
+            { return _Via; }
+            set
+            {
+                if (_Via == value)
+                    return;
+                _Via = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ユーティリティ
+
+        static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
+
+        public void ExtractVia()
+        {
+            var m = reg.Match(SourceStatus.Source);
+            if (!m.Success) return;
+
+            Via = m.Groups["client"].Value;
+        }
+
+        public void RegisterEventListeners()
+        {
+            listener = new PropertyChangedEventListener(Kbtter);
+            CompositeDisposable.Add(listener);
+            listener.Add("Favorites", (s, e) =>
+            {
+                _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+                RaisePropertyChanged(() => IsFavorited);
+                RaisePropertyChanged(() => CreatedTimeText);
+            });
+            listener.Add("Retweets", (s, e) =>
+            {
+                _IsRetweeted = Kbtter.CheckRetweeted(SourceStatus.Id);
+                RaisePropertyChanged(() => IsRetweeted);
+                RaisePropertyChanged(() => CreatedTimeText);
+            });
+
+            listener.Add("Statuses", (s, e) =>
+            {
+                RaisePropertyChanged(() => CreatedTimeText);
+            });
+        }
+
+        #endregion
 
     }
 

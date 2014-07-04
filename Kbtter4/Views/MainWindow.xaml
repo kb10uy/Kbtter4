@@ -204,8 +204,19 @@
                 </ToggleButton>
 
                 <StackPanel VerticalAlignment="Center" Grid.Row="10" Margin="4">
-                    <TextBlock FontSize="16" Foreground="{StaticResource TwitterColorLightGrayBlue}"
+
+                    <TextBlock TextAlignment="Right">
+                        <Hyperlink Command="{Binding LoginUser.ShowUserInformationCommand}">
+                            <TextBlock FontSize="16"
                                Text="{Binding LoginUser.Name}" TextAlignment="Right"/>
+                            <i:Interaction.Behaviors>
+                                <v:HyperlinkMouseOverColorChangeBehavior MouseLeftForeground="{StaticResource TwitterColorLightGrayBlue}"
+                                                                         MouseEnteredForeground="Red"/>
+                                <v:HyperlinkMouseOverUnderlineBehavior/>
+                            </i:Interaction.Behaviors>
+                        </Hyperlink>
+                    </TextBlock>
+
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorLightBlue}">@</TextBlock>
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorLightBlue}"
@@ -387,7 +398,7 @@
                         </ListBox>
                         <TextBox AcceptsReturn="True" AcceptsTab="True" Margin="4" Grid.Row="2" FontSize="16"
                                  Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged}" MinHeight="80"/>
-                        
+
                     </Grid>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>

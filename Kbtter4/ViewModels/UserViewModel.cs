@@ -18,16 +18,21 @@ namespace Kbtter4.ViewModels
 {
     public class UserViewModel : ViewModel
     {
+        Kbtter Kbtter;
         User src;
+        MainWindowViewModel main;
         PropertyChangedEventListener listener;
 
-        public UserViewModel(User user)
+        public UserViewModel(User user,MainWindowViewModel mw)
         {
+            Kbtter = Kbtter.Instance;
+            main = mw;
             src = user;
             Name = src.Name;
             ScreenName = src.ScreenName;
             IdString = src.Id.ToString();
             ProfileImageUri = src.ProfileImageUrlHttps;
+            IsProtected = src.IsProtected;
         }
 
         public UserViewModel()
@@ -107,6 +112,47 @@ namespace Kbtter4.ViewModels
                 _ProfileImageUri = value;
                 RaisePropertyChanged();
             }
+        }
+        #endregion
+
+
+        #region IsProtected変更通知プロパティ
+        private bool _IsProtected;
+
+        public bool IsProtected
+        {
+            get
+            { return _IsProtected; }
+            set
+            { 
+                if (_IsProtected == value)
+                    return;
+                _IsProtected = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ShowUserInformationCommand
+        private ViewModelCommand _ShowUserInformationCommand;
+
+        public ViewModelCommand ShowUserInformationCommand
+        {
+            get
+            {
+                if (_ShowUserInformationCommand == null)
+                {
+                    _ShowUserInformationCommand = new ViewModelCommand(ShowUserInformation);
+                }
+                return _ShowUserInformationCommand;
+            }
+        }
+
+        public void ShowUserInformation()
+        {
+            main.View.Notify(Name + "さんの情報");
+            main.View.ChangeToUser();
         }
         #endregion
 
