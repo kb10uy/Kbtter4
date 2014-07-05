@@ -72,6 +72,9 @@ namespace Kbtter4.ViewModels
             FavoriteCount = SourceStatus.FavoriteCount ?? 0;
             RetweetCount = SourceStatus.RetweetCount ?? 0;
 
+            IsMyStatus = SourceStatus.User.Id == Kbtter.AuthenticatedUser.Id;
+            IsRetweetable = !IsMyStatus;
+
             ExtractVia();
 
         }
@@ -215,7 +218,7 @@ namespace Kbtter4.ViewModels
                         {
                             if (rtid == 0)
                             {
-                                rtid = Kbtter.Token.Statuses.Show(include_my_retweet => true, id => SourceStatus.Id).Id;
+                                rtid = Kbtter.Token.Statuses.Show(include_my_retweet => "true", id => SourceStatus.Id).Id;
                             }
                             Kbtter.Token.Favorites.Destroy(id => rtid);
                         }
@@ -341,6 +344,98 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region IsMyStatus変更通知プロパティ
+        private bool _IsMyStatus;
+
+        public bool IsMyStatus
+        {
+            get
+            { return _IsMyStatus; }
+            set
+            { 
+                if (_IsMyStatus == value)
+                    return;
+                _IsMyStatus = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region DestroyStatusCommand
+        private ViewModelCommand _DestroyStatusCommand;
+
+        public ViewModelCommand DestroyStatusCommand
+        {
+            get
+            {
+                if (_DestroyStatusCommand == null)
+                {
+                    _DestroyStatusCommand = new ViewModelCommand(DestroyStatus, CanDestroyStatus);
+                }
+                return _DestroyStatusCommand;
+            }
+        }
+
+        public bool CanDestroyStatus()
+        {
+            return IsMyStatus;
+        }
+
+        public async void DestroyStatus()
+        {
+            try
+            {
+                await Kbtter.Token.Statuses.DestroyAsync(id => SourceStatus.Id);
+            }
+            catch (TwitterException e)
+            {
+                main.View.Notify("ツイート削除に失敗しました : " + e.Message);
+            }
+        }
+        #endregion
+
+
+        #region ReplyCommand
+        private ViewModelCommand _ReplyCommand;
+
+        public ViewModelCommand ReplyCommand
+        {
+            get
+            {
+                if (_ReplyCommand == null)
+                {
+                    _ReplyCommand = new ViewModelCommand(Reply);
+                }
+                return _ReplyCommand;
+            }
+        }
+
+        public void Reply()
+        {
+            main.SetReplyTo(this);
+        }
+        #endregion
+
+
+        #region IsRetweetable変更通知プロパティ
+        private bool _IsRetweetable;
+
+        public bool IsRetweetable
+        {
+            get
+            { return _IsRetweetable; }
+            set
+            { 
+                if (_IsRetweetable == value)
+                    return;
+                _IsRetweetable = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region ユーティリティ
 
         static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
@@ -359,15 +454,21 @@ namespace Kbtter4.ViewModels
             CompositeDisposable.Add(listener);
             listener.Add("Favorites", (s, e) =>
             {
-                _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
-                RaisePropertyChanged(() => IsFavorited);
-                RaisePropertyChanged(() => CreatedTimeText);
+                Task.Run(() =>
+                {
+                    _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+                    RaisePropertyChanged(() => IsFavorited);
+                    RaisePropertyChanged(() => CreatedTimeText);
+                });
             });
             listener.Add("Retweets", (s, e) =>
             {
-                _IsRetweeted = Kbtter.CheckRetweeted(SourceStatus.Id);
-                RaisePropertyChanged(() => IsRetweeted);
-                RaisePropertyChanged(() => CreatedTimeText);
+                Task.Run(() =>
+                {
+                    _IsRetweeted = Kbtter.CheckRetweeted(SourceStatus.Id);
+                    RaisePropertyChanged(() => IsRetweeted);
+                    RaisePropertyChanged(() => CreatedTimeText);
+                });
             });
 
             listener.Add("Statuses", (s, e) =>

@@ -13,15 +13,18 @@ namespace Kbtter4.Models
     {
         public ObservableSynchronizedCollection<Status> Statuses { get; private set; }
         public Kbtter3Query Query { get; private set; }
+        Kbtter4Setting Setting;
 
-        public StatusTimeline()
+        public StatusTimeline(Kbtter4Setting kb)
         {
+            Setting = kb;
             Statuses = new ObservableSynchronizedCollection<Status>();
             Query = new Kbtter3Query("true");
         }
 
-        public StatusTimeline(string q)
+        public StatusTimeline(Kbtter4Setting kb, string q)
         {
+            Setting = kb;
             Statuses = new ObservableSynchronizedCollection<Status>();
             Query = new Kbtter3Query(q);
         }
@@ -31,6 +34,7 @@ namespace Kbtter4.Models
             Query.ClearVariables();
             Query.SetVariable("Status", st);
             if (Query.Execute().AsBoolean()) Statuses.Insert(0, st);
+            if (Statuses.Count > Setting.Timelines.HomeStatusTimelineMax) Statuses.RemoveAt(Statuses.Count - 1);
         }
     }
 }

@@ -370,7 +370,7 @@
 
             </StackPanel>
 
-            <Expander Name="ExpanderNewTweet" Grid.Row="1" Grid.Column="1" Header="新しいツイート">
+            <Expander Name="ExpanderNewTweet" Grid.Row="1" Grid.Column="1" Header="新しいツイート" IsExpanded="{Binding View.IsStatusCreatorExpanded}">
                 <Grid VerticalAlignment="Stretch" MinHeight="120">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="400"/>
@@ -383,7 +383,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Height="32" Orientation="Horizontal" Visibility="{Binding IsReplying,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Button Margin="4">キャンセル</Button>
+                            <Button Command="{Binding CancelReplyCommand}" Margin="4">キャンセル</Button>
                             <Image Name="ImageReplyingUser" Width="24" Height="24" Margin="4">
                                 <i:Interaction.Behaviors>
                                     <v:ImageWebLazyBindBehavior UriSource="{Binding ReplyingStatus.User.ProfileImageUri}"/>

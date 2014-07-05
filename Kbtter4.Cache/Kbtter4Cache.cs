@@ -29,8 +29,8 @@ namespace Kbtter4.Cache
             {
                 DataSource = fileName,
                 Version = 3,
-                SyncMode = SynchronizationModes.Off,
-                JournalMode = SQLiteJournalModeEnum.Memory
+                SyncMode = SynchronizationModes.Normal,
+                JournalMode = SQLiteJournalModeEnum.Wal
             };
             Connection = new SQLiteConnection(csb.ToString());
             Connection.Open();

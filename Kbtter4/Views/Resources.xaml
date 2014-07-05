@@ -134,6 +134,15 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="DestroyStatusButton" TargetType="Button">
+        <Border Name="Main" SnapsToDevicePixels="True">
+            <Border.Background>
+                <ImageBrush ImageSource="/Kbtter4;component/Resources/icon_delete.png" Stretch="None"/>
+            </Border.Background>
+            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+    </ControlTemplate>
+
     <DataTemplate DataType="{x:Type vm:AccountViewModel}" x:Key="AccountTemplate">
         <StackPanel>
             <StackPanel Orientation="Horizontal">
@@ -149,6 +158,16 @@
                 <ColumnDefinition Width="48"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem IsCheckable="True" IsChecked="{Binding IsFavorited}" Header="お気に入り"/>
+                    <MenuItem IsEnabled="{Binding IsRetweetable}" IsCheckable="True" IsChecked="{Binding IsRetweeted}" Header="リツイート"/>
+                    <MenuItem IsEnabled="{Binding IsMyStatus}" Command="{Binding DestroyStatusCommand}" Header="削除"/>
+                    <Separator/>
+                    <MenuItem Header="返信" Command="{Binding ReplyCommand}"/>
+                </ContextMenu>
+            </Grid.ContextMenu>
 
             <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" 
                    Fill="{StaticResource Kbtter4RetweetBackColor}" Panel.ZIndex="-100" 
@@ -166,12 +185,18 @@
                     </i:Interaction.Behaviors>
                 </Image>
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4">
-                    <ToggleButton Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited}"  Width="16" Height="16"/>
+                    <ToggleButton Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited}"  Width="16" Height="16"
+                                  ToolTip="お気に入り"/>
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding FavoriteCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4">
-                    <ToggleButton Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted}" Width="16" Height="16"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4" Visibility="{Binding IsRetweetable,Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ToggleButton Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted}" Width="16" Height="16"
+                                  ToolTip="リツイート"/>
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding RetweetCount,Converter={StaticResource Int32ShortenConverter}}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4" Visibility="{Binding IsMyStatus,Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Button Template="{StaticResource DestroyStatusButton}" Width="16" Height="16" Command="{Binding DestroyStatusCommand}" ToolTip="削除"/>
+                    <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center">削除</TextBlock>
                 </StackPanel>
             </Grid>
             <Grid Grid.Column="1">

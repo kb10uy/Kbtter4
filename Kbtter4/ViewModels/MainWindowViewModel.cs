@@ -200,6 +200,7 @@ namespace Kbtter4.ViewModels
 
         #region LoginCommand
         private ViewModelCommand _LoginCommand;
+        bool logintaken = false;
 
         public ViewModelCommand LoginCommand
         {
@@ -215,11 +216,13 @@ namespace Kbtter4.ViewModels
 
         public bool CanLogin()
         {
-            return SelectedAccount != null;
+            return SelectedAccount != null && !logintaken;
         }
 
         public async void Login()
         {
+            logintaken = true;
+            LoginCommand.RaiseCanExecuteChanged();
             var res = await Kbtter.Authenticate(SelectedAccount.SourceAccount);
 
             if (res == "")
@@ -231,6 +234,8 @@ namespace Kbtter4.ViewModels
             {
                 View.Notify("ログインに失敗しました : " + res);
             }
+            logintaken = false;
+            LoginCommand.RaiseCanExecuteChanged();
         }
         #endregion
 
@@ -532,7 +537,52 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+
+        #region リプ
+
+        public void SetReplyTo(StatusViewModel st)
+        {
+            ReplyingStatus = st;
+            IsReplying = true;
+
+            var s = st.SourceStatus;
+            List<string> ru = s.Entities.UserMentions.Select(p => p.ScreenName).ToList();
+            if (!ru.Contains(s.User.ScreenName)) ru.Insert(0,s.User.ScreenName);
+            if (ru.Count != 1 && ru.Contains(Kbtter.AuthenticatedUser.ScreenName)) ru.Remove(Kbtter.AuthenticatedUser.ScreenName);
+            var t = new StringBuilder();
+            ru.ForEach(p => t.Append(String.Format("@{0} ", p)));
+            UpdateStatusText = t.ToString();
+
+            View.IsStatusCreatorExpanded = true;
+        }
+
+
+        #region CancelReplyCommand
+        private ViewModelCommand _CancelReplyCommand;
+
+        public ViewModelCommand CancelReplyCommand
+        {
+            get
+            {
+                if (_CancelReplyCommand == null)
+                {
+                    _CancelReplyCommand = new ViewModelCommand(CancelReply);
+                }
+                return _CancelReplyCommand;
+            }
+        }
+
+        public void CancelReply()
+        {
+            IsReplying = false;
+        }
         #endregion
+
+
+        #endregion
+
+        #endregion
+
 
         #region コマンド
 

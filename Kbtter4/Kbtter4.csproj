@@ -141,6 +141,7 @@
     <Compile Include="Models\Kbtter.cs" />
     <Compile Include="Models\Kbtter4Account.cs" />
     <Compile Include="Models\Kbtter4DirectMessage.cs" />
+    <Compile Include="Models\Kbtter4Extensions.cs" />
     <Compile Include="Models\Kbtter4Notification.cs" />
     <Compile Include="Models\Plugin\Kbtter4IronPythonPlugin.cs" />
     <Compile Include="Models\Plugin\Kbtter4Plugin.cs" />

@@ -624,5 +624,26 @@ namespace Kbtter4.ViewModels
         }
 
         #endregion
+
+        #region その他画面要素
+
+        #region IsStatusCreatorExpanded変更通知プロパティ
+        private bool _IsStatusCreatorExpanded;
+
+        public bool IsStatusCreatorExpanded
+        {
+            get
+            { return _IsStatusCreatorExpanded; }
+            set
+            { 
+                if (_IsStatusCreatorExpanded == value)
+                    return;
+                _IsStatusCreatorExpanded = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        #endregion
     }
 }

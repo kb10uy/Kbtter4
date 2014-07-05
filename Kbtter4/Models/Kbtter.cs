@@ -85,11 +85,6 @@ namespace Kbtter4.Models
         }
         #endregion
 
-        private event Kbtter4StatusReceivedEventHandler OnStatus;
-        private event Kbtter4EventReceivedEventHandler OnEvent;
-        private event Kbtter4DirectMessageReceivedEventHandler OnDirectMessage;
-        private event Kbtter4IdReceivedEventHandler OnId;
-
         public Kbtter4Setting Setting { get; set; }
 
         public IList<Kbtter4Plugin> GlobalPlugins { get; private set; }
@@ -106,15 +101,17 @@ namespace Kbtter4.Models
         #region コンストラクタ・デストラクタ
         private Kbtter()
         {
-            StreamManager = new List<IDisposable>();
 
-            HomeStatusTimeline = new StatusTimeline("true");
+            StreamManager = new List<IDisposable>();
+            Users = new ObservableSynchronizedCollection<User>();
+            Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
+            LoadSetting();
+            HomeStatusTimeline = new StatusTimeline(Setting, "true");
             HomeNotificationTimeline = new NotificationTimeline("true");
             //DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
             StatusTimelines = new ObservableSynchronizedCollection<StatusTimeline>();
             NotificationTimelines = new ObservableSynchronizedCollection<NotificationTimeline>();
-            Users = new ObservableSynchronizedCollection<User>();
-            Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
+
 
             AuthenticatedUser = new User();
 
@@ -157,13 +154,8 @@ namespace Kbtter4.Models
 
         public void Initialize()
         {
-            OnStatus += Kbtter_OnStatus;
-            OnEvent += Kbtter_OnEvent;
-            OnDirectMessage += Kbtter_OnDirectMessage;
-            OnId += Kbtter_OnId;
 
             CreateFolders();
-            LoadSetting();
             InitializePlugins();
             RegisterCommands();
         }
@@ -198,13 +190,18 @@ namespace Kbtter4.Models
             StreamManager.Add(Streaming.Subscribe(
                 (p) =>
                 {
-                    Task.Run(() =>
+                    Task.Factory.StartNew(() =>
                     {
-                        if (p is StatusMessage) OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(p as StatusMessage));
-                        if (p is EventMessage) OnEvent(this, new Kbtter4MessageReceivedEventArgs<EventMessage>(p as EventMessage));
-                        if (p is IdMessage) OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p as IdMessage));
-                        if (p is DirectMessageMessage) OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(p as DirectMessageMessage));
-                    });
+                        if (p is StatusMessage) Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(p as StatusMessage));
+                        if (p is EventMessage) Kbtter_OnEvent(this, new Kbtter4MessageReceivedEventArgs<EventMessage>(p as EventMessage));
+                        if (p is IdMessage) Kbtter_OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p as IdMessage));
+                        if (p is DirectMessageMessage) Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(p as DirectMessageMessage));
+                        if (p is DisconnectMessage)
+                        {
+                            LogInformation("Disconnected");
+                            SaveLog();
+                        }
+                    }, TaskCreationOptions.PreferFairness);
                 },
                 (ex) =>
                 {
@@ -328,10 +325,18 @@ namespace Kbtter4.Models
             switch (mes.Type)
             {
                 case MessageType.DeleteStatus:
-                    if (AuthenticatedUserCache.Retweets().Where(p => p.Id == mes.UpToStatusId).Count() != 0)
+                    if (AuthenticatedUserCache.Retweets().Where(p => p.Id == mes.Id).Count() != 0)
                     {
-                        AuthenticatedUserCache.RemoveRetweet(mes.UpToStatusId ?? 0);
+                        AuthenticatedUserCache.RemoveRetweet(mes.Id ?? 0);
                         RaisePropertyChanged("Retweets");
+                    }
+
+                    var tt = HomeStatusTimeline.Statuses.FirstOrDefault(p => p.Id == mes.Id);
+                    if (tt != null) HomeStatusTimeline.Statuses.Remove(tt);
+                    foreach (var i in StatusTimelines)
+                    {
+                        tt = i.Statuses.FirstOrDefault(p => p.Id == mes.UpToStatusId);
+                        if (tt != null) i.Statuses.Remove(tt);
                     }
                     break;
                 default:
@@ -527,6 +532,16 @@ namespace Kbtter4.Models
             });
             CommandManager.AddCommand(new Kbtter4Command
             {
+                Name = "efb",
+                Description = "(非推奨コマンド)userパラメータで指定したSNのユーザーの最新ツイートをふぁぼります。\ncountパラメータで件数を指定できます。",
+                Function = CommandEternalForceBlizzard,
+                Parameters = new[] { 
+                    new Kbtter4CommandParameter{Name="user",IsRequired=true},
+                    new Kbtter4CommandParameter{Name="count"},
+                }
+            });
+            CommandManager.AddCommand(new Kbtter4Command
+            {
                 Name = "louise",
                 Description = "????????",
                 Function = CommandLouise,
@@ -562,8 +577,30 @@ namespace Kbtter4.Models
                     "ううっうぅうう！！俺の想いよルイズへ届け！！ハルゲニアのルイズへ届け";
         }
 
+        public string CommandEternalForceBlizzard(IDictionary<string, object> args)
+        {
+            int c = 100;
+            var un = args["user"] as string;
+            if (args.ContainsKey("count")) c = (int)args["count"];
+            Task.Run(() =>
+            {
+                var tl = Token.Statuses.UserTimeline(screen_name => un, count => c);
+                Parallel.ForEach<Status>(tl, p =>
+                {
+                    try
+                    {
+                        Token.Favorites.Create(id => p.Id);
+                    }
+                    catch { }
+                });
+            });
+
+            return un + "さんの最新ツイート" + c.ToString() + "件をエターナルフォースブリザードしました";
+        }
         #endregion
     }
+
+
 
     public class Kbtter4MessageReceivedEventArgs<T> : EventArgs
     {
@@ -574,9 +611,4 @@ namespace Kbtter4.Models
             Message = obj;
         }
     }
-
-    public delegate void Kbtter4StatusReceivedEventHandler(object sender, Kbtter4MessageReceivedEventArgs<StatusMessage> e);
-    public delegate void Kbtter4EventReceivedEventHandler(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e);
-    public delegate void Kbtter4IdReceivedEventHandler(object sender, Kbtter4MessageReceivedEventArgs<IdMessage> e);
-    public delegate void Kbtter4DirectMessageReceivedEventHandler(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e);
 }
