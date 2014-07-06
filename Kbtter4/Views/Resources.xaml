@@ -322,4 +322,34 @@
             </Border>
         </StackPanel>
     </DataTemplate>
+    
+    <Style x:Key="SlidingListView" TargetType="{x:Type ListView}">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="LayoutTransform">
+                        <Setter.Value>
+                            <ScaleTransform x:Name="Transform" />
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5" />
+                                        <DoubleAnimation Storyboard.TargetProperty="LayoutTransform.ScaleY" From="0" Duration="0:0:0.5">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuarticEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

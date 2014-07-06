@@ -461,8 +461,9 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">タイムライン</TextBlock>
-                <ListBox ItemTemplate="{StaticResource StatusTemplate}" ItemsSource="{Binding View.HomeTimeline.Statuses}" 
-                         Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"/>
+                <ListView ItemTemplate="{StaticResource StatusTemplate}" ItemsSource="{Binding View.HomeTimeline.Statuses}" 
+                         Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"
+                         Style="{StaticResource SlidingListView}"/>
             </Grid>
             <Grid Name="GridHomeNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -471,8 +472,9 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">通知</TextBlock>
-                <ListBox ItemTemplate="{StaticResource NotificationTemplate}" ItemsSource="{Binding View.HomeNotification.Notificaitons}" 
-                         Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"/>
+                <ListView ItemTemplate="{StaticResource NotificationTemplate}" ItemsSource="{Binding View.HomeNotification.Notificaitons}" 
+                          Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"
+                          Style="{StaticResource SlidingListView}"/>
             </Grid>
             <Grid Name="GridDirectMessage" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuDirectMessage,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">

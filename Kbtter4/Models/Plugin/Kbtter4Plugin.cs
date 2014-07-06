@@ -60,5 +60,11 @@ namespace Kbtter4.Models.Plugin
         {
             return new Kbtter4Command();
         }
+
+        public Kbtter4CommandParameter CreateCommandParameter(string name, bool req)
+        {
+            return new Kbtter4CommandParameter(name, req);
+        }
+
     }
 }

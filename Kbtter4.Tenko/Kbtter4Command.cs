@@ -88,7 +88,15 @@ namespace Kbtter4.Tenko
                 return "必須パラメータが不足しています\n必須パラメータ : " + string.Join(" , ", reql);
             }
 
-            return ecm.Function(cmdret.Parameters);
+            if (ecm.Function != null)
+            {
+                return ecm.Function(cmdret.Parameters);
+            }
+            else
+            {
+                return "動作が定義されていません";
+            }
+            
         }
 
         /// <summary>

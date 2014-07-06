@@ -43,7 +43,7 @@ namespace Kbtter4.Models
         private static readonly string CacheFolderName = "cache";
         private static readonly string PluginFolderName = "plugin";
 
-        public static readonly string LoggingFileName = "Kbtter3.log";
+        public static readonly string LoggingFileName = "Kbtter4.log";
         public static readonly string ConfigurationFileName = ConfigurationFolderName + "/config.json";
 
         private static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
