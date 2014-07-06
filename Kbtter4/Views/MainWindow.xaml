@@ -147,7 +147,7 @@
                               IsChecked="{Binding View.IsHomeStatusTimelineVisible}" Command="{Binding View.ChangeToHomeStatusTimelineCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/HomeStatusTimeline.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
-                <TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource TwitterColorPrimary}" TextAlignment="Right"
+                <TextBlock  Grid.Column="1" Grid.Row="1" Foreground="Red" TextAlignment="Right"
                             Text="{Binding View.HomeTimeline.UnreadCount}" Panel.ZIndex="1" IsHitTestVisible="False"
                             Visibility="{Binding View.HomeStatusTimelineUnselected,Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
@@ -158,7 +158,7 @@
                               IsChecked="{Binding View.IsHomeNotificationTimelineVisible}" Command="{Binding View.ChangeToHomeNotificationTimelineCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/Notification.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
-                <TextBlock  Grid.Column="1" Grid.Row="2" Foreground="{StaticResource TwitterColorPrimary}" TextAlignment="Right"
+                <TextBlock  Grid.Column="1" Grid.Row="2" Foreground="Red" TextAlignment="Right"
                             Text="{Binding View.HomeNotification.UnreadCount}" Panel.ZIndex="1" IsHitTestVisible="False"
                             Visibility="{Binding View.HomeNotificationTimelineUnselected,Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
@@ -481,6 +481,18 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ダイレクトメッセージ</TextBlock>
+                <Grid Grid.Row="1" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="240" MaxWidth="480"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListView Margin="4" ItemsSource="{Binding View.DirectMessageTimelines}" 
+                              Name="ListViewDirectMessageTimelines" HorizontalContentAlignment="Stretch"
+                              ItemTemplate="{StaticResource DirectMessageTimelineTemplate}"/>
+                    <ListView Margin="4" Grid.Column="1" HorizontalContentAlignment="Stretch"
+                              ItemsSource="{Binding ElementName=ListViewDirectMessageTimelines, Path=SelectedItem.DirectMessages}"
+                              ItemTemplate="{StaticResource DirectMessageTemplate}"/>
+                </Grid>
             </Grid>
             <Grid Name="GridSearch" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuSearch,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">

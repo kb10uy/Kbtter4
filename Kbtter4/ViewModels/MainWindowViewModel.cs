@@ -44,6 +44,11 @@ namespace Kbtter4.ViewModels
                 Kbtter.Accounts,
                 p => new AccountViewModel(p),
                 DispatcherHelper.UIDispatcher);
+            View.DirectMessageTimelines = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.DirectMessageTimelines,
+                p => new DirectMessageTimelineViewModel(this, p),
+                DispatcherHelper.UIDispatcher
+                );
 
             Kbtter.Initialize();
 

@@ -62,7 +62,7 @@ namespace Kbtter4.Models
         public NotificationTimeline HomeNotificationTimeline { get; private set; }
         public ObservableSynchronizedCollection<StatusTimeline> StatusTimelines { get; private set; }
         public ObservableSynchronizedCollection<NotificationTimeline> NotificationTimelines { get; private set; }
-        //public ObservableSynchronizedCollection<DirectMessageTimeline> DirectMessageTimelines { get; private set; }
+        public ObservableSynchronizedCollection<DirectMessageTimeline> DirectMessageTimelines { get; private set; }
         public ObservableSynchronizedCollection<User> Users { get; private set; }
         public ObservableSynchronizedCollection<Kbtter4Account> Accounts { get; private set; }
 
@@ -108,7 +108,7 @@ namespace Kbtter4.Models
             LoadSetting();
             HomeStatusTimeline = new StatusTimeline(Setting, "true");
             HomeNotificationTimeline = new NotificationTimeline(Setting, "true");
-            //DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
+            DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
             StatusTimelines = new ObservableSynchronizedCollection<StatusTimeline>();
             NotificationTimelines = new ObservableSynchronizedCollection<NotificationTimeline>();
 
@@ -257,8 +257,8 @@ namespace Kbtter4.Models
                         });
                     RaisePropertyChanged("Retweets");
                 }
-                //自分のがRTされた
-                if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id)
+                //自分のがRTされたかRTがRTされた
+                if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id || s.Status.Text.Contains(AuthenticatedUser.ScreenName))
                 {
                     HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }
@@ -272,8 +272,6 @@ namespace Kbtter4.Models
             {
                 tl.TryAddStatus(s.Status);
             }
-
-
         }
 
         private void Kbtter_OnEvent(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e)
@@ -313,12 +311,19 @@ namespace Kbtter4.Models
                     tl.TryAddNotification(n);
                 }
             }
-
         }
 
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)
         {
-
+            var dm = e.Message;
+            foreach (var i in GlobalPlugins) dm = i.OnDirectMessageDestructive(dm.DeepCopy()) ?? dm;
+            foreach (var i in GlobalPlugins) i.OnDirectMessage(dm.DeepCopy());
+            var pu = dm.DirectMessage.Sender.Id == AuthenticatedUser.Id ? dm.DirectMessage.Recipient : dm.DirectMessage.Sender;
+            if (DirectMessageTimelines.All(p => p.Party.Id != pu.Id))
+            {
+                DirectMessageTimelines.Add(new DirectMessageTimeline(Setting, pu));
+            }
+            DirectMessageTimelines.First(p => p.Party.Id == pu.Id).TryAddDirectMessage(dm.DirectMessage);
         }
 
         private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<IdMessage> e)
@@ -391,6 +396,7 @@ namespace Kbtter4.Models
             return Task<string>.Run(async () =>
             {
                 StopStreaming();
+                ClearStock();
                 foreach (var i in GlobalPlugins) i.OnLogout(AuthenticatedUser);
 
                 Token = Tokens.Create(Setting.Consumer.Key, Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
@@ -401,6 +407,7 @@ namespace Kbtter4.Models
                     AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
                     foreach (var i in GlobalPlugins) i.OnLogin(AuthenticatedUser);
                     StartStreaming();
+                    InitializeDirectMessages();
                     return "";
                 }
                 catch (TwitterException e)
@@ -432,13 +439,21 @@ namespace Kbtter4.Models
         #region 固有機能
         public void ClearStock()
         {
+            HomeStatusTimeline.Statuses.Clear();
+            HomeNotificationTimeline.Notifications.Clear();
+            foreach (var i in DirectMessageTimelines) i.DirectMessages.Clear();
             foreach (var i in StatusTimelines) i.Statuses.Clear();
             foreach (var i in NotificationTimelines) i.Notifications.Clear();
         }
 
         public async void InitializeDirectMessages()
         {
-
+            var rdms = await Token.DirectMessages.ReceivedAsync(count => 200);
+            var sdms = await Token.DirectMessages.SentAsync(count => 200);
+            var adms = rdms.ToList();
+            adms.AddRange(sdms);
+            adms.Sort((x, y) => x.CreatedAt.CompareTo(y.CreatedAt));
+            adms.ForEach(p => Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(new DirectMessageMessage { DirectMessage = p })));
         }
 
         public bool CheckFavorited(long id)

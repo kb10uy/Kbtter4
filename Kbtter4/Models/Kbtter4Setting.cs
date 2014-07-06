@@ -103,5 +103,24 @@ namespace Kbtter4.Models
         }
         #endregion
 
+
+        #region HomeDirectMessageTimelineMax変更通知プロパティ
+        private int _HomeDirectMessageTimelineMax = 30;
+
+        public int HomeDirectMessageTimelineMax
+        {
+            get
+            { return _HomeDirectMessageTimelineMax; }
+            set
+            {
+                if (_HomeDirectMessageTimelineMax == value)
+                    return;
+                _HomeDirectMessageTimelineMax = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
     }
 }

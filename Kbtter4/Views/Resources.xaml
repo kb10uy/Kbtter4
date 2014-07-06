@@ -278,4 +278,48 @@
             </Grid>
         </Grid>
     </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:DirectMessageTimelineViewModel}" x:Key="DirectMessageTimelineTemplate">
+        <StackPanel Orientation="Horizontal" Background="{StaticResource Kbtter4StatusBackColor}" VerticalAlignment="Stretch">
+            <Image  Width="48" Height="48" Margin="2">
+                <i:Interaction.Behaviors>
+                    <v:ImageWebLazyBindBehavior UriSource="{Binding Party.ProfileImageUri}"/>
+                </i:Interaction.Behaviors>
+            </Image>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock FontSize="16" Text="{Binding Party.Name}"/>
+                <TextBlock Text="{Binding Party.ScreenName}"/>
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:DirectMessageViewModel}" x:Key="DirectMessageTemplate">
+        <StackPanel Margin="8">
+            <Border BorderBrush="{StaticResource TwitterColorGray}" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Rectangle Panel.ZIndex="-100" Fill="{StaticResource Kbtter4GeneralGreen}" Grid.ColumnSpan="2" Grid.RowSpan="2"
+                               Visibility="{Binding IsSentByMe,Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <Image Width="24" Height="24" Margin="4">
+                        <i:Interaction.Behaviors>
+                            <v:ImageWebLazyBindBehavior UriSource="{Binding Sender.ProfileImageUri}"/>
+                        </i:Interaction.Behaviors>
+                    </Image>
+                    <TextBlock Grid.Column="1" FontSize="14" Margin="4" VerticalAlignment="Center" Text="{Binding Sender.Name}"/>
+                    <StackPanel Grid.Column="1" Grid.Row="1">
+                        <TextBlock Text="{Binding Text}" Margin="8" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding CreatedAt}" Margin="0,0,4,4" 
+                                   FontSize="10" Foreground="{StaticResource TwitterColorGray}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </DataTemplate>
 </ResourceDictionary>

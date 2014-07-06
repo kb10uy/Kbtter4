@@ -19,6 +19,7 @@ namespace Kbtter4.ViewModels
     {
         public NotificationViewModel(Kbtter4Notification nt, MainWindowViewModel mw)
         {
+            var ins = Kbtter.Instance;
             switch (nt.Kind)
             {
                 case Kbtter4NotificationKind.Favorited:
@@ -47,7 +48,15 @@ namespace Kbtter4.ViewModels
                     break;
                 case Kbtter4NotificationKind.Retweeted:
                     SourceUser = new UserViewModel(nt.SourceStatus.Status.User, mw);
-                    Message = string.Format("ツイートが{0}さんにリツイートされました", SourceUser.Name);
+                    if (nt.SourceStatus.Status.Text.Contains(ins.AuthenticatedUser.ScreenName) &&
+                        nt.SourceStatus.Status.RetweetedStatus.User.Id != ins.AuthenticatedUser.Id)
+                    {
+                        Message = string.Format("リツイートが{0}さんにリツイートされました", SourceUser.Name);
+                    }
+                    else
+                    {
+                        Message = string.Format("ツイートが{0}さんにリツイートされました", SourceUser.Name);
+                    }
                     IconKind = Kbtter4NotificationIconKind.Retweeted;
                     Description = nt.SourceStatus.Status.RetweetedStatus.Text;
                     break;

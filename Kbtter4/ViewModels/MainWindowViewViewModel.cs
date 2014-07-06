@@ -798,6 +798,24 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region DirectMessageTimelines変更通知プロパティ
+        private ReadOnlyDispatcherCollection<DirectMessageTimelineViewModel> _DirectMessageTimelines;
+
+        public ReadOnlyDispatcherCollection<DirectMessageTimelineViewModel> DirectMessageTimelines
+        {
+            get
+            { return _DirectMessageTimelines; }
+            set
+            { 
+                if (_DirectMessageTimelines == value)
+                    return;
+                _DirectMessageTimelines = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #endregion
     }
 }
