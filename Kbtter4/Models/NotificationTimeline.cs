@@ -12,15 +12,18 @@ namespace Kbtter4.Models
     {
         public ObservableSynchronizedCollection<Kbtter4Notification> Notifications { get; private set; }
         public Kbtter3Query Query { get; private set; }
+        Kbtter4Setting Setting;
 
-        public NotificationTimeline()
+        public NotificationTimeline(Kbtter4Setting kb)
         {
+            Setting = kb;
             Notifications = new ObservableSynchronizedCollection<Kbtter4Notification>();
             Query = new Kbtter3Query("true");
         }
 
-        public NotificationTimeline(string q)
+        public NotificationTimeline(Kbtter4Setting kb,string q)
         {
+            Setting = kb;
             Notifications = new ObservableSynchronizedCollection<Kbtter4Notification>();
             Query = new Kbtter3Query(q);
         }
@@ -30,6 +33,7 @@ namespace Kbtter4.Models
             Query.ClearVariables();
             Query.SetVariable("Notification", nt);
             if (Query.Execute().AsBoolean()) Notifications.Insert(0, nt);
+            if (Notifications.Count > Setting.Timelines.HomeNotificationTimelineMax) Notifications.RemoveAt(Notifications.Count - 1);
         }
     }
 }

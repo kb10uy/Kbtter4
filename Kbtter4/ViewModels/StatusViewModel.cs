@@ -481,18 +481,4 @@ namespace Kbtter4.ViewModels
 
     }
 
-    public enum Kbtter4NotificationIconKind
-    {
-        Undefined,
-        None,
-        Favorited,
-        Unfavorited,
-        Followed,
-        Unfollowed,
-        Retweeted,
-        Blocked,
-        Unblocked,
-        ListAdded,
-        ListRemoved,
-    }
 }

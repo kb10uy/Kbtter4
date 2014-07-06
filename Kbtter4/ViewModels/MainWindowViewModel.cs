@@ -37,9 +37,10 @@ namespace Kbtter4.ViewModels
             Kbtter = Kbtter.Instance;
 
 
-            HomeTimeline = new StatusTimelineViewModel(this, Kbtter.HomeStatusTimeline);
-            LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
-            Accounts = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+            View.HomeTimeline = new StatusTimelineViewModel(this, Kbtter.HomeStatusTimeline);
+            View.HomeNotification = new NotificationTimelineViewModel(this, Kbtter.HomeNotificationTimeline);
+            View.LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
+            View.Accounts = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 Kbtter.Accounts,
                 p => new AccountViewModel(p),
                 DispatcherHelper.UIDispatcher);
@@ -58,8 +59,8 @@ namespace Kbtter4.ViewModels
 
             listener.Add("AuthenticatedUser", (s, e) =>
             {
-                LoginUser.Dispose();
-                LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
+                View.LoginUser.Dispose();
+                View.LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
                 UpdateStatusCommand.RaiseCanExecuteChanged();
             });
         }
@@ -69,59 +70,6 @@ namespace Kbtter4.ViewModels
             base.Dispose(disposing);
             CompositeDisposable.Dispose();
         }
-
-        #region LoginUser変更通知プロパティ
-        private UserViewModel _LoginUser;
-
-        public UserViewModel LoginUser
-        {
-            get
-            { return _LoginUser; }
-            set
-            {
-                if (_LoginUser == value)
-                    return;
-                _LoginUser = value;
-                RaisePropertyChanged();
-            }
-        }
-        #endregion
-
-
-        #region HomeTimeline変更通知プロパティ
-        private StatusTimelineViewModel _HomeTimeline;
-
-        public StatusTimelineViewModel HomeTimeline
-        {
-            get
-            { return _HomeTimeline; }
-            set
-            {
-                if (_HomeTimeline == value)
-                    return;
-                _HomeTimeline = value;
-                RaisePropertyChanged();
-            }
-        }
-        #endregion
-
-
-        #region Accounts変更通知プロパティ
-        private ReadOnlyDispatcherCollection<AccountViewModel> _Accounts;
-
-        public ReadOnlyDispatcherCollection<AccountViewModel> Accounts
-        {
-            get
-            { return _Accounts; }
-            set
-            {
-                if (_Accounts == value)
-                    return;
-                _Accounts = value;
-                RaisePropertyChanged();
-            }
-        }
-        #endregion
 
 
         #region アカウント登録関係
@@ -456,7 +404,7 @@ namespace Kbtter4.ViewModels
         public bool CanUpdateStatus()
         {
             return
-                LoginUser != null && !string.IsNullOrEmpty(LoginUser.ScreenName) &&
+                View.LoginUser != null && !string.IsNullOrEmpty(View.LoginUser.ScreenName) &&
                 140 > UpdateStatusTextLength && 0 <= UpdateStatusTextLength &&
                 !taken;
         }
@@ -547,7 +495,7 @@ namespace Kbtter4.ViewModels
 
             var s = st.SourceStatus;
             List<string> ru = s.Entities.UserMentions.Select(p => p.ScreenName).ToList();
-            if (!ru.Contains(s.User.ScreenName)) ru.Insert(0,s.User.ScreenName);
+            if (!ru.Contains(s.User.ScreenName)) ru.Insert(0, s.User.ScreenName);
             if (ru.Count != 1 && ru.Contains(Kbtter.AuthenticatedUser.ScreenName)) ru.Remove(Kbtter.AuthenticatedUser.ScreenName);
             var t = new StringBuilder();
             ru.ForEach(p => t.Append(String.Format("@{0} ", p)));

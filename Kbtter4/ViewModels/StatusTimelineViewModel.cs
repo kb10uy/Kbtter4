@@ -24,7 +24,14 @@ namespace Kbtter4.ViewModels
 
         public StatusTimelineViewModel(MainWindowViewModel main, StatusTimeline tl)
         {
-            Statuses = ViewModelHelper.CreateReadOnlyDispatcherCollection(tl.Statuses, (p) => new StatusViewModel(main, p), DispatcherHelper.UIDispatcher);
+            Statuses = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                tl.Statuses,
+                (p) =>
+                {
+                    if (!IsSelected) UnreadCount++;
+                    return new StatusViewModel(main, p);
+                },
+                DispatcherHelper.UIDispatcher);
         }
 
         public void Initialize()
@@ -44,6 +51,43 @@ namespace Kbtter4.ViewModels
                 if (_Statuses == value)
                     return;
                 _Statuses = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsSelected変更通知プロパティ
+        private bool _IsSelected;
+
+        public bool IsSelected
+        {
+            get
+            { return _IsSelected; }
+            set
+            { 
+                if (_IsSelected == value)
+                    return;
+                _IsSelected = value;
+                if (value) UnreadCount = 0;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UnreadCount変更通知プロパティ
+        private int _UnreadCount;
+
+        public int UnreadCount
+        {
+            get
+            { return _UnreadCount; }
+            set
+            { 
+                if (_UnreadCount == value)
+                    return;
+                _UnreadCount = value;
                 RaisePropertyChanged();
             }
         }

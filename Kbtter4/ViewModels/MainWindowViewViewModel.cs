@@ -303,6 +303,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -333,6 +338,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -363,6 +373,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -393,6 +408,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -423,6 +443,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -453,6 +478,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -483,6 +513,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = true;
             IsCommandlineVisible = false;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -513,6 +548,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = true;
             IsSettingVisible = false;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -543,6 +583,11 @@ namespace Kbtter4.ViewModels
             IsUserNotificationTimelineVisible = false;
             IsCommandlineVisible = false;
             IsSettingVisible = true;
+
+            HomeTimeline.IsSelected = IsHomeStatusTimelineVisible;
+            HomeNotification.IsSelected = IsHomeNotificationTimelineVisible;
+            HomeStatusTimelineUnselected = !IsHomeStatusTimelineVisible;
+            HomeNotificationTimelineUnselected = !IsHomeNotificationTimelineVisible;
         }
         #endregion
 
@@ -643,6 +688,115 @@ namespace Kbtter4.ViewModels
             }
         }
         #endregion
+
+
+        #region LoginUser変更通知プロパティ
+        private UserViewModel _LoginUser;
+
+        public UserViewModel LoginUser
+        {
+            get
+            { return _LoginUser; }
+            set
+            {
+                if (_LoginUser == value)
+                    return;
+                _LoginUser = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region HomeTimeline変更通知プロパティ
+        private StatusTimelineViewModel _HomeTimeline;
+
+        public StatusTimelineViewModel HomeTimeline
+        {
+            get
+            { return _HomeTimeline; }
+            set
+            {
+                if (_HomeTimeline == value)
+                    return;
+                _HomeTimeline = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region HomeNotification変更通知プロパティ
+        private NotificationTimelineViewModel _HomeNotification;
+
+        public NotificationTimelineViewModel HomeNotification
+        {
+            get
+            { return _HomeNotification; }
+            set
+            {
+                if (_HomeNotification == value)
+                    return;
+                _HomeNotification = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Accounts変更通知プロパティ
+        private ReadOnlyDispatcherCollection<AccountViewModel> _Accounts;
+
+        public ReadOnlyDispatcherCollection<AccountViewModel> Accounts
+        {
+            get
+            { return _Accounts; }
+            set
+            {
+                if (_Accounts == value)
+                    return;
+                _Accounts = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region HomeStatusTimelineUnselected変更通知プロパティ
+        private bool _HomeStatusTimelineUnselected;
+
+        public bool HomeStatusTimelineUnselected
+        {
+            get
+            { return _HomeStatusTimelineUnselected; }
+            set
+            { 
+                if (_HomeStatusTimelineUnselected == value)
+                    return;
+                _HomeStatusTimelineUnselected = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region HomeNotificationTimelineUnselected変更通知プロパティ
+        private bool _HomeNotificationTimelineUnselected;
+
+        public bool HomeNotificationTimelineUnselected
+        {
+            get
+            { return _HomeNotificationTimelineUnselected; }
+            set
+            { 
+                if (_HomeNotificationTimelineUnselected == value)
+                    return;
+                _HomeNotificationTimelineUnselected = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
 
         #endregion
     }

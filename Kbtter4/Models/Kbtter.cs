@@ -107,7 +107,7 @@ namespace Kbtter4.Models
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
             LoadSetting();
             HomeStatusTimeline = new StatusTimeline(Setting, "true");
-            HomeNotificationTimeline = new NotificationTimeline("true");
+            HomeNotificationTimeline = new NotificationTimeline(Setting, "true");
             //DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
             StatusTimelines = new ObservableSynchronizedCollection<StatusTimeline>();
             NotificationTimelines = new ObservableSynchronizedCollection<NotificationTimeline>();
@@ -260,7 +260,7 @@ namespace Kbtter4.Models
                 //自分のがRTされた
                 if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id)
                 {
-
+                    HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }
             }
 
@@ -300,15 +300,20 @@ namespace Kbtter4.Models
                         break;
                 }
             }
+
             foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s;
-            var k4n = new Kbtter4Notification(s);
             foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
 
-            HomeNotificationTimeline.TryAddNotification(k4n);
-            foreach (var tl in NotificationTimelines)
+            if (s.Source.Id != AuthenticatedUser.Id && s.Target.Id == AuthenticatedUser.Id)
             {
-                tl.TryAddNotification(k4n);
+                var n = new Kbtter4Notification(s);
+                HomeNotificationTimeline.TryAddNotification(n);
+                foreach (var tl in NotificationTimelines)
+                {
+                    tl.TryAddNotification(n);
+                }
             }
+
         }
 
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)

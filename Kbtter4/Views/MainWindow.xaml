@@ -147,6 +147,9 @@
                               IsChecked="{Binding View.IsHomeStatusTimelineVisible}" Command="{Binding View.ChangeToHomeStatusTimelineCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/HomeStatusTimeline.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
+                <TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource TwitterColorPrimary}" TextAlignment="Right"
+                            Text="{Binding View.HomeTimeline.UnreadCount}" Panel.ZIndex="1" IsHitTestVisible="False"
+                            Visibility="{Binding View.HomeStatusTimelineUnselected,Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                 <TextBlock Name="TextBlockMenuNotification" TextAlignment="Right" VerticalAlignment="Center"
                                     Grid.Column="0" Grid.Row="2" FontSize="16"
@@ -155,6 +158,9 @@
                               IsChecked="{Binding View.IsHomeNotificationTimelineVisible}" Command="{Binding View.ChangeToHomeNotificationTimelineCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/Notification.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
+                <TextBlock  Grid.Column="1" Grid.Row="2" Foreground="{StaticResource TwitterColorPrimary}" TextAlignment="Right"
+                            Text="{Binding View.HomeNotification.UnreadCount}" Panel.ZIndex="1" IsHitTestVisible="False"
+                            Visibility="{Binding View.HomeNotificationTimelineUnselected,Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                 <TextBlock Name="TextBlockMenuDirectMessage" TextAlignment="Right" VerticalAlignment="Center"
                                     Grid.Column="0" Grid.Row="3" FontSize="16"
@@ -215,9 +221,9 @@
                 <StackPanel VerticalAlignment="Center" Grid.Row="11" Margin="4">
 
                     <TextBlock TextAlignment="Right">
-                        <Hyperlink Command="{Binding LoginUser.ShowUserInformationCommand}">
+                        <Hyperlink Command="{Binding View.LoginUser.ShowUserInformationCommand}">
                             <TextBlock FontSize="16"
-                               Text="{Binding LoginUser.Name}" TextAlignment="Right"/>
+                               Text="{Binding View.LoginUser.Name}" TextAlignment="Right"/>
                             <i:Interaction.Behaviors>
                                 <v:HyperlinkMouseOverColorChangeBehavior MouseLeftForeground="{StaticResource TwitterColorLightGrayBlue}"
                                                                          MouseEnteredForeground="Red"/>
@@ -229,9 +235,9 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorLightBlue}">@</TextBlock>
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorLightBlue}"
-                                   Text="{Binding LoginUser.ScreenName}" TextAlignment="Right"/>
+                                   Text="{Binding View.LoginUser.ScreenName}" TextAlignment="Right"/>
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}" Margin="8,0,0,0">(</TextBlock>
-                        <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}" Text="{Binding LoginUser.IdString}"/>
+                        <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}" Text="{Binding View.LoginUser.IdString}"/>
                         <TextBlock FontSize="14" Foreground="{StaticResource TwitterColorGray}">)</TextBlock>
                     </StackPanel>
                 </StackPanel>
@@ -241,7 +247,7 @@
                     <Border BorderBrush="{StaticResource TwitterColorWhite}" Background="{StaticResource TwitterColorSecondary}" BorderThickness="2" CornerRadius="3">
                         <Image Name="ImageLoginUser" Width="32" Height="32">
                             <i:Interaction.Behaviors>
-                                <v:ImageWebLazyBindBehavior UriSource="{Binding LoginUser.ProfileImageUri}"/>
+                                <v:ImageWebLazyBindBehavior UriSource="{Binding View.LoginUser.ProfileImageUri}"/>
                             </i:Interaction.Behaviors>
                         </Image>
                     </Border>
@@ -293,7 +299,7 @@
                     <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="4" FontSize="20" Foreground="{StaticResource TwitterColorWhite}">アカウント</TextBlock>
                     <ListBox Grid.Row="1" Grid.ColumnSpan="2" Margin="4" ScrollViewer.VerticalScrollBarVisibility="Visible" 
                                  ScrollViewer.CanContentScroll="False"
-                             ItemsSource="{Binding Accounts}" ItemTemplate="{StaticResource AccountTemplate}"
+                             ItemsSource="{Binding View.Accounts}" ItemTemplate="{StaticResource AccountTemplate}"
                              SelectedItem="{Binding SelectedAccount,UpdateSourceTrigger=PropertyChanged}">
                         <ListBox.ContextMenu>
                             <ContextMenu>
@@ -455,7 +461,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">タイムライン</TextBlock>
-                <ListBox ItemTemplate="{StaticResource StatusTemplate}" ItemsSource="{Binding HomeTimeline.Statuses}" 
+                <ListBox ItemTemplate="{StaticResource StatusTemplate}" ItemsSource="{Binding View.HomeTimeline.Statuses}" 
                          Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"/>
             </Grid>
             <Grid Name="GridHomeNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
@@ -465,6 +471,8 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">通知</TextBlock>
+                <ListBox ItemTemplate="{StaticResource NotificationTemplate}" ItemsSource="{Binding View.HomeNotification.Notificaitons}" 
+                         Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"/>
             </Grid>
             <Grid Name="GridDirectMessage" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuDirectMessage,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">

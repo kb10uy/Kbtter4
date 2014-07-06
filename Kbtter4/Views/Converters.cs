@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Interactivity;
 
+using Kbtter4.ViewModels;
 
 namespace Kbtter4.Views
 {
@@ -61,6 +62,37 @@ namespace Kbtter4.Views
                 var dn = ((double)t) / 1000000000000000.0;
                 return dn >= 100 ? dn.ToString("#") + "E" : dn.ToString("#.#") + "E";
             }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+
+    public sealed class Kbtter4NotificationIconConverter : IValueConverter
+    {
+        static Dictionary<Kbtter4NotificationIconKind, BitmapImage> Icons = new Dictionary<Kbtter4NotificationIconKind, BitmapImage>
+        {
+            {Kbtter4NotificationIconKind.Favorited,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_fav.png"))},
+            {Kbtter4NotificationIconKind.Unfavorited,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_favno.png"))},
+            {Kbtter4NotificationIconKind.Retweeted,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_rt.png"))},
+            {Kbtter4NotificationIconKind.ListAdded,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_list.png"))},
+            {Kbtter4NotificationIconKind.ListRemoved,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_listno.png"))},
+            {Kbtter4NotificationIconKind.Followed,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_user.png"))},
+            {Kbtter4NotificationIconKind.Unfollowed,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_userno.png"))},
+            {Kbtter4NotificationIconKind.Blocked,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_block.png"))},
+            {Kbtter4NotificationIconKind.Unblocked,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_cancel.png"))},
+            {Kbtter4NotificationIconKind.Undefined,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_cancel.png"))},
+            {Kbtter4NotificationIconKind.None,new BitmapImage(new Uri("pack://application:,,,/Resources/icon_cancel.png"))},
+        };
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            var v = (Kbtter4NotificationIconKind)value;
+
+            return Icons[v];
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
