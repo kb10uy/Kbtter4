@@ -47,8 +47,11 @@ namespace Kbtter4.ViewModels
             View.DirectMessageTimelines = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 Kbtter.DirectMessageTimelines,
                 p => new DirectMessageTimelineViewModel(this, p),
-                DispatcherHelper.UIDispatcher
-                );
+                DispatcherHelper.UIDispatcher);
+            View.Users = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.Users,
+                p => new UserViewModel(p, this),
+                DispatcherHelper.UIDispatcher);
 
             Kbtter.Initialize();
 
@@ -527,6 +530,7 @@ namespace Kbtter4.ViewModels
 
         public void CancelReply()
         {
+            UpdateStatusText = "";
             IsReplying = false;
         }
         #endregion

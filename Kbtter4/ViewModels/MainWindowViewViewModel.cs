@@ -680,7 +680,7 @@ namespace Kbtter4.ViewModels
             get
             { return _IsStatusCreatorExpanded; }
             set
-            { 
+            {
                 if (_IsStatusCreatorExpanded == value)
                     return;
                 _IsStatusCreatorExpanded = value;
@@ -770,7 +770,7 @@ namespace Kbtter4.ViewModels
             get
             { return _HomeStatusTimelineUnselected; }
             set
-            { 
+            {
                 if (_HomeStatusTimelineUnselected == value)
                     return;
                 _HomeStatusTimelineUnselected = value;
@@ -788,7 +788,7 @@ namespace Kbtter4.ViewModels
             get
             { return _HomeNotificationTimelineUnselected; }
             set
-            { 
+            {
                 if (_HomeNotificationTimelineUnselected == value)
                     return;
                 _HomeNotificationTimelineUnselected = value;
@@ -806,7 +806,7 @@ namespace Kbtter4.ViewModels
             get
             { return _DirectMessageTimelines; }
             set
-            { 
+            {
                 if (_DirectMessageTimelines == value)
                     return;
                 _DirectMessageTimelines = value;
@@ -815,6 +815,23 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+
+        #region Users変更通知プロパティ
+        private ReadOnlyDispatcherCollection<UserViewModel> _Users;
+
+        public ReadOnlyDispatcherCollection<UserViewModel> Users
+        {
+            get
+            { return _Users; }
+            set
+            {
+                if (_Users == value)
+                    return;
+                _Users = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
         #endregion
     }

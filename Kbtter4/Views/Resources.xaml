@@ -288,11 +288,29 @@
             </Image>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock FontSize="16" Text="{Binding Party.Name}"/>
-                <TextBlock Text="{Binding Party.ScreenName}"/>
+                <TextBlock>
+                    <TextBlock Text="{Binding Party.ScreenName}"/>
+                </TextBlock>
             </StackPanel>
         </StackPanel>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type vm:UserViewModel}" x:Key="UserTemplate">
+        <StackPanel Orientation="Horizontal" Background="{StaticResource Kbtter4StatusBackColor}" VerticalAlignment="Stretch">
+            <Image  Width="48" Height="48" Margin="2">
+                <i:Interaction.Behaviors>
+                    <v:ImageWebLazyBindBehavior UriSource="{Binding ProfileImageUri}"/>
+                </i:Interaction.Behaviors>
+            </Image>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock FontSize="16" Text="{Binding Name}"/>
+                <TextBlock>
+                    <TextBlock Text="{Binding ScreenName}"/>
+                </TextBlock>
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+    
     <DataTemplate DataType="{x:Type vm:DirectMessageViewModel}" x:Key="DirectMessageTemplate">
         <StackPanel Margin="8">
             <Border BorderBrush="{StaticResource TwitterColorGray}" BorderThickness="1" CornerRadius="6">

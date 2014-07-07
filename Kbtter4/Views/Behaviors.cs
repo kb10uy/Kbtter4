@@ -209,4 +209,53 @@ namespace Kbtter4.Views
         }
     }
 
+    public sealed class ListViewSelectedItemBindingBehavior : Behavior<ListView>
+    {
+        public static DependencyProperty SelectedItemProperty =
+            DependencyProperty.Register(
+                "SelectedItem",
+                typeof(UserViewModel),
+                typeof(ListViewSelectedItemBindingBehavior),
+                new UIPropertyMetadata(null));
+
+        public UserViewModel SelectedItem
+        {
+            get { return GetValue(SelectedItemProperty) as UserViewModel; }
+            set
+            {
+                SetValue(SelectedItemProperty, value);
+                UpdateSelected(value, false);
+            }
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            AssociatedObject.SelectionChanged += AssociatedObject_SelectionChanged;
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            AssociatedObject.SelectionChanged -= AssociatedObject_SelectionChanged;
+        }
+
+        private void UpdateSelected(object val, bool uic)
+        {
+            for (int i = 0; i < AssociatedObject.Items.Count; i++)
+            {
+                if (AssociatedObject.Items[i] == val)
+                {
+                    AssociatedObject.SelectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        void AssociatedObject_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SetValue(SelectedItemProperty, e.AddedItems[0]);
+        }
+    }
+
 }

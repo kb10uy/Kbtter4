@@ -151,6 +151,7 @@ namespace Kbtter4.ViewModels
 
         public void ShowUserInformation()
         {
+            Kbtter.AddUserToUsersList(src);
             main.View.Notify(Name + "さんの情報");
             main.View.ChangeToUser();
         }

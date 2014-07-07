@@ -511,6 +511,16 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー</TextBlock>
+                <Grid Grid.Row="1" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="240" MaxWidth="480"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListView Margin="4" ItemsSource="{Binding View.Users}" 
+                              Name="ListViewUsers" HorizontalContentAlignment="Stretch"
+                              ItemTemplate="{StaticResource UserTemplate}"
+                              IsSynchronizedWithCurrentItem="True"/>
+                </Grid>
             </Grid>
             <Grid Name="GridUserStatusTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUserTimeline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">

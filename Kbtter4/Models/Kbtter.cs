@@ -132,7 +132,8 @@ namespace Kbtter4.Models
         ~Kbtter()
         {
             StopStreaming();
-            foreach (var i in GlobalPlugins) i.Dispose();
+            Parallel.ForEach(GlobalPlugins, p => p.Dispose());
+            SaveLog();
         }
         #endregion
 
@@ -192,29 +193,50 @@ namespace Kbtter4.Models
                 {
                     Task.Factory.StartNew(() =>
                     {
-                        if (p is StatusMessage) Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(p as StatusMessage));
-                        if (p is EventMessage) Kbtter_OnEvent(this, new Kbtter4MessageReceivedEventArgs<EventMessage>(p as EventMessage));
-                        if (p is IdMessage) Kbtter_OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p as IdMessage));
-                        if (p is DirectMessageMessage) Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(p as DirectMessageMessage));
-                        if (p is DisconnectMessage)
+                        switch (p.Type)
                         {
-                            LogInformation("Disconnected");
-                            SaveLog();
+                            case MessageType.Create:
+                                Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(p as StatusMessage));
+                                break;
+                            case MessageType.Event:
+                                Kbtter_OnEvent(this, new Kbtter4MessageReceivedEventArgs<EventMessage>(p as EventMessage));
+                                break;
+                            case MessageType.DirectMesssage:
+                                Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(p as DirectMessageMessage));
+                                break;
+                            case MessageType.DeleteStatus:
+                            case MessageType.DeleteDirectMessage:
+                                Kbtter_OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p as IdMessage));
+                                break;
+                            case MessageType.Disconnect:
+                                LogInformation("Disconnected");
+                                SaveLog();
+                                break;
+                            default:
+                                break;
+
                         }
-                    }, TaskCreationOptions.PreferFairness);
+                    }, TaskCreationOptions.PreferFairness)
+                    .ContinueWith(t =>
+                    {
+                        if (t.Exception != null) RestartStreaming();
+                    });
                 },
                 (ex) =>
                 {
-                    throw ex;
+                    LogInformation("エラーが発生したため再接続しました : " + ex.Message);
+                    SaveLog();
+                    RestartStreaming();
                 },
                 () =>
                 {
-                    Console.WriteLine("Completed!?");
-                    throw new InvalidOperationException("何故かUserStreamが切れました");
+                    LogInformation("UserStreamが切断されたため再接続しました");
+                    SaveLog();
+                    RestartStreaming();
                 }
             ));
             StreamManager.Add(Streaming.Connect());
-            foreach (var i in GlobalPlugins) i.OnStartStreaming();
+            Parallel.ForEach(GlobalPlugins, p => p.OnStartStreaming());
         }
 
         public void RestartStreaming()
@@ -227,7 +249,7 @@ namespace Kbtter4.Models
         {
             foreach (var i in StreamManager) i.Dispose();
             StreamManager.Clear();
-            foreach (var i in GlobalPlugins) i.OnStopStreaming();
+            Parallel.ForEach(GlobalPlugins, p => p.OnStopStreaming());
         }
         #endregion
 
@@ -240,7 +262,6 @@ namespace Kbtter4.Models
             if (GlobalMuteQuery.Execute().AsBoolean()) return;
 
             var s = e.Message;
-            RaisePropertyChanged("Statuses");
 
             if (s.Status.RetweetedStatus != null)
             {
@@ -263,15 +284,18 @@ namespace Kbtter4.Models
                     HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }
             }
+            UpdateUserInformation(s.DeepCopy().Status.User);
 
             foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s;
-            foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy());
 
             HomeStatusTimeline.TryAddStatus(s.Status);
             foreach (var tl in StatusTimelines)
             {
                 tl.TryAddStatus(s.Status);
             }
+            RaisePropertyChanged("Statuses");
+
+            Parallel.ForEach(GlobalPlugins, p => p.OnStatus(s.DeepCopy()));
         }
 
         private void Kbtter_OnEvent(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e)
@@ -298,9 +322,10 @@ namespace Kbtter4.Models
                         break;
                 }
             }
+            UpdateUserInformation(s.Source);
+            UpdateUserInformation(s.Target);
 
             foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s;
-            foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy());
 
             if (s.Source.Id != AuthenticatedUser.Id && s.Target.Id == AuthenticatedUser.Id)
             {
@@ -311,26 +336,31 @@ namespace Kbtter4.Models
                     tl.TryAddNotification(n);
                 }
             }
+            Parallel.ForEach(GlobalPlugins, p => p.OnEvent(s.DeepCopy()));
         }
 
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)
         {
             var dm = e.Message;
             foreach (var i in GlobalPlugins) dm = i.OnDirectMessageDestructive(dm.DeepCopy()) ?? dm;
-            foreach (var i in GlobalPlugins) i.OnDirectMessage(dm.DeepCopy());
+
+            UpdateUserInformation(dm.DirectMessage.Sender);
+            UpdateUserInformation(dm.DirectMessage.Recipient);
+
             var pu = dm.DirectMessage.Sender.Id == AuthenticatedUser.Id ? dm.DirectMessage.Recipient : dm.DirectMessage.Sender;
             if (DirectMessageTimelines.All(p => p.Party.Id != pu.Id))
             {
                 DirectMessageTimelines.Add(new DirectMessageTimeline(Setting, pu));
             }
             DirectMessageTimelines.First(p => p.Party.Id == pu.Id).TryAddDirectMessage(dm.DirectMessage);
+
+            Parallel.ForEach(GlobalPlugins, p => p.OnDirectMessage(dm.DeepCopy()));
         }
 
         private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<IdMessage> e)
         {
             var mes = e.Message;
             foreach (var i in GlobalPlugins) mes = i.OnIdEventDestructive(mes.DeepCopy()) ?? mes;
-            foreach (var i in GlobalPlugins) i.OnIdEvent(mes.DeepCopy());
 
             switch (mes.Type)
             {
@@ -352,6 +382,8 @@ namespace Kbtter4.Models
                 default:
                     break;
             }
+
+            Parallel.ForEach(GlobalPlugins, p => p.OnIdEvent(mes.DeepCopy()));
         }
         #endregion
 
@@ -397,7 +429,7 @@ namespace Kbtter4.Models
             {
                 StopStreaming();
                 ClearStock();
-                foreach (var i in GlobalPlugins) i.OnLogout(AuthenticatedUser);
+                Parallel.ForEach(GlobalPlugins, p => p.OnLogout(AuthenticatedUser));
 
                 Token = Tokens.Create(Setting.Consumer.Key, Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
                 try
@@ -405,7 +437,7 @@ namespace Kbtter4.Models
                     var u = await Token.Users.ShowAsync(user_id => ac.UserId);
                     AuthenticatedUser = u;
                     AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
-                    foreach (var i in GlobalPlugins) i.OnLogin(AuthenticatedUser);
+                    Parallel.ForEach(GlobalPlugins, p => p.OnLogin(AuthenticatedUser));
                     StartStreaming();
                     InitializeDirectMessages();
                     return "";
@@ -420,19 +452,27 @@ namespace Kbtter4.Models
         #endregion
 
         #region キャッシュ
+        object userop = new object();
+
         private void UpdateUserInformation(User user)
         {
-            for (int i = 0; i < Users.Count; i++)
+            lock (userop)
             {
-                if (Users[i].Id == user.Id) Users[i] = user;
+                for (int i = 0; i < Users.Count; i++)
+                {
+                    if (Users[i].Id == user.Id) Users[i] = user;
+                }
+                if (AuthenticatedUser.Id == user.Id) AuthenticatedUser = user;
             }
-            if (AuthenticatedUser.Id == user.Id) AuthenticatedUser = user;
         }
 
-        private void AddUserToUsersList(User user)
+        public void AddUserToUsersList(User user)
         {
-            if (Users.Any(p => p.Id == user.Id)) return;
-            Users.Add(user);
+            lock (userop)
+            {
+                if (Users.Any(p => p.Id == user.Id)) return;
+                Users.Add(user);
+            }
         }
         #endregion
 
@@ -489,7 +529,7 @@ namespace Kbtter4.Models
                     }
                 }
                 SaveLog();
-                foreach (var p in GlobalPlugins) p.Initialize();
+                Parallel.ForEach(GlobalPlugins, p => p.Initialize());
             });
         }
 
