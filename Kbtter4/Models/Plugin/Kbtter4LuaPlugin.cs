@@ -32,38 +32,62 @@ namespace Kbtter4.Models.Plugin
 
         public override void Initialize()
         {
-            var f = lua["Initialize"] as Action;
-            if (f != null) f();
+            try
+            {
+                var f = lua["Initialize"] as Action;
+                if (f != null) f();
+            }
+            catch { }
         }
 
         public override void Dispose()
         {
-            var f = lua["Dispose"] as Action;
-            if (f != null) f();
+            try
+            {
+                var f = lua["Dispose"] as Action;
+                if (f != null) f();
+            }
+            catch { }
         }
 
         public override void OnLogin(User user)
         {
-            var f = lua["OnLogin"] as Action<User>;
-            if (f != null) f(user);
+            try
+            {
+                var f = lua["OnLogin"] as Action<User>;
+                if (f != null) f(user);
+            }
+            catch { }
         }
 
         public override void OnLogout(User user)
         {
-            var f = lua["OnLogout"] as Action<User>;
-            if (f != null) f(user);
+            try
+            {
+                var f = lua["OnLogout"] as Action<User>;
+                if (f != null) f(user);
+            }
+            catch { }
         }
 
         public override void OnStartStreaming()
         {
-            var f = lua["OnStartStreaming"] as Action;
-            if (f != null) f();
+            try
+            {
+                var f = lua["OnStartStreaming"] as Action;
+                if (f != null) f();
+            }
+            catch { }
         }
 
         public override void OnStopStreaming()
         {
-            var f = lua["OnStopStreaming"] as Action;
-            if (f != null) f();
+            try
+            {
+                var f = lua["OnStopStreaming"] as Action;
+                if (f != null) f();
+            }
+            catch { }
         }
 
         public override string OnCommand(IList<string> args)
@@ -73,36 +97,59 @@ namespace Kbtter4.Models.Plugin
 
         public override void OnStatus(StatusMessage mes)
         {
-            var f = lua["OnStatus"] as Action<StatusMessage>;
-            if (f != null) f(mes);
+            try
+            {
+                var f = lua["OnStatus"] as Action<StatusMessage>;
+                if (f != null) f(mes);
+            }
+            catch { }
         }
 
         public override void OnEvent(EventMessage mes)
         {
-            var f = lua["OnEvent"] as Action<EventMessage>;
-            if (f != null) f(mes);
+            try
+            {
+                var f = lua["OnEvent"] as Action<EventMessage>;
+                if (f != null) f(mes);
+            }
+            catch { }
         }
 
         public override void OnIdEvent(IdMessage mes)
         {
-            var f = lua["OnIdEvent"] as Action<IdMessage>;
-            if (f != null) f(mes);
+            try
+            {
+                var f = lua["OnIdEvent"] as Action<IdMessage>;
+                if (f != null) f(mes);
+            }
+            catch { }
         }
 
         public override void OnDirectMessage(DirectMessageMessage mes)
         {
-            var f = lua["OnDirectMessage"] as Action<DirectMessageMessage>;
-            if (f != null) f(mes);
+            try
+            {
+                var f = lua["OnDirectMessage"] as Action<DirectMessageMessage>;
+                if (f != null) f(mes);
+            }
+            catch { }
         }
 
         public override StatusMessage OnStatusDestructive(StatusMessage mes)
         {
-            var f = lua["OnStatusDestructive"] as Func<StatusMessage, StatusMessage>;
-            if (f != null)
+            try
             {
-                return f(mes);
+                var f = lua["OnStatusDestructive"] as Func<StatusMessage, StatusMessage>;
+                if (f != null)
+                {
+                    return f(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            else
+            catch
             {
                 return mes;
             }
@@ -110,12 +157,19 @@ namespace Kbtter4.Models.Plugin
 
         public override EventMessage OnEventDestructive(EventMessage mes)
         {
-            var f = lua["OnEventDestructive"] as Func<EventMessage, EventMessage>;
-            if (f != null)
+            try
             {
-                return f(mes);
+                var f = lua["OnEventDestructive"] as Func<EventMessage, EventMessage>;
+                if (f != null)
+                {
+                    return f(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            else
+            catch
             {
                 return mes;
             }
@@ -123,12 +177,19 @@ namespace Kbtter4.Models.Plugin
 
         public override IdMessage OnIdEventDestructive(IdMessage mes)
         {
-            var f = lua["OnIdEventDestructive"] as Func<IdMessage, IdMessage>;
-            if (f != null)
+            try
             {
-                return f(mes);
+                var f = lua["OnIdEventDestructive"] as Func<IdMessage, IdMessage>;
+                if (f != null)
+                {
+                    return f(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            else
+            catch
             {
                 return mes;
             }
@@ -136,12 +197,19 @@ namespace Kbtter4.Models.Plugin
 
         public override DirectMessageMessage OnDirectMessageDestructive(DirectMessageMessage mes)
         {
-            var f = lua["OnDirectMessageDestructive"] as Func<DirectMessageMessage, DirectMessageMessage>;
-            if (f != null)
+            try
             {
-                return f(mes);
+                var f = lua["OnDirectMessageDestructive"] as Func<DirectMessageMessage, DirectMessageMessage>;
+                if (f != null)
+                {
+                    return f(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            else
+            catch
             {
                 return mes;
             }
@@ -170,7 +238,7 @@ namespace Kbtter4.Models.Plugin
                     l.DoFile(i);
                     list.Add(new Kbtter4LuaPlugin(l));
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     instance.LogError("Luaプラグイン読み込み中にエラーが発生しました : " + e.Message);
                 }

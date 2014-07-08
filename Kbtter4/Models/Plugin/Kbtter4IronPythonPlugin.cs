@@ -48,80 +48,111 @@ namespace Kbtter4.Models.Plugin
 
         public override void Dispose()
         {
-            Action a;
-            if (scope.TryGetVariable<Action>("Dispose", out a))
+            try
             {
-                a();
+                Action a;
+                if (scope.TryGetVariable<Action>("Dispose", out a))
+                {
+                    a();
+                }
             }
+            catch { }
         }
 
         public override void Initialize()
         {
-            Action a;
-            if (scope.TryGetVariable<Action>("Initialize", out a))
+            try
             {
-                a();
+                Action a;
+                if (scope.TryGetVariable<Action>("Initialize", out a))
+                {
+                    a();
+                }
             }
+            catch { }
         }
 
         Action<User> login;
         bool? haslogin;
         public override void OnLogin(User user)
         {
-            if (haslogin == null)
+            try
             {
-                haslogin = scope.TryGetVariable("OnLogin", out login);
+                if (haslogin == null)
+                {
+                    haslogin = scope.TryGetVariable("OnLogin", out login);
+                }
+                if (haslogin ?? false) login(user);
             }
-            if (haslogin ?? false) login(user);
+            catch { }
         }
 
         Action<User> logout;
         bool? haslogout;
         public override void OnLogout(User user)
         {
-            if (haslogout == null)
+            try
             {
-                haslogout = scope.TryGetVariable("OnLogout", out logout);
+                if (haslogout == null)
+                {
+                    haslogout = scope.TryGetVariable("OnLogout", out logout);
+                }
+                if (haslogout ?? false) logout(user);
             }
-            if (haslogout ?? false) logout(user);
+            catch { }
         }
 
         Action bstream;
         bool? hasbstream;
         public override void OnStartStreaming()
         {
-            if (hasbstream == null)
+            try
             {
-                hasbstream = scope.TryGetVariable("OnStartStreaming", out bstream);
+                if (hasbstream == null)
+                {
+                    hasbstream = scope.TryGetVariable("OnStartStreaming", out bstream);
+                }
+                if (hasbstream ?? false) bstream();
             }
-            if (hasbstream ?? false) bstream();
+            catch { }
         }
 
         Action fstream;
         bool? hasfstream;
         public override void OnStopStreaming()
         {
-            if (hasfstream == null)
+            try
             {
-                hasfstream = scope.TryGetVariable("OnStopStreaming", out fstream);
+                if (hasfstream == null)
+                {
+                    hasfstream = scope.TryGetVariable("OnStopStreaming", out fstream);
+                }
+                if (hasfstream ?? false) fstream();
             }
-            if (hasfstream ?? false) fstream();
+            catch { }
         }
 
         Func<IList<string>, string> cmd;
         bool? hascmd;
         public override string OnCommand(IList<string> args)
         {
-            if (hascmd == null)
+            try
             {
-                hascmd = scope.TryGetVariable("OnCommand", out cmd);
-            }
+                if (hascmd == null)
+                {
+                    hascmd = scope.TryGetVariable("OnCommand", out cmd);
+                }
 
-            if (hascmd ?? false)
-            {
-                return cmd(args);
+                if (hascmd ?? false)
+                {
+                    return cmd(args);
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch
             {
                 return null;
             }
@@ -132,28 +163,39 @@ namespace Kbtter4.Models.Plugin
         bool? hasdm;
         public override void OnDirectMessage(DirectMessageMessage mes)
         {
-            if (hasdm == null)
+            try
             {
-                hasdm = scope.TryGetVariable("OnDirectMessage", out dm);
+                if (hasdm == null)
+                {
+                    hasdm = scope.TryGetVariable("OnDirectMessage", out dm);
+                }
+                if (hasdm ?? false) dm(mes);
             }
-            if (hasdm ?? false) dm(mes);
+            catch { }
         }
 
         Func<DirectMessageMessage, DirectMessageMessage> dmD;
         bool? hasdmD;
         public override DirectMessageMessage OnDirectMessageDestructive(DirectMessageMessage mes)
         {
-            if (hasdmD == null)
+            try
             {
-                hasdmD = scope.TryGetVariable("OnDirectMessageDestructive", out dmD);
+                if (hasdmD == null)
+                {
+                    hasdmD = scope.TryGetVariable("OnDirectMessageDestructive", out dmD);
+                }
+                if (hasdmD ?? false)
+                {
+                    return dmD(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            if (hasdmD ?? false)
+            catch
             {
-                return dmD(mes);
-            }
-            else
-            {
-                return null;
+                return mes;
             }
         }
 
@@ -161,28 +203,39 @@ namespace Kbtter4.Models.Plugin
         bool? hasev;
         public override void OnEvent(EventMessage mes)
         {
-            if (hasev == null)
+            try
             {
-                hasev = scope.TryGetVariable("OnEvent", out ev);
+                if (hasev == null)
+                {
+                    hasev = scope.TryGetVariable("OnEvent", out ev);
+                }
+                if (hasev ?? false) ev(mes);
             }
-            if (hasev ?? false) ev(mes);
+            catch { }
         }
 
         Func<EventMessage, EventMessage> evD;
         bool? hasevD;
         public override EventMessage OnEventDestructive(EventMessage mes)
         {
-            if (hasevD == null)
+            try
             {
-                hasevD = scope.TryGetVariable("OnEventDestructive", out evD);
+                if (hasevD == null)
+                {
+                    hasevD = scope.TryGetVariable("OnEventDestructive", out evD);
+                }
+                if (hasevD ?? false)
+                {
+                    return evD(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            if (hasevD ?? false)
+            catch
             {
-                return evD(mes);
-            }
-            else
-            {
-                return null;
+                return mes;
             }
         }
 
@@ -190,28 +243,39 @@ namespace Kbtter4.Models.Plugin
         bool? hasid;
         public override void OnIdEvent(IdMessage mes)
         {
-            if (hasid == null)
+            try
             {
-                hasid = scope.TryGetVariable("OnIdEvent", out id);
+                if (hasid == null)
+                {
+                    hasid = scope.TryGetVariable("OnIdEvent", out id);
+                }
+                if (hasid ?? false) id(mes);
             }
-            if (hasid ?? false) id(mes);
+            catch { }
         }
 
         Func<IdMessage, IdMessage> idD;
         bool? hasidD;
         public override IdMessage OnIdEventDestructive(IdMessage mes)
         {
-            if (hasidD == null)
+            try
             {
-                hasidD = scope.TryGetVariable("OnIdEventDestructive", out idD);
+                if (hasidD == null)
+                {
+                    hasidD = scope.TryGetVariable("OnIdEventDestructive", out idD);
+                }
+                if (hasidD ?? false)
+                {
+                    return idD(mes);
+                }
+                else
+                {
+                    return mes;
+                }
             }
-            if (hasidD ?? false)
+            catch
             {
-                return idD(mes);
-            }
-            else
-            {
-                return null;
+                return mes;
             }
         }
 
@@ -219,28 +283,39 @@ namespace Kbtter4.Models.Plugin
         bool? hasst;
         public override void OnStatus(StatusMessage mes)
         {
-            if (hasst == null)
+            try
             {
-                hasst = scope.TryGetVariable("OnStatus", out st);
+                if (hasst == null)
+                {
+                    hasst = scope.TryGetVariable("OnStatus", out st);
+                }
+                if (hasst ?? false) st(mes);
             }
-            if (hasst ?? false) st(mes);
+            catch { }
         }
 
         Func<StatusMessage, StatusMessage> stD;
         bool? hasstD;
         public override StatusMessage OnStatusDestructive(StatusMessage mes)
         {
-            if (hasstD == null)
+            try
             {
-                hasstD = scope.TryGetVariable("OnStatusDestructive", out stD);
+                if (hasstD == null)
+                {
+                    hasstD = scope.TryGetVariable("OnStatusDestructive", out stD);
+                }
+                if (hasstD ?? false)
+                {
+                    return stD(mes);
+                }
+                else
+                {
+                    return null;
+                }
             }
-            if (hasstD ?? false)
+            catch
             {
-                return stD(mes);
-            }
-            else
-            {
-                return null;
+                return mes;
             }
         }
 
@@ -287,7 +362,7 @@ namespace Kbtter4.Models.Plugin
                 catch (Exception e)
                 {
                     instance.LogError(String.Format("プラグイン読み込み中にエラーが発生しました : {0}\n{1}", i, e.Message));
-                    
+
                 }
             }
 

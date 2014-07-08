@@ -438,8 +438,9 @@ namespace Kbtter4.Models
                     AuthenticatedUser = u;
                     AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
                     Parallel.ForEach(GlobalPlugins, p => p.OnLogin(AuthenticatedUser));
-                    StartStreaming();
                     InitializeDirectMessages();
+                    InitializeHomeStatusTimeline();
+                    StartStreaming();
                     return "";
                 }
                 catch (TwitterException e)
@@ -494,6 +495,16 @@ namespace Kbtter4.Models
             adms.AddRange(sdms);
             adms.Sort((x, y) => x.CreatedAt.CompareTo(y.CreatedAt));
             adms.ForEach(p => Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(new DirectMessageMessage { DirectMessage = p })));
+        }
+
+        public async void InitializeHomeStatusTimeline()
+        {
+            var tws = await Token.Statuses.HomeTimelineAsync(count => Setting.Timelines.HomeStatusTimelineInitialRead);
+
+            foreach (var i in tws.Reverse())
+            {
+                Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(new StatusMessage { Status = i }));
+            }
         }
 
         public bool CheckFavorited(long id)

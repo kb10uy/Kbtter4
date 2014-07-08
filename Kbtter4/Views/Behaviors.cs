@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using System.Windows.Interactivity;
 
 using Kbtter4.ViewModels;
+using Livet;
 
 namespace Kbtter4.Views
 {
@@ -255,6 +256,84 @@ namespace Kbtter4.Views
         void AssociatedObject_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SetValue(SelectedItemProperty, e.AddedItems[0]);
+        }
+    }
+
+    public sealed class TextBlockStatusTextBehavior : Behavior<TextBlock>
+    {
+        public static DependencyProperty TextElementsProperty =
+            DependencyProperty.RegisterAttached(
+                "TextElements",
+                typeof(ObservableSynchronizedCollection<StatusTextElement>),
+                typeof(TextBlockStatusTextBehavior));
+
+        public ObservableSynchronizedCollection<StatusTextElement> TextElements
+        {
+            get { return GetValue(TextElementsProperty) as ObservableSynchronizedCollection<StatusTextElement>; }
+            set
+            {
+                SetValue(TextElementsProperty, value);
+                RefreshInline(value);
+            }
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            RefreshInline(GetValue(TextElementsProperty) as ObservableSynchronizedCollection<StatusTextElement>);
+        }
+
+        private void RefreshInline(IList<StatusTextElement> elms)
+        {
+            AssociatedObject.Inlines.Clear();
+            foreach (var i in elms)
+            {
+                switch (i.Type)
+                {
+                    case StatusTextElementType.None:
+                        AssociatedObject.Inlines.Add(i.Surface);
+                        break;
+                    case StatusTextElementType.Uri:
+                    case StatusTextElementType.Media:
+                        var hl = new Hyperlink();
+                        hl.Inlines.Add(i.Surface);
+                        hl.Command = new DelegateCommand<string>(i.Action);
+                        hl.CommandParameter = i.Link.ToString();
+                        AssociatedObject.Inlines.Add(hl);
+                        break;
+                    case StatusTextElementType.User:
+                    case StatusTextElementType.Hashtag:
+                        var hl2 = new Hyperlink();
+                        hl2.Inlines.Add(i.Surface);
+                        hl2.Command = new DelegateCommand<string>(i.Action);
+                        hl2.CommandParameter = i.Link.ToString();
+                        AssociatedObject.Inlines.Add(hl2);
+                        break;
+                }
+            }
+        }
+    }
+
+    public sealed class DelegateCommand<T> : ICommand
+        where T : class
+    {
+        Action<T> action;
+
+        public DelegateCommand(Action<T> act)
+        {
+            action = act;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public event EventHandler CanExecuteChanged;
+
+        public void Execute(object parameter)
+        {
+            action(parameter as T);
         }
     }
 

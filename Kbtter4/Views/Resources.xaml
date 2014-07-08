@@ -221,7 +221,11 @@
                     </TextBlock>
                 </StackPanel>
 
-                <TextBlock Text="{Binding Text}" Grid.Row="1" Margin="4,0,4,0" FontSize="14"/>
+                <TextBlock Grid.Row="1" Margin="4,0,4,0" FontSize="14">
+                    <i:Interaction.Behaviors>
+                        <v:TextBlockStatusTextBehavior TextElements="{Binding TextElements}"/>
+                    </i:Interaction.Behaviors>
+                </TextBlock>
 
                 <StackPanel Grid.Row="2" Margin="4,4,4,0" Orientation="Horizontal">
                     <TextBlock Foreground="DarkBlue" Text="{Binding CreatedTimeText}"/>
@@ -310,7 +314,7 @@
             </StackPanel>
         </StackPanel>
     </DataTemplate>
-    
+
     <DataTemplate DataType="{x:Type vm:DirectMessageViewModel}" x:Key="DirectMessageTemplate">
         <StackPanel Margin="8">
             <Border BorderBrush="{StaticResource TwitterColorGray}" BorderThickness="1" CornerRadius="6">
@@ -340,7 +344,7 @@
             </Border>
         </StackPanel>
     </DataTemplate>
-    
+
     <Style x:Key="SlidingListView" TargetType="{x:Type ListView}">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>

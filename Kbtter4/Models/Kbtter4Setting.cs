@@ -86,6 +86,24 @@ namespace Kbtter4.Models
         #endregion
 
 
+        #region HomeStatusTimelineInitialRead変更通知プロパティ
+        private int _HomeStatusTimelineInitialRead = 100;
+
+        public int HomeStatusTimelineInitialRead
+        {
+            get
+            { return _HomeStatusTimelineInitialRead; }
+            set
+            {
+                if (_HomeStatusTimelineInitialRead == value)
+                    return;
+                _HomeStatusTimelineInitialRead = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region HomeNotificationTimelineMax変更通知プロパティ
         private int _HomeNotificationTimelineMax = 200;
 
