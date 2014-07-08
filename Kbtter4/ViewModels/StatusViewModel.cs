@@ -585,6 +585,10 @@ namespace Kbtter4.ViewModels
             if (Text.Length > le - 1)
             {
                 var ls = Text.Substring(le);
+                ls = ls
+                        .Replace("&lt;", "<")
+                        .Replace("&gt;", ">")
+                        .Replace("&amp;", "&");
                 TextElements.Add(new StatusTextElement { Surface = ls, Type = StatusTextElementType.None });
             }
         }
