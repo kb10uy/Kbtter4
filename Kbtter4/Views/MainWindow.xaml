@@ -433,7 +433,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Margin="4" Grid.Column="0">手描き</Button>
+                                <Button Margin="4" Grid.Column="0" IsEnabled="False" ToolTip="未実装です">TEGAKI</Button>
                                 <Button Margin="4" Grid.Column="1">
                                     追加
                                     <i:Interaction.Triggers>

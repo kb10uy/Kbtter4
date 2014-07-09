@@ -35,12 +35,12 @@ namespace Kbtter4.Views
 
         private void RectanglePenBrush_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var bs = new WpfColorDialog();
-            bs.OwnerWindow = this;
-            if (bs.ShowDialog() ?? false)
-            {
-                InkCanvasMain.DefaultDrawingAttributes.Color = bs.SelectedColor;
-            }
+            //var bs = new WpfColorDialog();
+            //bs.OwnerWindow = this;
+            //if (bs.ShowDialog() ?? false)
+            //{
+            //    InkCanvasMain.DefaultDrawingAttributes.Color = bs.SelectedColor;
+            //}
         }
 
         private void RectanglebackgroundBrush_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

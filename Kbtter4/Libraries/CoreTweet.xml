@@ -80,6 +80,14 @@
             Exception when parsing.
             </summary>
         </member>
+        <member name="M:CoreTweet.ParsingException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CoreTweet.ParsingException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="json">The JSON that couldn't be parsed.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (<c>Nothing</c> in Visual Basic) if no inner exception is specified.</param>
+        </member>
         <member name="P:CoreTweet.ParsingException.Json">
             <summary>
             The JSON which causes an exception.
@@ -265,6 +273,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.Core.ITwitterResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.Core.ListedResponse`1">
             <summary>
             The collection of response.
@@ -276,12 +289,13 @@
             </summary>
             <param name="collection">The collection whose elements are copied to the new <see cref="T:CoreTweet.Core.ListedResponse`1"/>.</param>
         </member>
-        <member name="M:CoreTweet.Core.ListedResponse`1.#ctor(System.Collections.Generic.List{`0},CoreTweet.RateLimit)">
+        <member name="M:CoreTweet.Core.ListedResponse`1.#ctor(System.Collections.Generic.List{`0},CoreTweet.RateLimit,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:CoreTweet.Core.ListedResponse`1"/> class with a specified collection and rate limit.
             </summary>
             <param name="collection">The collection whose elements are copied to the new <see cref="T:CoreTweet.Core.ListedResponse`1"/>.</param>
             <param name="rateLimit">The rate limit.</param>
+            <param name="json">The JSON.</param>
         </member>
         <member name="M:CoreTweet.Core.ListedResponse`1.GetEnumerator">
             <summary>
@@ -294,6 +308,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.Core.ListedResponse`1.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="P:CoreTweet.Core.ListedResponse`1.Count">
             <summary>
             Gets the number of elements actually contained in the <see cref="T:CoreTweet.Core.ListedResponse`1"/>.
@@ -301,10 +320,90 @@
         </member>
         <member name="P:CoreTweet.Core.ListedResponse`1.Item(System.Int32)">
             <summary>
-            Gets or sets the element at the specified index.
+            Gets the element at the specified index.
             </summary>
             <param name="index">The zero-based index of the element to get or set.</param>
             <returns>The element at the specified index.</returns>
+        </member>
+        <member name="T:CoreTweet.Core.DictionaryResponse`2">
+            <summary>
+            The collection of response.
+            </summary>
+            <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+            <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+        </member>
+        <member name="M:CoreTweet.Core.DictionaryResponse`2.#ctor(System.Collections.Generic.Dictionary{`0,`1})">
+            <summary>
+            Initializes a new instance of the <see cref="T:CoreTweet.Core.DictionaryResponse`2"/> class with a specified dictionary.
+            </summary>
+            <param name="dictionary">The dictionary whose elements are copied to the new <see cref="T:CoreTweet.Core.DictionaryResponse`2"/>.</param>
+        </member>
+        <member name="M:CoreTweet.Core.DictionaryResponse`2.#ctor(System.Collections.Generic.Dictionary{`0,`1},CoreTweet.RateLimit,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CoreTweet.Core.DictionaryResponse`2"/> class with a specified dictionary and rate limit.
+            </summary>
+            <param name="dictionary">The dictionary whose elements are copied to the new <see cref="T:CoreTweet.Core.DictionaryResponse`2"/>.</param>
+            <param name="rateLimit">The rate limit.</param>
+            <param name="json">The JSON.</param>
+        </member>
+        <member name="M:CoreTweet.Core.DictionaryResponse`2.ContainsKey(`0)">
+            <summary>
+            Determines whether the read-only dictionary contains an element that has the specified key.
+            </summary>
+            <param name="key">The key to locate.</param>
+            <returns><c>true</c> if the read-only dictionary contains an element that has the specified key; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:CoreTweet.Core.DictionaryResponse`2.TryGetValue(`0,`1@)">
+            <summary>
+            Gets the value that is associated with the specified key.
+            </summary>
+            <param name="key">The key to locate.</param>
+            <param name="value">
+            When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter.
+            This parameter is passed uninitialized.
+            </param>
+            <returns><c>true</c> if the <see cref="T:CoreTweet.Core.DictionaryResponse`2"/> contains an element that has the specified key; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:CoreTweet.Core.DictionaryResponse`2.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>An IEnumerator object that can be used to iterate through the collection.</returns>
+        </member>
+        <member name="P:CoreTweet.Core.DictionaryResponse`2.RateLimit">
+            <summary>
+            Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Core.DictionaryResponse`2.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Core.DictionaryResponse`2.Keys">
+            <summary>
+            Gets an enumerable collection that contains the keys in the read-only dictionary.
+            </summary>
+            <value>An enumerable collection that contains the keys in the read-only dictionary.</value>
+        </member>
+        <member name="P:CoreTweet.Core.DictionaryResponse`2.Values">
+            <summary>
+            Gets an enumerable collection that contains the values in the read-only dictionary.
+            </summary>
+            <value>An enumerable collection that contains the values in the read-only dictionary.</value>
+        </member>
+        <member name="P:CoreTweet.Core.DictionaryResponse`2.Item(`0)">
+            <summary>
+            Gets the element that has the specified key in the read-only dictionary.
+            </summary>
+            <param name="key">The key to locate.</param>
+            <returns>The element that has the specified key in the read-only dictionary.</returns>
+        </member>
+        <member name="P:CoreTweet.Core.DictionaryResponse`2.Count">
+            <summary>
+            Gets the number of elements in the collection.
+            </summary>
+            <value>The number of elements in the collection.</value>
         </member>
         <member name="T:CoreTweet.Core.TokensBase">
             <summary>
@@ -712,6 +811,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.Cursored`1.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.EnumerateMode">
             <summary>
             Provides a mode of enumeration.
@@ -790,6 +894,11 @@
         <member name="P:CoreTweet.Embed.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Embed.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.Entities">
@@ -983,6 +1092,146 @@
             Gets or sets the error message.
             </summary>
         </member>
+        <member name="T:CoreTweet.ErrorCode">
+            <summary>
+            Represents machine-parseable error code from Twitter (convertible from/to <see cref="P:CoreTweet.Error.Code"/>).
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CouldNotAuthenticate">
+            <summary>
+            The request could not be completed as requested.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.PageDoesNotExist">
+            <summary>
+            Corresponds with a HTTP 404 - The specified resource was not found.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.AccountIsSuspended">
+            <summary>
+            Corresponds with a HTTP 403 - The user is suspended (as well as its access token) and could not complete the request.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.RestApiV1IsNoLongerActive">
+            <summary>
+            The request was a REST API v1 request (which is no longer available).
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.RateLimitExceeded">
+            <summary>
+            The request could not be completed because it reached the current rate limit window.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.InvalidOrExpiredToken">
+            <summary>
+            The access token used in the request is incorrect or has been expired.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.SslIsRequired">
+            <summary>
+            Only SSL connections are allowed in specified request.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.UnableToVerifyCredentials">
+            <summary>
+            Undocumented: Credentials in the request is invalid (thrown on application-only authentication).
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.OverCapacity">
+            <summary>
+            Corresponds with a HTTP 503 - Twitter is temporarily over capacity.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.InternalError">
+            <summary>
+            Corresponds with a HTTP 500 - An unknown internal occurred while Twitter trying to serve the request.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CouldNotAuthenticate_TimestampIsInvalid">
+            <summary>
+            Corresponds with a HTTP 401 - The oauth_timestamp of the request is either ahead or behind its acceptable range.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.AlreadyFavorited">
+            <summary>
+            Undocumented: The authenticating user have already favorited specified status.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CannotSendDirectMessagesToUsersNotFollowingMe">
+            <summary>
+            Undocumented: The authenticating user cannot send a direct message to a user not following the authenticating user.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CannotSendLongDirectMessages">
+            <summary>
+            Undocumented: The direct message is too long to send.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.AlreadyFollowRequested">
+            <summary>
+            Undocumented: The authenticating user have already requested to follow specified user.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.UnableToFollowMorePeople">
+            <summary>
+            Corresponds with a HTTP 403 - The follow request could not be completed due to some kind of limit.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.NotAuthorizedToSeeStatus">
+            <summary>
+            Corresponds with a HTTP 403 - The requested Tweet cannot be viewed by the authenticating user.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CannotDeleteOtherUsersStatus">
+            <summary>
+            Undocumented: Can't delete other users' status.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.OverStatusUpdateLimit">
+            <summary>
+            Corresponds with a HTTP 403 - The authenticating user reached some kind of status update limit.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.StatusIsDuplicate">
+            <summary>
+            The status text have been Tweeted already by the authenticated user.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.BadAuthenticationData">
+            <summary>
+            Authentication data of the request was invalid or missing.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.DetectedAutomatedAction">
+            <summary>
+            Twitter detected automated actions and could not complete the request to prevent malicious activities.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.MustVerifyLogin">
+            <summary>
+            Authenticating user must verify login using Twitter's "login verification" feature.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.EndpointHasRetired">
+            <summary>
+            The request to a retired URL cannot be completed.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CannotPerformWriteActions">
+            <summary>
+            Corresponds with a HTTP 403 - The application is restricted from performing write-related actions.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CannotMuteMyself">
+            <summary>
+            Corresponds with a HTTP 403 - The authenticated used cannot mute itself.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.NotMutingSpecifiedUser">
+            <summary>
+            Corresponds with a HTTP 403 - The unmute request could not be completed because the authenticating user is not muting the specified user.
+            </summary>
+        </member>
         <member name="T:CoreTweet.Configurations">
             <summary>
             Represents the current configuration used by Twitter including twitter.com slugs which are not usernames, maximum photo resolutions, and t.co URL lengths.
@@ -1029,6 +1278,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.Configurations.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.Language">
             <summary>
             Represents a language code, name and status.
@@ -1062,6 +1316,11 @@
         <member name="P:CoreTweet.StringResponse.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.StringResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.List">
@@ -1138,6 +1397,11 @@
         <member name="P:CoreTweet.ListResponse.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ListResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.OAuth2Token">
@@ -1255,6 +1519,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.PlaceResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.BoundingBox">
             <summary>
             <para>Represents a bounding box.</para>
@@ -1312,6 +1581,11 @@
         <member name="P:CoreTweet.GeoResult.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.GeoResult.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.TrendsResult">
@@ -1490,6 +1764,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.SearchQueryResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.Setting">
             <summary>
             Represents the settings including current trend, geo and sleep time information.
@@ -1558,6 +1837,11 @@
         <member name="P:CoreTweet.Setting.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Setting.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.SleepTime">
@@ -1774,6 +2058,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.StatusResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.Contributors">
             <summary>
             <para>Represents the contributors, a collection of brief user objects (usually only one) indicating users who contributed to the authorship of the tweet, on behalf of the official tweet author.</para>
@@ -1867,6 +2156,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.DirectMessageResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.Tokens">
             <summary>
             Represents the OAuth tokens.
@@ -1950,6 +2244,16 @@
         <member name="P:CoreTweet.MediaUploadResult.Size">
             <summary>
             Gets or sets the size of the media.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.MediaUploadResult.RateLimit">
+            <summary>
+            Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.MediaUploadResult.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.Image">
@@ -2212,6 +2516,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.UserResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.RelationShip">
             <summary>
             Represents a relationship with aother user.
@@ -2235,6 +2544,11 @@
         <member name="P:CoreTweet.RelationShipResponse.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.RelationShipResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.Friendship">
@@ -2337,6 +2651,11 @@
             Gets or sets the rate limit of the response.
             </summary>
         </member>
+        <member name="P:CoreTweet.CategoryResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="T:CoreTweet.ProfileBannerSizes">
             <summary>
             Represents the variations of a size of a profile banner.
@@ -2375,6 +2694,11 @@
         <member name="P:CoreTweet.ProfileBannerSizes.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ProfileBannerSizes.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.ProfileBannerSize">
