@@ -61,6 +61,10 @@ LICENSE.txtを参照してください。
 * Kbtterは、多くのライブラリを参照使用しています。  
   参照しているライブラリのライセンスは以下を参照してください。
   各ライブラリの使用については、それぞれの条文に従ってください。
+ - WPF Color Dialogを使用しています。WPF Color Dialogはフリーウェアです。
+   http://www.kanazawa-net.ne.jp/~pmansato/wpf/wpf_custom_ColorPicker.htm
+ - WPF Brush Editorを使用しています。WPF Brush Editorはフリーウェアです。
+   http://www.kanazawa-net.ne.jp/~pmansato/wpf/wpf_custom_BrushEditor.htm
  - 以下はMIT Licenseのライブラリです。
   + CoreTweet
   + JSON.NET
