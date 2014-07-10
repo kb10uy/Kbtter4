@@ -138,6 +138,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\PluginViewModel.cs" />
     <Compile Include="ViewModels\TegakiWindowViewModel.cs" />
     <Compile Include="Views\TegakiWindow.xaml.cs">
       <DependentUpon>TegakiWindow.xaml</DependentUpon>

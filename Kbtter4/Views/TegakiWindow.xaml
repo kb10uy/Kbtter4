@@ -6,22 +6,18 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:Kbtter4.Views"
         xmlns:vm="clr-namespace:Kbtter4.ViewModels"
-        Title="Tegaki Draw And Tweet on Kbtter4" SizeToContent="WidthAndHeight">
-    
-    <Window.DataContext>
-        <vm:TegakiWindowViewModel/>
-    </Window.DataContext>
-    
+        Title="Tegaki Draw And Tweet on Kbtter4" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+
     <Window.Resources>
         <ResourceDictionary Source="Resources.xaml"/>
     </Window.Resources>
-    
-     <i:Interaction.Triggers>
-     
-     	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
-    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
-    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
-        
+
+    <i:Interaction.Triggers>
+
+        <!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+        <!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+        <!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています -->
+
         <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
         <i:EventTrigger EventName="ContentRendered">
             <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
@@ -39,33 +35,49 @@
     <Grid Background="{StaticResource TwitterColorWhite}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="512"/>
-            <ColumnDefinition Width="128"/>
+            <ColumnDefinition Width="144"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="384"/>
         </Grid.RowDefinitions>
-        
-        <InkCanvas Name="InkCanvasMain"/>
+
+        <InkCanvas Name="InkCanvasMain" Background="{Binding ElementName=RectangleBackgroundBrush,Path=Fill}"/>
 
         <StackPanel Grid.Column="1">
-            <Button Margin="4">全消し</Button>
+            <Button Margin="4" Name="ButtonVanish" Click="ButtonVanish_Click">全消し</Button>
             <GroupBox Margin="4" Header="モード">
                 <StackPanel>
-                    <RadioButton>ペン</RadioButton>
-                    <RadioButton>消しゴム</RadioButton>
+                    <RadioButton Name="RadioButtonPen" Checked="RadioButtonPen_Click" IsChecked="True">ペン</RadioButton>
+                    <RadioButton Name="RadioButtonEraser" Checked="RadioButtonEraser_Click">消しゴム</RadioButton>
                 </StackPanel>
             </GroupBox>
-            <StackPanel Orientation="Horizontal">
-                <Label>ペン色</Label>
-                <Rectangle Name="RectanglePenBrush" Width="64" Margin="4"
-                           MouseLeftButtonDown="RectanglePenBrush_MouseLeftButtonDown">
-                </Rectangle>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Label>背景色</Label>
-                <Rectangle Name="RectanglebackgroundBrush" Width="64" Margin="4"
-                           MouseLeftButtonDown="RectanglebackgroundBrush_MouseLeftButtonDown"/>
-            </StackPanel>
+
+            <GroupBox Header="色" Margin="4">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>ペン色</Label>
+                        <Rectangle Name="RectanglePenBrush" Width="64" Margin="4"
+                                   MouseLeftButtonDown="RectanglePenBrush_MouseLeftButtonDown">
+                        </Rectangle>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>背景色</Label>
+                        <Rectangle Name="RectangleBackgroundBrush" Width="64" Margin="4"
+                                   MouseLeftButtonDown="RectanglebackgroundBrush_MouseLeftButtonDown"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="太さ" Margin="4">
+                <Slider Margin="4" Minimum="1" Maximum="20" TickFrequency="1" TickPlacement="BottomRight" 
+                    Name="SliderPenWidth" ValueChanged="SliderPenWidth_ValueChanged"/>
+            </GroupBox>
+            <GroupBox Header="ファイル名" Margin="4">
+                <TextBox Name="TextBoxFileName"/>
+            </GroupBox>
+        </StackPanel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
+            <Button Margin="4" Name="ButtonCancel" Click="ButtonCancel_Click">キャンセル</Button>
+            <Button Margin="4" Name="ButtonSave" Click="ButtonSave_Click">保存</Button>
         </StackPanel>
 
     </Grid>

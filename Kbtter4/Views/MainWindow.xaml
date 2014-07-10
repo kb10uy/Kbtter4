@@ -43,6 +43,9 @@
             <l:WindowInteractionMessageAction/>
         </l:InteractionMessageTrigger>
         <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Tegaki">
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:TegakiWindow}"/>
+        </l:InteractionMessageTrigger>
 
     </i:Interaction.Triggers>
 
@@ -372,9 +375,9 @@
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Background="{StaticResource TwitterColorPrimary}" Grid.Column="1">
+            <Grid  Background="{StaticResource TwitterColorPrimary}" Grid.Column="1">
 
-            </StackPanel>
+            </Grid>
 
             <Expander Name="ExpanderNewTweet" Grid.Row="1" Grid.Column="1" Header="新しいツイート" IsExpanded="{Binding View.IsStatusCreatorExpanded}">
                 <Grid VerticalAlignment="Stretch" MinHeight="120">
@@ -433,7 +436,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Margin="4" Grid.Column="0" IsEnabled="False" ToolTip="未実装です">TEGAKI</Button>
+                                <Button Margin="4" Grid.Column="0" Command="{Binding StartTegakiCommand}">TEGAKI</Button>
                                 <Button Margin="4" Grid.Column="1">
                                     追加
                                     <i:Interaction.Triggers>
@@ -554,14 +557,83 @@
                 <TextBox Grid.Row="2" AcceptsReturn="True" IsReadOnly="True" Margin="4"  Text="{Binding CommandResults}"
                          ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
             </Grid>
+            
+            
             <Grid Name="GridSetting" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuSetting,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">設定</TextBlock>
+                <TabControl Grid.Row="1" VerticalAlignment="Stretch" Margin="4">
+                    <TabItem Header="システム">
+                        <StackPanel>
+                            <GroupBox Header="フォルダを開く">
+                                <StackPanel>
+                                    <Button Margin="4" Command="{Binding View.OpenPluginFolderCommand}">プラグインフォルダ</Button>
+                                    <Button Margin="4" Command="{Binding View.OpenTegakiFolderCommand}">TEGAKIフォルダ</Button>
+                                    <Button Margin="4" Command="{Binding View.OpenSettingFolderCommand}">設定フォルダ</Button>
+                                    <Button Margin="4" Command="{Binding View.OpenCacheFolderCommand}">キャッシュフォルダ</Button>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="プラグイン">
+                        <Grid>
+                            <ListBox ItemsSource="{Binding View.Plugins}" ItemTemplate="{StaticResource PluginTemplate}"/>
+                        </Grid>
+                    </TabItem>
+                    
+                    <TabItem Header="CK/CS">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">Consumer Key</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="4" Text="{Binding View.SettingInstance.Consumer.Key,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">Consumer Secret</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="4" Text="{Binding View.SettingInstance.Consumer.Secret,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="タイムライン">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">ツイートタイムライン最大</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineMax,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">ツイートタイムライン初期読み込み</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineInitialRead,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">通知タイムライン最大</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="2" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeNotificationTimelineMax,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+                <Button Margin="4" Grid.Row="4" Command="{Binding View.SaveSettingCommand}">保存</Button>
             </Grid>
+            
+            
             <StackPanel Grid.Row="3" Grid.Column="1" Name="StackPanelPopupNotification">
                 <StackPanel.Resources>
                     <Style TargetType="StackPanel">

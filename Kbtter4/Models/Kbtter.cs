@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.Reflection;
 using System.Net;
@@ -40,8 +41,9 @@ namespace Kbtter4.Models
     public sealed class Kbtter : NotificationObject
     {
         public static readonly string ConfigurationFolderName = "config";
-        private static readonly string CacheFolderName = "cache";
-        private static readonly string PluginFolderName = "plugin";
+        public static readonly string CacheFolderName = "cache";
+        public static readonly string PluginFolderName = "plugin";
+        public static readonly string TegakiFolderName = "tegaki";
 
         public static readonly string LoggingFileName = "Kbtter4.log";
         public static readonly string ConfigurationFileName = ConfigurationFolderName + "/config.json";
@@ -87,7 +89,7 @@ namespace Kbtter4.Models
 
         public Kbtter4Setting Setting { get; set; }
 
-        public IList<Kbtter4Plugin> GlobalPlugins { get; private set; }
+        public ObservableSynchronizedCollection<Kbtter4Plugin> GlobalPlugins { get; private set; }
         public IList<Kbtter4PluginLoader> PluginLoaders { get; private set; }
 
         public Kbtter4CommandManager CommandManager { get; private set; }
@@ -115,7 +117,7 @@ namespace Kbtter4.Models
 
             AuthenticatedUser = new User();
 
-            GlobalPlugins = new List<Kbtter4Plugin>();
+            GlobalPlugins = new ObservableSynchronizedCollection<Kbtter4Plugin>();
             PluginLoaders = new List<Kbtter4PluginLoader>();
             PluginMonitoringToken = new object();
 
@@ -166,6 +168,7 @@ namespace Kbtter4.Models
         {
             if (!Directory.Exists(PluginFolderName)) Directory.CreateDirectory(PluginFolderName);
             if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
+            if (!Directory.Exists(TegakiFolderName)) Directory.CreateDirectory(TegakiFolderName);
         }
 
         private void LoadSetting()
@@ -279,7 +282,8 @@ namespace Kbtter4.Models
                     RaisePropertyChanged("Retweets");
                 }
                 //自分のがRTされたかRTがRTされた
-                if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id || s.Status.Text.Contains(AuthenticatedUser.ScreenName))
+                if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id ||
+                    Regex.IsMatch(s.Status.Text, "^RT @" + AuthenticatedUser.ScreenName + ":"))
                 {
                     HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }

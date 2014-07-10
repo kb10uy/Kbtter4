@@ -833,6 +833,158 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+
+        #region Plugins変更通知プロパティ
+        private ReadOnlyDispatcherCollection<PluginViewModel> _Plugins;
+
+        public ReadOnlyDispatcherCollection<PluginViewModel> Plugins
+        {
+            get
+            { return _Plugins; }
+            set
+            { 
+                if (_Plugins == value)
+                    return;
+                _Plugins = value;
+                RaisePropertyChanged();
+            }
+        }
         #endregion
+
+
+        #endregion
+
+        #region 設定用
+
+
+        #region SettingInstance変更通知プロパティ
+        private Kbtter4Setting _SettingInstance;
+
+        public Kbtter4Setting SettingInstance
+        {
+            get
+            { return _SettingInstance; }
+            set
+            {
+                if (_SettingInstance == value)
+                    return;
+                _SettingInstance = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region OpenPluginFolderCommand
+        private ViewModelCommand _OpenPluginFolderCommand;
+
+        public ViewModelCommand OpenPluginFolderCommand
+        {
+            get
+            {
+                if (_OpenPluginFolderCommand == null)
+                {
+                    _OpenPluginFolderCommand = new ViewModelCommand(OpenPluginFolder);
+                }
+                return _OpenPluginFolderCommand;
+            }
+        }
+
+        public void OpenPluginFolder()
+        {
+            OpenInDefault(Kbtter.PluginFolderName);
+        }
+        #endregion
+
+
+        #region OpenTegakiFolderCommand
+        private ViewModelCommand _OpenTegakiFolderCommand;
+
+        public ViewModelCommand OpenTegakiFolderCommand
+        {
+            get
+            {
+                if (_OpenTegakiFolderCommand == null)
+                {
+                    _OpenTegakiFolderCommand = new ViewModelCommand(OpenTegakiFolder);
+                }
+                return _OpenTegakiFolderCommand;
+            }
+        }
+
+        public void OpenTegakiFolder()
+        {
+            OpenInDefault(Kbtter.TegakiFolderName);
+        }
+        #endregion
+
+
+        #region OpenSettingFolderCommand
+        private ViewModelCommand _OpenSettingFolderCommand;
+
+        public ViewModelCommand OpenSettingFolderCommand
+        {
+            get
+            {
+                if (_OpenSettingFolderCommand == null)
+                {
+                    _OpenSettingFolderCommand = new ViewModelCommand(OpenSettingFolder);
+                }
+                return _OpenSettingFolderCommand;
+            }
+        }
+
+        public void OpenSettingFolder()
+        {
+            OpenInDefault(Kbtter.ConfigurationFolderName);
+        }
+        #endregion
+
+
+        #region OpenCacheFolderCommand
+        private ViewModelCommand _OpenCacheFolderCommand;
+
+        public ViewModelCommand OpenCacheFolderCommand
+        {
+            get
+            {
+                if (_OpenCacheFolderCommand == null)
+                {
+                    _OpenCacheFolderCommand = new ViewModelCommand(OpenCacheFolder);
+                }
+                return _OpenCacheFolderCommand;
+            }
+        }
+
+        public void OpenCacheFolder()
+        {
+            OpenInDefault(Kbtter.CacheFolderName);
+        }
+        #endregion
+
+
+        #region SaveSettingCommand
+        private ViewModelCommand _SaveSettingCommand;
+
+        public ViewModelCommand SaveSettingCommand
+        {
+            get
+            {
+                if (_SaveSettingCommand == null)
+                {
+                    _SaveSettingCommand = new ViewModelCommand(SaveSetting);
+                }
+                return _SaveSettingCommand;
+            }
+        }
+
+        public void SaveSetting()
+        {
+            Kbtter.Instance.SaveSetting();
+        }
+        #endregion
+
+        #endregion
+
     }
 }

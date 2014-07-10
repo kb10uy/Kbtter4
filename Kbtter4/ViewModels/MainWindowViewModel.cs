@@ -35,8 +35,9 @@ namespace Kbtter4.ViewModels
         public void Initialize()
         {
             Kbtter = Kbtter.Instance;
+            Kbtter.Initialize();
 
-
+            View.SettingInstance = Kbtter.Setting;
             View.HomeTimeline = new StatusTimelineViewModel(this, Kbtter.HomeStatusTimeline);
             View.HomeNotification = new NotificationTimelineViewModel(this, Kbtter.HomeNotificationTimeline);
             View.LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
@@ -52,8 +53,11 @@ namespace Kbtter4.ViewModels
                 Kbtter.Users,
                 p => new UserViewModel(p, this),
                 DispatcherHelper.UIDispatcher);
+            View.Plugins = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.GlobalPlugins,
+                p => new PluginViewModel(p),
+                DispatcherHelper.UIDispatcher);
 
-            Kbtter.Initialize();
 
             InitializeEventListeners();
             View.ChangeToHomeStatusTimeline();
@@ -538,8 +542,29 @@ namespace Kbtter4.ViewModels
 
         #endregion
 
+
         #endregion
 
+        #region StartTegakiCommand
+        private ViewModelCommand _StartTegakiCommand;
+
+        public ViewModelCommand StartTegakiCommand
+        {
+            get
+            {
+                if (_StartTegakiCommand == null)
+                {
+                    _StartTegakiCommand = new ViewModelCommand(StartTegaki);
+                }
+                return _StartTegakiCommand;
+            }
+        }
+
+        public void StartTegaki()
+        {
+            Messenger.Raise(new TransitionMessage(new TegakiWindowViewModel(this), "Tegaki"));
+        }
+        #endregion
 
         #region コマンド
 
