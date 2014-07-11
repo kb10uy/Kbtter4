@@ -91,7 +91,7 @@ namespace Kbtter4
                     result = serializer.ReadObject(mem) as T;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return null;
             }

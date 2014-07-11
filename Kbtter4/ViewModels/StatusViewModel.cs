@@ -71,7 +71,7 @@ namespace Kbtter4.ViewModels
             RetweetCount = SourceStatus.RetweetCount ?? 0;
 
             IsMyStatus = SourceStatus.User.Id == Kbtter.AuthenticatedUser.Id;
-            IsRetweetable = !IsMyStatus;
+            IsRetweetable = !IsMyStatus && !SourceStatus.User.IsProtected;
 
             ExtractVia();
             AnalyzeTextElements();
@@ -184,7 +184,20 @@ namespace Kbtter4.ViewModels
                     }
                     catch (TwitterException e)
                     {
-                        main.View.Notify("お気に入り操作に失敗しました : " + e.Message);
+                        if (!Enum.IsDefined(typeof(ErrorCode), e.Errors[0].Code)) return;
+                        switch ((ErrorCode)e.Errors[0].Code)
+                        {
+                            case ErrorCode.AlreadyFavorited:
+                                Kbtter.AddFavorite(SourceStatus);
+                                main.View.Notify("すでにお気に入り登録済みです");
+                                break;
+                            case ErrorCode.PageDoesNotExist:
+                                Kbtter.RemoveFavorite(SourceStatus.Id);
+                                main.View.Notify("お気に入りに登録されていません");
+                                break;
+                            default:
+                                break;
+                        }
                     }
 
                     _IsFavorited = value;

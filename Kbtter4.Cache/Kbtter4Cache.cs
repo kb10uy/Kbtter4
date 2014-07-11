@@ -76,6 +76,22 @@ namespace Kbtter4.Cache
             }
         }
 
+        public void AddFavorite(IEnumerable<Kbtter4FavoriteCache> data)
+        {
+            using (var tr = Connection.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var i in data) Connection.Execute("insert or ignore into Favorites values(@Id,@CreatedDate,@ScreenName)", data);
+                    tr.Commit();
+                }
+                catch
+                {
+                    tr.Rollback();
+                }
+            }
+        }
+
         /// <summary>
         /// お気に入りを削除
         /// </summary>

@@ -703,6 +703,7 @@ namespace Kbtter4.ViewModels
                     return;
                 _LoginUser = value;
                 RaisePropertyChanged();
+                StartSearchingCommand.RaiseCanExecuteChanged();
             }
         }
         #endregion
@@ -842,10 +843,110 @@ namespace Kbtter4.ViewModels
             get
             { return _Plugins; }
             set
-            { 
+            {
                 if (_Plugins == value)
                     return;
                 _Plugins = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region SearchResultStatuses変更通知プロパティ
+        private ReadOnlyDispatcherCollection<StatusViewModel> _SearchResultStatuses;
+
+        public ReadOnlyDispatcherCollection<StatusViewModel> SearchResultStatuses
+        {
+            get
+            { return _SearchResultStatuses; }
+            set
+            {
+                if (_SearchResultStatuses == value)
+                    return;
+                _SearchResultStatuses = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region SearchResultUsers変更通知プロパティ
+        private ReadOnlyDispatcherCollection<UserViewModel> _SearchResultUsers;
+
+        public ReadOnlyDispatcherCollection<UserViewModel> SearchResultUsers
+        {
+            get
+            { return _SearchResultUsers; }
+            set
+            {
+                if (_SearchResultUsers == value)
+                    return;
+                _SearchResultUsers = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region SearchText変更通知プロパティ
+        private string _SearchText = "";
+
+        public string SearchText
+        {
+            get
+            { return _SearchText; }
+            set
+            {
+                if (_SearchText == value)
+                    return;
+                _SearchText = value;
+                RaisePropertyChanged();
+                StartSearchingCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region StartSearchingCommand
+        private ViewModelCommand _StartSearchingCommand;
+
+        public ViewModelCommand StartSearchingCommand
+        {
+            get
+            {
+                if (_StartSearchingCommand == null)
+                {
+                    _StartSearchingCommand = new ViewModelCommand(StartSearching, CanStartSearching);
+                }
+                return _StartSearchingCommand;
+            }
+        }
+
+        public bool CanStartSearching()
+        {
+            return !string.IsNullOrEmpty(SearchText) && LoginUser != null;
+        }
+
+        public void StartSearching()
+        {
+            Kbtter.Instance.Search(SearchText);
+        }
+        #endregion
+
+
+        #region HeadlineText変更通知プロパティ
+        private string _HeadlineText;
+
+        public string HeadlineText
+        {
+            get
+            { return _HeadlineText; }
+            set
+            { 
+                if (_HeadlineText == value)
+                    return;
+                _HeadlineText = value;
                 RaisePropertyChanged();
             }
         }

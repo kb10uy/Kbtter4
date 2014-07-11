@@ -31,5 +31,11 @@ using Kbtter3.Query;
 
 namespace Kbtter4.Models
 {
-
+    public static class Kbtter4Extensions
+    {
+        public static string TrimLineFeeds(this string t)
+        {
+            return t.Replace("\n", "").Replace("\r", "");
+        }
+    }
 }

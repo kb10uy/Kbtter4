@@ -68,6 +68,9 @@ namespace Kbtter4.Models
         public ObservableSynchronizedCollection<User> Users { get; private set; }
         public ObservableSynchronizedCollection<Kbtter4Account> Accounts { get; private set; }
 
+        public ObservableSynchronizedCollection<User> SearchResultUsers { get; private set; }
+        public ObservableSynchronizedCollection<Status> SearchResultStatuses { get; private set; }
+
         public Kbtter4Cache AuthenticatedUserCache { get; private set; }
 
         #region AuthenticatedUser変更通知プロパティ
@@ -114,6 +117,8 @@ namespace Kbtter4.Models
             StatusTimelines = new ObservableSynchronizedCollection<StatusTimeline>();
             NotificationTimelines = new ObservableSynchronizedCollection<NotificationTimeline>();
 
+            SearchResultStatuses = new ObservableSynchronizedCollection<Status>();
+            SearchResultUsers = new ObservableSynchronizedCollection<User>();
 
             AuthenticatedUser = new User();
 
@@ -222,7 +227,7 @@ namespace Kbtter4.Models
                     }, TaskCreationOptions.PreferFairness)
                     .ContinueWith(t =>
                     {
-                        if (t.Exception != null) RestartStreaming();
+                        if (t.Exception != null && !t.IsCanceled) RestartStreaming();
                     });
                 },
                 (ex) =>
@@ -283,12 +288,14 @@ namespace Kbtter4.Models
                 }
                 //自分のがRTされたかRTがRTされた
                 if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id ||
-                    Regex.IsMatch(s.Status.Text, "^RT @" + AuthenticatedUser.ScreenName + ":"))
+                    s.Status.Text.StartsWith("RT @" + AuthenticatedUser.ScreenName + ":"))
                 {
+                    UpdateHeadline("リツイートされました : " + s.Status.RetweetedStatus.Text.TrimLineFeeds());
                     HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }
             }
-            UpdateUserInformation(s.DeepCopy().Status.User);
+            var u = s.DeepCopy();
+            if (u != null) UpdateUserInformation(u.Status.User);
 
             foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s;
 
@@ -298,6 +305,10 @@ namespace Kbtter4.Models
                 tl.TryAddStatus(s.Status);
             }
             RaisePropertyChanged("Statuses");
+            if (s.Status.Entities.UserMentions.Any(p => p.Id == AuthenticatedUser.Id) && s.Status.RetweetedStatus == null)
+            {
+                UpdateHeadline("メンション : " + s.Status.Text.TrimLineFeeds());
+            }
 
             Parallel.ForEach(GlobalPlugins, p => p.OnStatus(s.DeepCopy()));
         }
@@ -333,6 +344,13 @@ namespace Kbtter4.Models
 
             if (s.Source.Id != AuthenticatedUser.Id && s.Target.Id == AuthenticatedUser.Id)
             {
+                switch (s.Event)
+                {
+                    case EventCode.Favorite:
+                        UpdateHeadline("ふぁぼられました : " + s.TargetStatus.Text.TrimLineFeeds());
+                        break;
+                }
+
                 var n = new Kbtter4Notification(s);
                 HomeNotificationTimeline.TryAddNotification(n);
                 foreach (var tl in NotificationTimelines)
@@ -442,6 +460,7 @@ namespace Kbtter4.Models
                     AuthenticatedUser = u;
                     AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
                     Parallel.ForEach(GlobalPlugins, p => p.OnLogin(AuthenticatedUser));
+                    InitializeUserCaches();
                     InitializeDirectMessages();
                     InitializeHomeStatusTimeline();
                     StartStreaming();
@@ -493,12 +512,35 @@ namespace Kbtter4.Models
 
         public async void InitializeDirectMessages()
         {
-            var rdms = await Token.DirectMessages.ReceivedAsync(count => 200);
-            var sdms = await Token.DirectMessages.SentAsync(count => 200);
-            var adms = rdms.ToList();
-            adms.AddRange(sdms);
-            adms.Sort((x, y) => x.CreatedAt.CompareTo(y.CreatedAt));
-            adms.ForEach(p => Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(new DirectMessageMessage { DirectMessage = p })));
+            try
+            {
+                var rdms = await Token.DirectMessages.ReceivedAsync(count => 200);
+                var sdms = await Token.DirectMessages.SentAsync(count => 200);
+                var adms = rdms.ToList();
+                adms.AddRange(sdms);
+                adms.Sort((x, y) => x.CreatedAt.CompareTo(y.CreatedAt));
+                adms.ForEach(p => Kbtter_OnDirectMessage(this, new Kbtter4MessageReceivedEventArgs<DirectMessageMessage>(new DirectMessageMessage { DirectMessage = p })));
+            }
+            catch (TwitterException e)
+            {
+                LogInformation("ログイン時にDMリストを取得できませんでした : " + e.Message);
+                SaveLog();
+            }
+
+        }
+
+        public async void InitializeUserCaches()
+        {
+            try
+            {
+                var favs = await Token.Favorites.ListAsync(count => 200);
+                AuthenticatedUserCache.AddFavorite(favs.Select(p => new Kbtter4FavoriteCache { Id = p.Id, ScreenName = p.User.ScreenName, CreatedDate = p.CreatedAt.LocalDateTime }));
+            }
+            catch (TwitterException e)
+            {
+                LogInformation("ログイン時にお気に入りを取得できませんでした : " + e.Message);
+                SaveLog();
+            }
         }
 
         public async void InitializeHomeStatusTimeline()
@@ -520,6 +562,94 @@ namespace Kbtter4.Models
         {
             return AuthenticatedUserCache.Retweets().Where(p => p.OriginalId == id).Count() != 0;
         }
+
+        public void AddFavorite(Status t)
+        {
+            AuthenticatedUserCache.AddFavorite(new Kbtter4FavoriteCache { Id = t.Id, CreatedDate = t.CreatedAt.LocalDateTime, ScreenName = t.User.ScreenName });
+        }
+
+        public void RemoveFavorite(long id)
+        {
+            AuthenticatedUserCache.RemoveFavorite(id);
+        }
+
+        public void Search(string text)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    SearchResultStatuses.Clear();
+                    var rst = await Token.Search.TweetsAsync(q => text, count => Setting.Searching.StatusCount);
+                    foreach (var i in rst) SearchResultStatuses.Add(i);
+                }
+                catch (TwitterException e)
+                {
+                    NotifyToView("ツイートを検索出来ませんでした : " + e.Message);
+                }
+
+                try
+                {
+                    SearchResultUsers.Clear();
+                    var rst = await Token.Users.SearchAsync(q => text, count => Setting.Searching.UserCount);
+                    foreach (var i in rst) SearchResultUsers.Add(i);
+                }
+                catch (TwitterException e)
+                {
+                    NotifyToView("ユーザーを検索出来ませんでした : " + e.Message);
+                }
+            });
+        }
+
+        #region Model通知機能
+
+
+        #region NotifyText変更通知プロパティ
+        private string _NotifyText;
+
+        public string NotifyText
+        {
+            get
+            { return _NotifyText; }
+            set
+            {
+                _NotifyText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        private void NotifyToView(string text)
+        {
+            NotifyText = text;
+        }
+
+
+        #region HeadlineText変更通知プロパティ
+        private string _HeadlineText;
+
+        public string HeadlineText
+        {
+            get
+            { return _HeadlineText; }
+            set
+            {
+                if (_HeadlineText == value)
+                    return;
+                _HeadlineText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        private void UpdateHeadline(string text)
+        {
+            HeadlineText = DateTime.Now.ToShortTimeString() + text;
+        }
+
+        #endregion
+
+
         #endregion
 
         #region プラグイン

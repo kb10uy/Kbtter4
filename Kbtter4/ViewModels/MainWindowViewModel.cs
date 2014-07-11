@@ -58,6 +58,14 @@ namespace Kbtter4.ViewModels
                 p => new PluginViewModel(p),
                 DispatcherHelper.UIDispatcher);
 
+            View.SearchResultStatuses = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.SearchResultStatuses,
+                p => new StatusViewModel(this, p),
+                DispatcherHelper.UIDispatcher);
+            View.SearchResultUsers = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.SearchResultUsers,
+                p => new UserViewModel(p, this),
+                DispatcherHelper.UIDispatcher);
 
             InitializeEventListeners();
             View.ChangeToHomeStatusTimeline();
@@ -74,6 +82,16 @@ namespace Kbtter4.ViewModels
                 View.LoginUser.Dispose();
                 View.LoginUser = new UserViewModel(Kbtter.AuthenticatedUser, this);
                 UpdateStatusCommand.RaiseCanExecuteChanged();
+            });
+
+            listener.Add("NotifyText", (s, e) =>
+            {
+                View.Notify(Kbtter.NotifyText);
+            });
+
+            listener.Add("HeadlineText", (s, e) =>
+            {
+                View.HeadlineText = Kbtter.HeadlineText;
             });
         }
 
@@ -155,7 +173,6 @@ namespace Kbtter4.ViewModels
 
         #endregion
 
-
         #region 認証
 
         #region LoginCommand
@@ -196,6 +213,7 @@ namespace Kbtter4.ViewModels
             }
             logintaken = false;
             LoginCommand.RaiseCanExecuteChanged();
+            IsLogined = true;
         }
         #endregion
 
@@ -247,8 +265,24 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region IsLogined変更通知プロパティ
+        private bool _IsLogined;
+
+        public bool IsLogined
+        {
+            get
+            { return _IsLogined; }
+            set
+            {
+                if (_IsLogined == value)
+                    return;
+                _IsLogined = value;
+                RaisePropertyChanged();
+            }
+        }
         #endregion
 
+        #endregion
 
         #region ﾂｲｰﾖ送信
 
@@ -565,6 +599,7 @@ namespace Kbtter4.ViewModels
             Messenger.Raise(new TransitionMessage(new TegakiWindowViewModel(this), "Tegaki"));
         }
         #endregion
+
 
         #region コマンド
 

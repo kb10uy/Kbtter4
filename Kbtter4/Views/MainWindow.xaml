@@ -376,7 +376,12 @@
             </Grid.RowDefinitions>
 
             <Grid  Background="{StaticResource TwitterColorPrimary}" Grid.Column="1">
-
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="10" FontStyle="Oblique">ヘッドライン</TextBlock>
+                <TextBlock Margin="32,0,0,0" VerticalAlignment="Center" FontSize="20" Grid.Row="1" Text="{Binding View.HeadlineText}"/>
             </Grid>
 
             <Expander Name="ExpanderNewTweet" Grid.Row="1" Grid.Column="1" Header="新しいツイート" IsExpanded="{Binding View.IsStatusCreatorExpanded}">
@@ -415,7 +420,11 @@
                             </ListBox.ContextMenu>
                         </ListBox>
                         <TextBox AcceptsReturn="True" AcceptsTab="True" Margin="4" Grid.Row="2" FontSize="16"
-                                 Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged}" MinHeight="80"/>
+                                 Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged}" MinHeight="80">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Modifiers="Control" Command="{Binding UpdateStatusCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
 
                     </Grid>
                     <Grid Grid.Column="1">
@@ -503,9 +512,30 @@
                             Visibility="{Binding ElementName=ButtonMenuSearch,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">検索</TextBlock>
+                <TextBox Grid.Row="1" Margin="4" FontSize="16" Text="{Binding View.SearchText,UpdateSourceTrigger=PropertyChanged}"
+                         IsEnabled="{Binding IsLogined}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding View.StartSearchingCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+                <Grid Grid.Row="2" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListView Margin="4" ItemsSource="{Binding View.SearchResultStatuses}" 
+                              HorizontalContentAlignment="Stretch"
+                              ItemTemplate="{StaticResource StatusTemplate}"
+                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
+                    <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding View.SearchResultUsers}" 
+                              HorizontalContentAlignment="Stretch"
+                              ItemTemplate="{StaticResource UserTemplate}"
+                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
+                </Grid>
             </Grid>
             <Grid Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUser,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -548,7 +578,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock FontSize="32" Margin="4">コマンドライン</TextBlock>
+                <TextBlock FontSize="32" Margin="4">コマンド</TextBlock>
                 <TextBox Grid.Row="1" Margin="4" FontSize="16" Text="{Binding CommandText,UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.InputBindings>
                         <KeyBinding Key="Enter" Command="{Binding ExecuteCommandCommand}"/>

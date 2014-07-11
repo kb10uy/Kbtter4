@@ -15,11 +15,14 @@ namespace Kbtter4.Models
 
         public Kbtter4SettingTimelines Timelines { get; set; }
 
+        public Kbtter4SettingSearching Searching { get; set; }
+
         public Kbtter4Setting()
         {
             Consumer = new Kbtter4SettingConsumer { Key = Kbtter4SettingConsumer.DefaultKey, Secret = Kbtter4SettingConsumer.DefaultSecret };
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
             Timelines = new Kbtter4SettingTimelines();
+            Searching = new Kbtter4SettingSearching();
         }
     }
 
@@ -58,6 +61,46 @@ namespace Kbtter4.Models
                 if (_Secret == value)
                     return;
                 _Secret = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+    }
+
+    public sealed class Kbtter4SettingSearching : NotificationObject
+    {
+
+        #region StatusCount変更通知プロパティ
+        private int _StatusCount = 100;
+
+        public int StatusCount
+        {
+            get
+            { return _StatusCount; }
+            set
+            {
+                if (_StatusCount == value)
+                    return;
+                _StatusCount = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UserCount変更通知プロパティ
+        private int _UserCount = 20;
+
+        public int UserCount
+        {
+            get
+            { return _UserCount; }
+            set
+            {
+                if (_UserCount == value)
+                    return;
+                _UserCount = value;
                 RaisePropertyChanged();
             }
         }
