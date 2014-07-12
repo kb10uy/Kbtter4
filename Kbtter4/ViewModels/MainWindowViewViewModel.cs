@@ -953,6 +953,24 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region UserDefinitionTimelines変更通知プロパティ
+        private ReadOnlyDispatcherCollection<StatusTimelineViewModel> _UserDefinitionTimelines;
+
+        public ReadOnlyDispatcherCollection<StatusTimelineViewModel> UserDefinitionTimelines
+        {
+            get
+            { return _UserDefinitionTimelines; }
+            set
+            { 
+                if (_UserDefinitionTimelines == value)
+                    return;
+                _UserDefinitionTimelines = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #endregion
 
         #region 設定用

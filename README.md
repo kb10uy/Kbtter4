@@ -1,4 +1,4 @@
-# Kbtter3 Polypropylene
+# Kbtter4 Polypropylene
 kb10uy  
 Livetを基盤としてCoreTweetを使うTwitterクライアント
 

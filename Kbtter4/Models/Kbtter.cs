@@ -185,7 +185,19 @@ namespace Kbtter4.Models
 
         public void SaveSetting()
         {
+            UpdateUserTimelineData();
             Setting.SaveJson(ConfigurationFileName);
+        }
+
+        public void UpdateUserTimelineData()
+        {
+            var ac = Setting.Accounts.FirstOrDefault(p => p.UserId == AuthenticatedUser.Id);
+            if (ac == null) return;
+            ac.Timelines.Clear();
+            foreach (var i in StatusTimelines)
+            {
+                ac.Timelines.Add(new Kbtter4SettingStatusTimelineData { Name = i.Name, Query = i.Query.QueryText });
+            }
         }
 
         #region Streaming接続
@@ -397,7 +409,7 @@ namespace Kbtter4.Models
                     if (tt != null) HomeStatusTimeline.Statuses.Remove(tt);
                     foreach (var i in StatusTimelines)
                     {
-                        tt = i.Statuses.FirstOrDefault(p => p.Id == mes.UpToStatusId);
+                        tt = i.Statuses.FirstOrDefault(p => p.Id == mes.Id);
                         if (tt != null) i.Statuses.Remove(tt);
                     }
                     break;
@@ -425,6 +437,8 @@ namespace Kbtter4.Models
                 ac.AccessTokenSecret = t.AccessTokenSecret;
                 ac.ScreenName = t.ScreenName;
                 ac.UserId = t.UserId;
+                ac.Timelines = new ObservableSynchronizedCollection<Kbtter4SettingStatusTimelineData>();
+                ac.Timelines.Add(new Kbtter4SettingStatusTimelineData { Name = "リプライ・メンション", Query = "Status.Text match /@" + ac.ScreenName + "/" });
                 Accounts.Add(ac);
 
                 Setting.Accounts.Add(ac);
@@ -462,7 +476,8 @@ namespace Kbtter4.Models
                     Parallel.ForEach(GlobalPlugins, p => p.OnLogin(AuthenticatedUser));
                     InitializeUserCaches();
                     InitializeDirectMessages();
-                    InitializeHomeStatusTimeline();
+                    InitializeUserDefinitionTimelines();
+                    if (Setting.Timelines.AllowHomeStatusTimelineInitialReading) InitializeHomeStatusTimeline();
                     StartStreaming();
                     return "";
                 }
@@ -543,13 +558,22 @@ namespace Kbtter4.Models
             }
         }
 
-        public async void InitializeHomeStatusTimeline()
+        private async void InitializeHomeStatusTimeline()
         {
             var tws = await Token.Statuses.HomeTimelineAsync(count => Setting.Timelines.HomeStatusTimelineInitialRead);
 
             foreach (var i in tws.Reverse())
             {
                 Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(new StatusMessage { Status = i }));
+            }
+        }
+
+        private void InitializeUserDefinitionTimelines()
+        {
+            StatusTimelines.Clear();
+            foreach (var i in Setting.Accounts.First(p => p.UserId == AuthenticatedUser.Id).Timelines)
+            {
+                StatusTimelines.Add(new StatusTimeline(Setting, i.Query, i.Name));
             }
         }
 
@@ -644,7 +668,7 @@ namespace Kbtter4.Models
 
         private void UpdateHeadline(string text)
         {
-            HeadlineText = DateTime.Now.ToShortTimeString() + text;
+            HeadlineText = DateTime.Now.ToShortTimeString() + " " + text;
         }
 
         #endregion

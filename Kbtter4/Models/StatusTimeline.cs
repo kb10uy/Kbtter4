@@ -12,7 +12,8 @@ namespace Kbtter4.Models
     public sealed class StatusTimeline : NotificationObject
     {
         public ObservableSynchronizedCollection<Status> Statuses { get; private set; }
-        public Kbtter3Query Query { get; private set; }
+        public Kbtter3Query Query { get; set; }
+        public string Name { get; set; }
         Kbtter4Setting Setting;
 
         public StatusTimeline(Kbtter4Setting kb)
@@ -29,12 +30,24 @@ namespace Kbtter4.Models
             Query = new Kbtter3Query(q);
         }
 
+        public StatusTimeline(Kbtter4Setting kb, string q,string t)
+        {
+            Setting = kb;
+            Statuses = new ObservableSynchronizedCollection<Status>();
+            Query = new Kbtter3Query(q);
+            Name = t;
+        }
+
         public void TryAddStatus(Status st)
         {
-            Query.ClearVariables();
-            Query.SetVariable("Status", st);
-            if (Query.Execute().AsBoolean()) Statuses.Insert(0, st);
-            if (Statuses.Count > Setting.Timelines.HomeStatusTimelineMax) Statuses.RemoveAt(Statuses.Count - 1);
+            try
+            {
+                Query.ClearVariables();
+                Query.SetVariable("Status", st);
+                if (Query.Execute().AsBoolean()) Statuses.Insert(0, st);
+                if (Statuses.Count > Setting.Timelines.HomeStatusTimelineMax) Statuses.RemoveAt(Statuses.Count - 1);
+            }
+            catch { }
         }
     }
 }

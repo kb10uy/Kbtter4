@@ -138,8 +138,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\Misc.cs" />
     <Compile Include="ViewModels\PluginViewModel.cs" />
+    <Compile Include="ViewModels\StatusTimelineEditWindowViewModel.cs" />
     <Compile Include="ViewModels\TegakiWindowViewModel.cs" />
+    <Compile Include="Views\StatusTimelineEditWindow.xaml.cs">
+      <DependentUpon>StatusTimelineEditWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\TegakiWindow.xaml.cs">
       <DependentUpon>TegakiWindow.xaml</DependentUpon>
     </Compile>
@@ -180,6 +185,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\Resources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\StatusTimelineEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

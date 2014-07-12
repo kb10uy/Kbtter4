@@ -37,5 +37,14 @@ namespace Kbtter4.Models
         {
             return t.Replace("\n", "").Replace("\r", "");
         }
+
+        public static bool EndsWith(this string t, IEnumerable<string> es, StringComparison comparison)
+        {
+            foreach (var i in es)
+            {
+                if (t.EndsWith(i, comparison)) return true;
+            }
+            return false;
+        }
     }
 }

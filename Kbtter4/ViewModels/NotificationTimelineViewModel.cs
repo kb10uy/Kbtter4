@@ -17,9 +17,11 @@ namespace Kbtter4.ViewModels
 {
     public class NotificationTimelineViewModel : ViewModel
     {
+        public NotificationTimeline Source { get; private set; }
 
         public NotificationTimelineViewModel(MainWindowViewModel main, NotificationTimeline tl)
         {
+            Source = tl;
             Notificaitons = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 tl.Notifications,
                 (p) =>
@@ -33,6 +35,7 @@ namespace Kbtter4.ViewModels
         public void Initialize()
         {
         }
+
 
 
         #region IsSelected変更通知プロパティ

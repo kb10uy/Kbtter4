@@ -35,5 +35,20 @@ namespace Kbtter4.Models
             if (Query.Execute().AsBoolean()) Notifications.Insert(0, nt);
             if (Notifications.Count > Setting.Timelines.HomeNotificationTimelineMax) Notifications.RemoveAt(Notifications.Count - 1);
         }
+        /*
+        public bool CheckQuery(string q)
+        {
+            try
+            {
+                var newq = new Kbtter3Query(q);
+
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        */
     }
 }

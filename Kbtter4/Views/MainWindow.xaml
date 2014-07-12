@@ -47,6 +47,13 @@
             <l:TransitionInteractionMessageAction WindowType="{x:Type v:TegakiWindow}"/>
         </l:InteractionMessageTrigger>
 
+        <l:InteractionMessageTrigger Messenger="{Binding ElementName=ListViewUserTimelines,Path=SelectedItem.Messenger}" MessageKey="StatusTimelineEdit">
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:StatusTimelineEditWindow}" Mode="Modal"/>
+        </l:InteractionMessageTrigger>
+
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="StatusTimelineEdit">
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:StatusTimelineEditWindow}" Mode="Modal"/>
+        </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
 
     <Window.Resources>
@@ -196,7 +203,7 @@
                               IsChecked="{Binding View.IsUserStatusTimelineVisible}" Command="{Binding View.ChangeToUserStatusTimelineCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/UserStatusTimeline.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
-
+                <!--
                 <TextBlock Name="TextBlockMenuUserNotification" TextAlignment="Right" VerticalAlignment="Center"
                                     Grid.Column="0" Grid.Row="7" FontSize="16"
                                     Foreground="White">ユーザー定義通知</TextBlock>
@@ -204,7 +211,7 @@
                               IsChecked="{Binding View.IsUserNotificationTimelineVisible}" Command="{Binding View.ChangeToUserNotificationTimelineCommand}">
                     <Image Width="32" Height="32" Source="/Kbtter4;component/Resources/UserNotification.png" OverridesDefaultStyle="False"/>
                 </ToggleButton>
-
+                -->
                 <TextBlock Name="TextBlockMenuCommandline" TextAlignment="Right" VerticalAlignment="Center"
                                     Grid.Column="0" Grid.Row="8" FontSize="16"
                                     Foreground="White">コマンド</TextBlock>
@@ -424,6 +431,9 @@
                             <TextBox.InputBindings>
                                 <KeyBinding Key="Enter" Modifiers="Control" Command="{Binding UpdateStatusCommand}"/>
                             </TextBox.InputBindings>
+                            <i:Interaction.Behaviors>
+                                <v:FileDragDropBehavior ListenerCommand="{Binding MediaDragDropAcceptCommand}"/>
+                            </i:Interaction.Behaviors>
                         </TextBox>
 
                     </Grid>
@@ -562,7 +572,31 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー定義タイムライン</TextBlock>
+                <Grid Grid.Row="1" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListView Margin="4" ItemsSource="{Binding View.UserDefinitionTimelines}"
+                              Name="ListViewUserTimelines"
+                              HorizontalContentAlignment="Stretch"
+                              ItemTemplate="{StaticResource StatusTimelineTemplate}"
+                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False">
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="新規" Command="{Binding NewStatusTimelineCommand}"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
+                    
+                    <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding ElementName=ListViewUserTimelines,Path=SelectedItem.Statuses}" 
+                              HorizontalContentAlignment="Stretch"
+                              ItemTemplate="{StaticResource StatusTemplate}"
+                              Style="{StaticResource SlidingListView}"
+                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
+                </Grid>
             </Grid>
+            <!--
             <Grid Name="GridUserNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUserNotification,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
@@ -571,6 +605,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">ユーザー定義通知</TextBlock>
             </Grid>
+            -->
             <Grid Name="GridCommandline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuCommandline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
@@ -587,8 +622,8 @@
                 <TextBox Grid.Row="2" AcceptsReturn="True" IsReadOnly="True" Margin="4"  Text="{Binding CommandResults}"
                          ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
             </Grid>
-            
-            
+
+
             <Grid Name="GridSetting" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuSetting,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
@@ -615,7 +650,7 @@
                             <ListBox ItemsSource="{Binding View.Plugins}" ItemTemplate="{StaticResource PluginTemplate}"/>
                         </Grid>
                     </TabItem>
-                    
+
                     <TabItem Header="CK/CS">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -645,25 +680,29 @@
                                 <RowDefinition Height="32"/>
                                 <RowDefinition Height="32"/>
                                 <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">ツイートタイムライン最大</TextBlock>
                             <TextBox Grid.Column="1" Grid.Row="0" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineMax,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">ツイートタイムライン初期読み込み</TextBlock>
-                            <TextBox Grid.Column="1" Grid.Row="1" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineInitialRead,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+                            <CheckBox Name="SettingTimelineCheckBoxAllowInitialReading" Grid.ColumnSpan="2" Grid.Row="1" Margin="4" IsChecked="{Binding View.SettingInstance.Timelines.AllowHomeStatusTimelineInitialReading}">タイムラインの初期読み込みを有効にする</CheckBox>
 
-                            <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">通知タイムライン最大</TextBlock>
-                            <TextBox Grid.Column="1" Grid.Row="2" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeNotificationTimelineMax,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">ツイートタイムライン初期読み込み</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="2" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineInitialRead,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding ElementName=SettingTimelineCheckBoxAllowInitialReading,Path=IsChecked}"/>
+
+                            <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">通知タイムライン最大</TextBlock>
+                            <TextBox Grid.Column="1" Grid.Row="3" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeNotificationTimelineMax,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
 
                         </Grid>
                     </TabItem>
                 </TabControl>
                 <Button Margin="4" Grid.Row="4" Command="{Binding View.SaveSettingCommand}">保存</Button>
             </Grid>
-            
-            
+
+
             <StackPanel Grid.Row="3" Grid.Column="1" Name="StackPanelPopupNotification">
                 <StackPanel.Resources>
                     <Style TargetType="StackPanel">

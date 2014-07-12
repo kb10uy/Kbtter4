@@ -5,6 +5,7 @@ using System.Text;
 
 using Livet;
 
+
 namespace Kbtter4.Models
 {
     public sealed class Kbtter4Account : NotificationObject
@@ -15,6 +16,7 @@ namespace Kbtter4.Models
             AccessToken = "";
             AccessTokenSecret = "";
             ScreenName = "";
+            Timelines = new ObservableSynchronizedCollection<Kbtter4SettingStatusTimelineData>();
             UserId = 0;
         }
 
@@ -81,6 +83,23 @@ namespace Kbtter4.Models
                 if (_UserId == value)
                     return;
                 _UserId = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        #region Timelines変更通知プロパティ
+        private ObservableSynchronizedCollection<Kbtter4SettingStatusTimelineData> _Timelines;
+
+        public ObservableSynchronizedCollection<Kbtter4SettingStatusTimelineData> Timelines
+        {
+            get
+            { return _Timelines; }
+            set
+            { 
+                if (_Timelines == value)
+                    return;
+                _Timelines = value;
                 RaisePropertyChanged();
             }
         }

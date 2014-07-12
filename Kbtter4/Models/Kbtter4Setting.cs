@@ -129,6 +129,24 @@ namespace Kbtter4.Models
         #endregion
 
 
+        #region AllowHomeStatusTimelineInitialReading変更通知プロパティ
+        private bool _AllowHomeStatusTimelineInitialReading = true;
+
+        public bool AllowHomeStatusTimelineInitialReading
+        {
+            get
+            { return _AllowHomeStatusTimelineInitialReading; }
+            set
+            {
+                if (_AllowHomeStatusTimelineInitialReading == value)
+                    return;
+                _AllowHomeStatusTimelineInitialReading = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region HomeStatusTimelineInitialRead変更通知プロパティ
         private int _HomeStatusTimelineInitialRead = 100;
 
@@ -182,6 +200,45 @@ namespace Kbtter4.Models
         }
         #endregion
 
+    }
+
+    public sealed class Kbtter4SettingStatusTimelineData : NotificationObject
+    {
+
+        #region Name変更通知プロパティ
+        private string _Name="No name";
+
+        public string Name
+        {
+            get
+            { return _Name; }
+            set
+            {
+                if (_Name == value)
+                    return;
+                _Name = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Query変更通知プロパティ
+        private string _Query = "false";
+
+        public string Query
+        {
+            get
+            { return _Query; }
+            set
+            {
+                if (_Query == value)
+                    return;
+                _Query = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
     }
 }

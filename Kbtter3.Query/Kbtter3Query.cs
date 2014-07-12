@@ -21,6 +21,8 @@ namespace Kbtter3.Query
         /// <returns></returns>
         public IDictionary<string, Kbtter3QueryValue> Variables { get; protected set; }
 
+        public string QueryText { get; private set; }
+
         /// <summary>
         /// クエリを指定して初期化します。
         /// </summary>
@@ -36,6 +38,7 @@ namespace Kbtter3.Query
             {
                 throw new InvalidOperationException(Tree.ParserMessages[0].Message);
             }
+            QueryText = query;
         }
 
         /// <summary>

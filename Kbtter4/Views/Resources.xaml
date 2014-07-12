@@ -351,6 +351,22 @@
         </StackPanel>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type vm:StatusTimelineViewModel}" x:Key="StatusTimelineTemplate">
+        <StackPanel Orientation="Horizontal" Background="{StaticResource Kbtter4StatusBackColor}" VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock FontSize="20" Margin="4,0,0,0" Text="{Binding Name}"/>
+                <TextBlock FontSize="12" Margin="4,0,0,0" Foreground="Gray" Text="{Binding QueryText}"/>
+            </StackPanel>
+            <StackPanel.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="編集" Command="{Binding EditCommand}"/>
+                    <MenuItem Header="リセット" Command="{Binding DeleteStatusesCommand}"/>
+                    <MenuItem Header="削除" Command="{Binding DeleteTimelineCommand}"/>
+                </ContextMenu>
+            </StackPanel.ContextMenu>
+        </StackPanel>
+    </DataTemplate>
+
     <Style x:Key="SlidingListView" TargetType="{x:Type ListView}">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>

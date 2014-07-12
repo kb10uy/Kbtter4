@@ -566,6 +566,8 @@ namespace Kbtter4.ViewModels
                         e.Action = (p) =>
                         {
                             main.View.ChangeToSearch();
+                            main.View.SearchText = "#" + i.Text;
+                            Kbtter.Search("#" + i.Text);
                         };
                         e.Type = StatusTextElementType.Hashtag;
                         e.Link = new Uri("https://twitter.com/search?q=%23" + i.Text);

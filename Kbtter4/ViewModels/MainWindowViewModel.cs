@@ -67,6 +67,11 @@ namespace Kbtter4.ViewModels
                 p => new UserViewModel(p, this),
                 DispatcherHelper.UIDispatcher);
 
+            View.UserDefinitionTimelines = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.StatusTimelines,
+                p => new StatusTimelineViewModel(this, p),
+                DispatcherHelper.UIDispatcher);
+
             InitializeEventListeners();
             View.ChangeToHomeStatusTimeline();
             View.IsAccountPanelVisible = true;
@@ -400,6 +405,35 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region MediaDragDropAcceptCommand
+        private ListenerCommand<FileDragDropResult> _MediaDragDropAcceptCommand;
+
+        public ListenerCommand<FileDragDropResult> MediaDragDropAcceptCommand
+        {
+            get
+            {
+                if (_MediaDragDropAcceptCommand == null)
+                {
+                    _MediaDragDropAcceptCommand = new ListenerCommand<FileDragDropResult>(MediaDragDropAccept);
+                }
+                return _MediaDragDropAcceptCommand;
+            }
+        }
+
+        public void MediaDragDropAccept(FileDragDropResult parameter)
+        {
+            var files = parameter.Files.Where(p => p.EndsWith(new[] { ".png", "jpg", ".gif" }, StringComparison.OrdinalIgnoreCase));
+            foreach (var i in files)
+            {
+                if (Medias.Count < 4) Medias.Add(new MainWindowSendingMediaViewModel(i));
+            }
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+            RaisePropertyChanged(() => HasMedia);
+            RaisePropertyChanged(() => UpdateStatusTextLength);
+        }
+        #endregion
+
+
         #region RemoveMediaCommand
         private ViewModelCommand _RemoveMediaCommand;
 
@@ -597,6 +631,31 @@ namespace Kbtter4.ViewModels
         public void StartTegaki()
         {
             Messenger.Raise(new TransitionMessage(new TegakiWindowViewModel(this), "Tegaki"));
+        }
+        #endregion
+
+
+        #region NewStatusTimelineCommand
+        private ViewModelCommand _NewStatusTimelineCommand;
+
+        public ViewModelCommand NewStatusTimelineCommand
+        {
+            get
+            {
+                if (_NewStatusTimelineCommand == null)
+                {
+                    _NewStatusTimelineCommand = new ViewModelCommand(NewStatusTimeline);
+                }
+                return _NewStatusTimelineCommand;
+            }
+        }
+
+        public void NewStatusTimeline()
+        {
+            var stt = new StatusTimeline(Kbtter.Setting, "true", "新しいやつ");
+            var vm = new StatusTimelineEditWindowViewModel { EditingTarget = new StatusTimelineViewModel(this, stt) };
+            Messenger.Raise(new TransitionMessage(vm, "StatusTimelineEdit"));
+            if (vm.Updated) Kbtter.StatusTimelines.Add(stt);
         }
         #endregion
 

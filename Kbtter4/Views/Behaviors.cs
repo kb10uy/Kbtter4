@@ -19,6 +19,7 @@ using System.Windows.Interactivity;
 
 using Kbtter4.ViewModels;
 using Livet;
+using Livet.Commands;
 
 namespace Kbtter4.Views
 {
@@ -311,6 +312,48 @@ namespace Kbtter4.Views
                         break;
                 }
             }
+        }
+    }
+
+    public sealed class FileDragDropBehavior : Behavior<FrameworkElement>
+    {
+        public static DependencyProperty ListenerCommandProperty =
+            DependencyProperty.Register(
+                "ListenerCommand",
+                typeof(ListenerCommand<FileDragDropResult>),
+                typeof(FileDragDropBehavior),
+                new UIPropertyMetadata(null));
+
+        public ListenerCommand<FileDragDropResult> ListenerCommand
+        {
+            get { return GetValue(ListenerCommandProperty) as ListenerCommand<FileDragDropResult>; }
+            set { SetValue(ListenerCommandProperty, value); }
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            AssociatedObject.PreviewDragOver += AssociatedObject_PreviewDragOver;
+            AssociatedObject.Drop += AssociatedObject_Drop;
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            AssociatedObject.PreviewDragOver -= AssociatedObject_PreviewDragOver;
+            AssociatedObject.Drop -= AssociatedObject_Drop;
+        }
+
+        void AssociatedObject_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        void AssociatedObject_Drop(object sender, DragEventArgs e)
+        {
+            var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (ListenerCommand != null && ListenerCommand.CanExecute) ListenerCommand.Execute(new FileDragDropResult(files));
         }
     }
 
