@@ -73,6 +73,20 @@ namespace Kbtter4.ViewModels
             IsMyStatus = SourceStatus.User.Id == Kbtter.AuthenticatedUser.Id;
             IsRetweetable = !IsMyStatus && !SourceStatus.User.IsProtected;
 
+            if (SourceStatus.Entities != null )
+            {
+                if (SourceStatus.Entities.Media != null)
+                {
+                    HasMedia = SourceStatus.Entities.Media.Length != 0;
+                    Medias = new ObservableSynchronizedCollection<StatusMediaViewModel>(
+                        SourceStatus.Entities.Media.Select(p => new StatusMediaViewModel { Uri = p.MediaUrlHttps }));
+                }
+                if (SourceStatus.Entities.UserMentions != null)
+                {
+                    IsReplyToMe = SourceStatus.Entities.UserMentions.Any(p => p.Id == Kbtter.AuthenticatedUser.Id);
+                }
+            }
+
             ExtractVia();
             AnalyzeTextElements();
 
@@ -393,6 +407,24 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region IsReplyToMe変更通知プロパティ
+        private bool _IsReplyToMe;
+
+        public bool IsReplyToMe
+        {
+            get
+            { return _IsReplyToMe; }
+            set
+            { 
+                if (_IsReplyToMe == value)
+                    return;
+                _IsReplyToMe = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region DestroyStatusCommand
         private ViewModelCommand _DestroyStatusCommand;
 
@@ -467,9 +499,119 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region HasMedia変更通知プロパティ
+        private bool _HasMedia;
+
+        public bool HasMedia
+        {
+            get
+            { return _HasMedia; }
+            set
+            {
+                if (_HasMedia == value)
+                    return;
+                _HasMedia = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Medias変更通知プロパティ
+        private ObservableSynchronizedCollection<StatusMediaViewModel> _Medias;
+
+        public ObservableSynchronizedCollection<StatusMediaViewModel> Medias
+        {
+            get
+            { return _Medias; }
+            set
+            {
+                if (_Medias == value)
+                    return;
+                _Medias = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        bool gotexm = false;
+
+        #region GetExtendedMediaCommand
+        private ViewModelCommand _GetExtendedMediaCommand;
+
+        public ViewModelCommand GetExtendedMediaCommand
+        {
+            get
+            {
+                if (_GetExtendedMediaCommand == null)
+                {
+                    _GetExtendedMediaCommand = new ViewModelCommand(GetExtendedMedia, CanGetExtendedMedia);
+                }
+                return _GetExtendedMediaCommand;
+            }
+        }
+
+        public bool CanGetExtendedMedia()
+        {
+            return HasMedia && !gotexm;
+        }
+
+        public async void GetExtendedMedia()
+        {
+            try
+            {
+                var nst = await Kbtter.Token.Statuses.ShowAsync(id => SourceStatus.Id);
+                if (nst.ExtendedEntities == null)
+                {
+                    main.View.Notify("extended_entitiesが取得できませんでした。");
+                }
+                if (nst.ExtendedEntities.Media == null)
+                {
+                    main.View.Notify("mediaが取得できませんでした。");
+                }
+                Medias.Clear();
+                foreach (var i in nst.ExtendedEntities.Media)
+                {
+                    Medias.Add(new StatusMediaViewModel { Uri = i.MediaUrlHttps });
+                }
+                gotexm = true;
+                GetExtendedMediaCommand.RaiseCanExecuteChanged();
+            }
+            catch(TwitterException e)
+            {
+                main.View.Notify("ツイートの取得に失敗しました : " + e.Message);
+            }
+            catch { }
+        }
+        #endregion
+
+
+        #region OpenViaCommand
+        private ViewModelCommand _OpenViaCommand;
+
+        public ViewModelCommand OpenViaCommand
+        {
+            get
+            {
+                if (_OpenViaCommand == null)
+                {
+                    _OpenViaCommand = new ViewModelCommand(OpenVia);
+                }
+                return _OpenViaCommand;
+            }
+        }
+
+        public void OpenVia()
+        {
+            if (viauri != null) main.View.OpenInDefault(viauri);
+        }
+        #endregion
+
+
         #region ユーティリティ
 
         static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
+        Uri viauri;
 
         public void ExtractVia()
         {
@@ -477,6 +619,14 @@ namespace Kbtter4.ViewModels
             if (!m.Success) return;
 
             Via = m.Groups["client"].Value;
+            try
+            {
+                viauri = new Uri(m.Groups["url"].Value);
+            }
+            catch
+            {
+                viauri = null;
+            }
         }
 
         public void RegisterEventListeners()

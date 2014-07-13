@@ -10,6 +10,7 @@
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     <v:Int32ToShortenNumberStringConverter x:Key="Int32ShortenConverter"/>
     <v:Kbtter4NotificationIconConverter x:Key="NotificationIconConverter"/>
+    <v:UriToStringConverter x:Key="UriToStringConverter"/>
 
     <SolidColorBrush x:Key="BrushMenuBack" Color="#667F7F7F"/>
     <SolidColorBrush x:Key="TwitterColorPrimary" Color="#55acee"/>
@@ -159,6 +160,17 @@
         </StackPanel>
     </DataTemplate>
 
+
+    <Style x:Key="HorizontalListView" TargetType="{x:Type ListView}">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <DataTemplate DataType="{x:Type vm:StatusViewModel}" x:Key="StatusTemplate">
         <Grid Background="{StaticResource Kbtter4StatusBackColor}" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
@@ -171,6 +183,7 @@
                     <MenuItem IsCheckable="True" IsChecked="{Binding IsFavorited}" Header="お気に入り"/>
                     <MenuItem IsEnabled="{Binding IsRetweetable}" IsCheckable="True" IsChecked="{Binding IsRetweeted}" Header="リツイート"/>
                     <MenuItem IsEnabled="{Binding IsMyStatus}" Command="{Binding DestroyStatusCommand}" Header="削除"/>
+                    <MenuItem Command="{Binding GetExtendedMediaCommand}" Header="画像を追加で取得(1枚だけの場合もあります)"/>
                     <Separator/>
                     <MenuItem Header="返信" Command="{Binding ReplyCommand}"/>
                 </ContextMenu>
@@ -179,6 +192,10 @@
             <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" 
                    Fill="{StaticResource Kbtter4RetweetBackColor}" Panel.ZIndex="-100" 
                    Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <Rectangle Grid.ColumnSpan="2" 
+                   Fill="{StaticResource Kbtter4ReplyBackColor}" Panel.ZIndex="-100" 
+                   Visibility="{Binding IsReplyToMe, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -212,6 +229,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <StackPanel Orientation="Horizontal">
@@ -233,13 +251,36 @@
                     </i:Interaction.Behaviors>
                 </TextBlock>
 
-                <StackPanel Grid.Row="2" Margin="4,4,4,0" Orientation="Horizontal">
+                <Expander Visibility="{Binding HasMedia,Converter={StaticResource BooleanToVisibilityConverter}}" Grid.Row="2"
+                          Focusable="False" Header="画像を表示" HorizontalAlignment="Left">
+                    <ListView Style="{StaticResource HorizontalListView}" ItemsSource="{Binding Medias}" IsHitTestVisible="False" Background="Transparent">
+                        <ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:StatusMediaViewModel}">
+                                <Image Width="400" Height="300">
+                                    <i:Interaction.Behaviors>
+                                        <v:ImageWebLazyBindBehavior UriSource="{Binding Uri}"/>
+                                    </i:Interaction.Behaviors>
+                                </Image>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Expander>
+
+                <StackPanel Grid.Row="3" Margin="4,4,4,0" Orientation="Horizontal">
                     <TextBlock Foreground="DarkBlue" Text="{Binding CreatedTimeText}"/>
                     <TextBlock Foreground="Gray" Margin="4,0,4,0">via</TextBlock>
-                    <TextBlock Foreground="Gray" Text="{Binding Via}"/>
+                    <TextBlock>
+                        <Hyperlink Command="{Binding OpenViaCommand}">
+                            <TextBlock Text="{Binding Via}"/>
+                            <i:Interaction.Behaviors>
+                                <v:HyperlinkMouseOverColorChangeBehavior MouseLeftForeground="Gray" MouseEnteredForeground="DarkBlue"/>
+                                <v:HyperlinkMouseOverUnderlineBehavior/>
+                            </i:Interaction.Behaviors>
+                        </Hyperlink>
+                    </TextBlock>
                 </StackPanel>
 
-                <StackPanel Grid.Row="3" Visibility="{Binding IsRetweet,Converter={StaticResource BooleanToVisibilityConverter}}"
+                <StackPanel Grid.Row="4" Visibility="{Binding IsRetweet,Converter={StaticResource BooleanToVisibilityConverter}}"
                             Orientation="Horizontal">
                     <Image Margin="4" Width="24" Height="24">
                         <i:Interaction.Behaviors>
@@ -325,6 +366,11 @@
         <StackPanel Margin="8">
             <Border BorderBrush="{StaticResource TwitterColorGray}" BorderThickness="1" CornerRadius="6">
                 <Grid>
+                    <Grid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="{Binding DeleteCommand}" Header="削除(表示に反映されません)"/>
+                        </ContextMenu>
+                    </Grid.ContextMenu>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="32"/>
                         <ColumnDefinition Width="*"/>
@@ -342,7 +388,12 @@
                     </Image>
                     <TextBlock Grid.Column="1" FontSize="14" Margin="4" VerticalAlignment="Center" Text="{Binding Sender.Name}"/>
                     <StackPanel Grid.Column="1" Grid.Row="1">
-                        <TextBlock Text="{Binding Text}" Margin="8" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Row="1" Margin="4,0,4,0" FontSize="14">
+                            <i:Interaction.Behaviors>
+                                <v:TextBlockStatusTextBehavior TextElements="{Binding TextElements}"/>
+                            </i:Interaction.Behaviors>
+                        </TextBlock>
+
                         <TextBlock Text="{Binding CreatedAt}" Margin="0,0,4,4" 
                                    FontSize="10" Foreground="{StaticResource TwitterColorGray}"/>
                     </StackPanel>
@@ -396,4 +447,5 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 </ResourceDictionary>

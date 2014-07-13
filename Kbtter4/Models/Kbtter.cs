@@ -413,6 +413,14 @@ namespace Kbtter4.Models
                         if (tt != null) i.Statuses.Remove(tt);
                     }
                     break;
+                case MessageType.DeleteDirectMessage:
+                    mes = mes;
+                    foreach (var i in DirectMessageTimelines)
+                    {
+                        var dvm = i.DirectMessages.FirstOrDefault(p => p.Id == mes.Id);
+                        if (dvm != null) i.DirectMessages.Remove(dvm);
+                    }
+                    break;
                 default:
                     break;
             }

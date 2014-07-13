@@ -659,6 +659,184 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+        #region DM
+
+        #region NewDirectMessagePartyScreenName変更通知プロパティ
+        private string _NewDirectMessagePartyScreenName;
+
+        public string NewDirectMessagePartyScreenName
+        {
+            get
+            { return _NewDirectMessagePartyScreenName; }
+            set
+            {
+                if (_NewDirectMessagePartyScreenName == value)
+                    return;
+                _NewDirectMessagePartyScreenName = value;
+                RaisePropertyChanged();
+                AddDirectMessagePartyCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region AddDirectMessagePartyCommand
+        private ViewModelCommand _AddDirectMessagePartyCommand;
+
+        public ViewModelCommand AddDirectMessagePartyCommand
+        {
+            get
+            {
+                if (_AddDirectMessagePartyCommand == null)
+                {
+                    _AddDirectMessagePartyCommand = new ViewModelCommand(AddDirectMessageParty, CanAddDirectMessageParty);
+                }
+                return _AddDirectMessagePartyCommand;
+            }
+        }
+
+        public bool CanAddDirectMessageParty()
+        {
+            return !string.IsNullOrEmpty(NewDirectMessagePartyScreenName);
+        }
+
+        public async void AddDirectMessageParty()
+        {
+            try
+            {
+                var fs = await Kbtter.Token.Friendships.ShowAsync(source_screen_name => Kbtter.AuthenticatedUser.ScreenName, target_screen_name => NewDirectMessagePartyScreenName);
+                if (!fs.Target.CanDM ?? false)
+                {
+                    View.Notify("そのユーザーにはダイレクトメッセージを送れません。");
+                    return;
+                }
+                var pu = await Kbtter.Token.Users.ShowAsync(screen_name => NewDirectMessagePartyScreenName);
+                var dmtl = new DirectMessageTimeline(Kbtter.Setting, pu);
+                Kbtter.DirectMessageTimelines.Add(dmtl);
+                NewDirectMessagePartyScreenName = "";
+                View.Notify("ユーザーの追加に成功しました。");
+            }
+            catch (TwitterException e)
+            {
+                View.Notify("操作中にエラーが発生しました : " + e.Message);
+            }
+            catch { }
+
+
+        }
+        #endregion
+
+
+        #region SelectedParty変更通知プロパティ
+        private DirectMessageTimelineViewModel _SelectedParty;
+
+        public DirectMessageTimelineViewModel SelectedParty
+        {
+            get
+            { return _SelectedParty; }
+            set
+            {
+                if (_SelectedParty == value)
+                    return;
+                _SelectedParty = value;
+                RaisePropertyChanged();
+                SendDirectMessageCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region SendingDirectMessageTextLength変更通知プロパティ
+        private int _SendingDirectMessageTextLength;
+
+        public int SendingDirectMessageTextLength
+        {
+            get
+            {
+                var s = _SendingDirectMessageText ?? "";
+                s = s.Replace("https://", " http://");
+                s = Regex.Replace(s, "https?://(([\\w]|[^ -~])+(([\\w\\-]|[^ -~])+([\\w]|[^ -~]))?\\.)+(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)(?![\\w])(/([\\w\\.\\-\\$&%/:=#~!]*\\??[\\w\\.\\-\\$&%/:=#~!]*[\\w\\-\\$/#])?)?", "                      ");
+                s = s.Replace("\r", "");
+                var ret = 140 - s.Length;
+                return ret;
+            }
+        }
+        #endregion
+
+
+        #region SendingDirectMessageText変更通知プロパティ
+        private string _SendingDirectMessageText;
+
+        public string SendingDirectMessageText
+        {
+            get
+            { return _SendingDirectMessageText; }
+            set
+            {
+                if (_SendingDirectMessageText == value)
+                    return;
+                _SendingDirectMessageText = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(() => SendingDirectMessageTextLength);
+                SendDirectMessageCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region SendDirectMessageCommand
+        private ViewModelCommand _SendDirectMessageCommand;
+
+        public ViewModelCommand SendDirectMessageCommand
+        {
+            get
+            {
+                if (_SendDirectMessageCommand == null)
+                {
+                    _SendDirectMessageCommand = new ViewModelCommand(SendDirectMessage, CanSendDirectMessage);
+                }
+                return _SendDirectMessageCommand;
+            }
+        }
+
+        bool dmtaken = false;
+        public bool CanSendDirectMessage()
+        {
+            return
+                SelectedParty != null && !string.IsNullOrEmpty(SelectedParty.Party.ScreenName) &&
+                140 > SendingDirectMessageTextLength && 0 <= SendingDirectMessageTextLength &&
+                !dmtaken;
+        }
+
+        public async void SendDirectMessage()
+        {
+            dmtaken = true;
+            SendDirectMessageCommand.RaiseCanExecuteChanged();
+
+            try
+            {
+                await Kbtter.Token.DirectMessages.NewAsync(screen_name => SelectedParty.Party.ScreenName, text => SendingDirectMessageText);
+            }
+            catch (TwitterException e)
+            {
+                View.Notify("ダイレクトメッセージの送信に失敗しました : " + e.Message);
+            }
+            catch
+            {
+
+            }
+
+            dmtaken = false;
+            SendingDirectMessageText = "";
+            SendDirectMessageCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
+
+        #endregion
+
+
+
 
         #region コマンド
 

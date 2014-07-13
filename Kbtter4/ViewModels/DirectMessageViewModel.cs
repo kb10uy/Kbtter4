@@ -20,16 +20,23 @@ namespace Kbtter4.ViewModels
     {
         public DirectMessage Source { get; private set; }
 
+        MainWindowViewModel main;
+        Kbtter Kbtter;
+
         public DirectMessageViewModel(DirectMessage dm, MainWindowViewModel main)
         {
+            Kbtter = Kbtter.Instance;
+            this.main = main;
             Source = dm;
             Text = Source.Text
                 .Replace("&lt;", "<")
                 .Replace("&gt;", ">")
                 .Replace("&amp;", "&");
+
             CreatedAt = Source.CreatedAt.LocalDateTime.ToString();
             Sender = new UserViewModel(dm.Sender, main);
             IsSentByMe = dm.Sender.Id == Kbtter.Instance.AuthenticatedUser.Id;
+            AnalyzeTextElements();
         }
 
         public void Initialize()
@@ -109,5 +116,149 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region TextElements変更通知プロパティ
+        private ObservableSynchronizedCollection<StatusTextElement> _TextElements;
+
+        public ObservableSynchronizedCollection<StatusTextElement> TextElements
+        {
+            get
+            { return _TextElements; }
+            set
+            {
+                if (_TextElements == value)
+                    return;
+                _TextElements = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region DeleteCommand
+        private ViewModelCommand _DeleteCommand;
+
+        public ViewModelCommand DeleteCommand
+        {
+            get
+            {
+                if (_DeleteCommand == null)
+                {
+                    _DeleteCommand = new ViewModelCommand(Delete, CanDelete);
+                }
+                return _DeleteCommand;
+            }
+        }
+
+        public bool CanDelete()
+        {
+            return IsSentByMe;
+        }
+
+        public async void Delete()
+        {
+            await Kbtter.Token.DirectMessages.DestroyAsync(id => Source.Id);
+        }
+        #endregion
+
+
+        private void AnalyzeTextElements()
+        {
+            TextElements = new ObservableSynchronizedCollection<StatusTextElement>();
+            var l = new List<Tuple<int[], StatusTextElement>>();
+
+            if (Source.Entities != null)
+            {
+                if (Source.Entities.Urls != null)
+                    foreach (var i in Source.Entities.Urls)
+                    {
+                        //Text = Text.Replace(i.Url.ToString(), i.DisplayUrl.ToString());
+                        var e = new StatusTextElement();
+                        e.Original = i.Url.ToString();
+                        e.Action = main.View.OpenInDefault;
+                        e.Type = StatusTextElementType.Uri;
+                        e.Link = i.ExpandedUrl;
+                        e.Surface = i.DisplayUrl;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                if (Source.Entities.Media != null)
+                    foreach (var i in Source.Entities.Media)
+                    {
+                        //Text = Text.Replace(i.Url.ToString(), i.DisplayUrl.ToString());
+                        var e = new StatusTextElement();
+                        e.Original = i.Url.ToString();
+                        e.Action = main.View.OpenInDefault;
+                        e.Type = StatusTextElementType.Media;
+                        e.Link = i.ExpandedUrl;
+                        e.Surface = i.DisplayUrl;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                if (Source.Entities.UserMentions != null)
+                    foreach (var i in Source.Entities.UserMentions)
+                    {
+                        var e = new StatusTextElement();
+                        e.Action = async (p) =>
+                        {
+                            var user = await Kbtter.Token.Users.ShowAsync(id => i.Id);
+                            Kbtter.AddUserToUsersList(user);
+                            main.View.Notify(user.Name + "さんの情報");
+                            main.View.ChangeToUser();
+                        };
+                        e.Type = StatusTextElementType.User;
+                        e.Link = new Uri("https://twitter.com/" + i.ScreenName);
+                        e.Surface = "@" + i.ScreenName;
+                        e.Original = e.Surface;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                if (Source.Entities.HashTags != null)
+                    foreach (var i in Source.Entities.HashTags)
+                    {
+                        var e = new StatusTextElement();
+                        e.Action = (p) =>
+                        {
+                            main.View.ChangeToSearch();
+                            main.View.SearchText = "#" + i.Text;
+                            Kbtter.Search("#" + i.Text);
+                        };
+                        e.Type = StatusTextElementType.Hashtag;
+                        e.Link = new Uri("https://twitter.com/search?q=%23" + i.Text);
+                        e.Surface = "#" + i.Text;
+                        e.Original = e.Surface;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                l.Sort((x, y) => x.Item1[0].CompareTo(y.Item1[0]));
+            }
+
+            int le = 0;
+            foreach (var i in l)
+            {
+                var el = i.Item1[1] - i.Item1[0];
+                var ntl = i.Item1[0] - le;
+                if (ntl != 0)
+                {
+                    var nt = Text.Substring(le, ntl);
+                    nt = nt
+                        .Replace("&lt;", "<")
+                        .Replace("&gt;", ">")
+                        .Replace("&amp;", "&");
+                    TextElements.Add(new StatusTextElement { Surface = nt, Type = StatusTextElementType.None });
+                }
+                TextElements.Add(i.Item2);
+                le = i.Item1[1];
+            }
+            //foreach (var i in l) Text = Text.Replace(i.Item2.Original, i.Item2.Surface);
+            if (Text.Length > le - 1)
+            {
+                var ls = Text.Substring(le);
+                ls = ls
+                        .Replace("&lt;", "<")
+                        .Replace("&gt;", ">")
+                        .Replace("&amp;", "&");
+                TextElements.Add(new StatusTextElement { Surface = ls, Type = StatusTextElementType.None });
+            }
+        }
     }
 }

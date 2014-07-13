@@ -140,6 +140,7 @@
     </ApplicationDefinition>
     <Compile Include="ViewModels\Misc.cs" />
     <Compile Include="ViewModels\PluginViewModel.cs" />
+    <Compile Include="ViewModels\StatusMediaViewModel.cs" />
     <Compile Include="ViewModels\StatusTimelineEditWindowViewModel.cs" />
     <Compile Include="ViewModels\TegakiWindowViewModel.cs" />
     <Compile Include="Views\StatusTimelineEditWindow.xaml.cs">

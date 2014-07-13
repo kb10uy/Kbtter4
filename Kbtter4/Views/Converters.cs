@@ -100,4 +100,18 @@ namespace Kbtter4.Views
             throw new NotImplementedException();
         }
     }
+
+    public sealed class UriToStringConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ((Uri)value).ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

@@ -156,6 +156,73 @@ namespace Kbtter4.Views
         }
     }
 
+    public sealed class ImageSizeFittingBehavior : Behavior<Image>
+    {
+        public static DependencyProperty MaxWidthProperty =
+            DependencyProperty.Register(
+                "MaxWidth",
+                typeof(double),
+                typeof(ImageSizeFittingBehavior));
+
+        public static DependencyProperty MaxHeightProperty =
+            DependencyProperty.Register(
+                "MaxHeight",
+                typeof(double),
+                typeof(ImageSizeFittingBehavior));
+
+        public double MaxWidth
+        {
+            get { return (double)GetValue(MaxWidthProperty); }
+            set { SetValue(MaxWidthProperty, value); }
+        }
+
+        public double MaxHeight
+        {
+            get { return (double)GetValue(MaxHeightProperty); }
+            set { SetValue(MaxHeightProperty, value); }
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            AssociatedObject.SourceUpdated += AssociatedObject_SourceUpdated;
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            AssociatedObject.SourceUpdated -= AssociatedObject_SourceUpdated;
+        }
+
+        void AssociatedObject_SourceUpdated(object sender, DataTransferEventArgs e)
+        {
+            var ow = AssociatedObject.Source.Width;
+            var oh = AssociatedObject.Source.Height;
+            if (ow <= MaxWidth && oh <= MaxHeight)
+            {
+                AssociatedObject.Width = ow;
+                AssociatedObject.Height = oh;
+                return;
+            }
+            else if (oh > 0 && MaxHeight > 0)
+            {
+                var imgr = ow / oh;
+                var reqr = MaxWidth / MaxHeight;
+                if (imgr > reqr)
+                {
+                    //Sourceのほうが横長
+                    AssociatedObject.Width = MaxWidth;
+                    AssociatedObject.Height = oh * (ow / MaxHeight);
+                }
+                else
+                {
+                    AssociatedObject.Width = ow * (oh / MaxWidth);
+                    AssociatedObject.Height = MaxHeight;
+                }
+            }
+        }
+    }
+
     public sealed class TextBlockTextChangedStoryboardBehavior : Behavior<TextBlock>
     {
         public static DependencyProperty TextProperty =
