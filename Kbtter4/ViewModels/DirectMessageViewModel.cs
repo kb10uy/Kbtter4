@@ -28,7 +28,7 @@ namespace Kbtter4.ViewModels
             Kbtter = Kbtter.Instance;
             this.main = main;
             Source = dm;
-
+            Text = Source.Text;
             CreatedAt = Source.CreatedAt.LocalDateTime.ToString();
             Sender = new UserViewModel(dm.Sender, main);
             IsSentByMe = dm.Sender.Id == Kbtter.Instance.AuthenticatedUser.Id;
