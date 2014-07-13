@@ -21,24 +21,27 @@ namespace Kbtter4
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             DispatcherHelper.UIDispatcher = Dispatcher;
-            //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
         }
 
         //集約エラーハンドラ
-        //private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        //{
-        //    //TODO:ロギング処理など
-        //    MessageBox.Show(
-        //        "不明なエラーが発生しました。アプリケーションを終了します。",
-        //        "エラー",
-        //        MessageBoxButton.OK,
-        //        MessageBoxImage.Error);
-        //
-        //    Environment.Exit(1);
-        //}
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var ex = e.ExceptionObject as Exception;
+            //TODO:ロギング処理など
+            MessageBox.Show(
+                "不明なエラーが発生しました。アプリケーションを終了します。\n@kb10uyにException.txtを送ると、修正されるかもしれません。",
+                "エラー",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            var ki = Kbtter4.Models.Kbtter.Instance;
+            ex.SaveJson("Excepion.txt");
+            Environment.Exit(1);
+        }
 
 
     }
+
     internal static class Kbtter4Extension
     {
         public static T LoadJson<T>(string filename)

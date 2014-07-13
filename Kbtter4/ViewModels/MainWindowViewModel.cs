@@ -394,6 +394,7 @@ namespace Kbtter4.ViewModels
 
         public void AddMedia(OpeningFileSelectionMessage parameter)
         {
+            if (parameter.Response == null) return;
             foreach (var i in parameter.Response)
             {
                 if (Medias.Count < 4) Medias.Add(new MainWindowSendingMediaViewModel(i));

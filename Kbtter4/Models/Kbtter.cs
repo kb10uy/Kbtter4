@@ -203,6 +203,7 @@ namespace Kbtter4.Models
         #region Streaming接続
         public void StartStreaming()
         {
+            
             Streaming = Token.Streaming.StartObservableStream(
                 StreamingType.User,
                 new StreamingParameters(include_entities => "true", include_followings_activity => "true"))

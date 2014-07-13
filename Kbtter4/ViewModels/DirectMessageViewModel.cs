@@ -28,10 +28,6 @@ namespace Kbtter4.ViewModels
             Kbtter = Kbtter.Instance;
             this.main = main;
             Source = dm;
-            Text = Source.Text
-                .Replace("&lt;", "<")
-                .Replace("&gt;", ">")
-                .Replace("&amp;", "&");
 
             CreatedAt = Source.CreatedAt.LocalDateTime.ToString();
             Sender = new UserViewModel(dm.Sender, main);

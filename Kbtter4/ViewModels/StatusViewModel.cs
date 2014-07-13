@@ -89,7 +89,6 @@ namespace Kbtter4.ViewModels
 
             ExtractVia();
             AnalyzeTextElements();
-
         }
 
         protected override void Dispose(bool disposing)

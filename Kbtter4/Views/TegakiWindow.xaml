@@ -45,29 +45,30 @@
 
         <StackPanel Grid.Column="1">
             <Button Margin="4" Name="ButtonVanish" Click="ButtonVanish_Click">全消し</Button>
-            <GroupBox Margin="4" Header="モード">
+            <Button Margin="4" Name="ButtonUndo" Click="ButtonUndo_Click">元に戻す</Button>
+            <GroupBox Margin="4,0,4,0" Header="モード">
                 <StackPanel>
                     <RadioButton Name="RadioButtonPen" Checked="RadioButtonPen_Click" IsChecked="True">ペン</RadioButton>
                     <RadioButton Name="RadioButtonEraser" Checked="RadioButtonEraser_Click">消しゴム</RadioButton>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="色" Margin="4">
+            <GroupBox Header="色" Margin="4,0,4,0">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label>ペン色</Label>
+                        <TextBlock>ペン色</TextBlock>
                         <Rectangle Name="RectanglePenBrush" Width="64" Margin="4"
                                    MouseLeftButtonDown="RectanglePenBrush_MouseLeftButtonDown">
                         </Rectangle>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label>背景色</Label>
+                        <TextBlock>背景色</TextBlock>
                         <Rectangle Name="RectangleBackgroundBrush" Width="64" Margin="4"
                                    MouseLeftButtonDown="RectanglebackgroundBrush_MouseLeftButtonDown"/>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="太さ" Margin="4">
+            <GroupBox Header="太さ" Margin="4,0,4,0">
                 <Slider Margin="4" Minimum="1" Maximum="20" TickFrequency="1" TickPlacement="BottomRight" 
                     Name="SliderPenWidth" ValueChanged="SliderPenWidth_ValueChanged"/>
             </GroupBox>

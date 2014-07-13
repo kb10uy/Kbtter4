@@ -32,17 +32,24 @@ namespace Kbtter4.Views
     public partial class TegakiWindow : Window
     {
         public static string TegakiImageFolder = "tegaki";
+        System.Windows.Ink.StrokeCollection sc;
 
         public TegakiWindow()
         {
             InitializeComponent();
             InkCanvasMain.DefaultDrawingAttributes.Color = Colors.Black;
             InkCanvasMain.DefaultDrawingAttributes.StylusTip = System.Windows.Ink.StylusTip.Ellipse;
+            InkCanvasMain.Strokes.StrokesChanged += Strokes_StrokesChanged;
             RectanglePenBrush.Fill = new SolidColorBrush(Colors.Black);
             RectangleBackgroundBrush.Fill = Brushes.White;
 
             var dt = DateTime.Now;
             TextBoxFileName.Text = string.Format("{5:D4}-{0:D2}-{1:D2}-{2:D2}{3:D2}{4:D2}.png", dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Year);
+        }
+
+        void Strokes_StrokesChanged(object sender, System.Windows.Ink.StrokeCollectionChangedEventArgs e)
+        {
+            sc = e.Added;
         }
 
         private void RectanglePenBrush_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -116,6 +123,11 @@ namespace Kbtter4.Views
             }
             ((TegakiWindowViewModel)DataContext).AddToMediaList(System.IO.Path.GetFullPath(TegakiImageFolder + "/" + fn));
             Close();
+        }
+
+        private void ButtonUndo_Click(object sender, RoutedEventArgs e)
+        {
+            InkCanvasMain.Strokes.Remove(sc);
         }
     }
 }
