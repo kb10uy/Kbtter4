@@ -51,7 +51,7 @@ namespace Kbtter4.ViewModels
                 DispatcherHelper.UIDispatcher);
             View.Users = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 Kbtter.Users,
-                p => new UserViewModel(p, this),
+                p => new UserViewModel(p, this, true),
                 DispatcherHelper.UIDispatcher);
             View.Plugins = ViewModelHelper.CreateReadOnlyDispatcherCollection(
                 Kbtter.GlobalPlugins,
@@ -614,6 +614,7 @@ namespace Kbtter4.ViewModels
 
         #endregion
 
+
         #region StartTegakiCommand
         private ViewModelCommand _StartTegakiCommand;
 
@@ -659,6 +660,7 @@ namespace Kbtter4.ViewModels
             if (vm.Updated) Kbtter.StatusTimelines.Add(stt);
         }
         #endregion
+
 
         #region DM
 
@@ -837,7 +839,30 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region ユーザー画面
 
+
+        #region SelectedUser変更通知プロパティ
+        private UserViewModel _SelectedUser = new UserViewModel { IdString = "" };
+
+        public UserViewModel SelectedUser
+        {
+            get
+            { return _SelectedUser; }
+            set
+            {
+                if (value == null) return;
+                if (value==_SelectedUser)
+                    return;
+                if (_SelectedUser.IdString != value.IdString) value.GetFriendship();
+                _SelectedUser = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #endregion
 
         #region コマンド
 

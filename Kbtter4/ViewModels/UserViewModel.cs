@@ -23,7 +23,7 @@ namespace Kbtter4.ViewModels
         MainWindowViewModel main;
         PropertyChangedEventListener listener;
 
-        public UserViewModel(User user,MainWindowViewModel mw)
+        public UserViewModel(User user, MainWindowViewModel mw)
         {
             Kbtter = Kbtter.Instance;
             main = mw;
@@ -33,6 +33,19 @@ namespace Kbtter4.ViewModels
             IdString = src.Id.ToString();
             ProfileImageUri = src.ProfileImageUrlHttps;
             IsProtected = src.IsProtected;
+            Location = src.Location;
+            UriString = src.Url != null ? src.Url.ToString() : "";
+            Description = src.Description;
+            Statuses = src.StatusesCount;
+            Favorites = src.FavouritesCount;
+            Friends = src.FriendsCount;
+            Followers = src.FollowersCount;
+        }
+
+        public UserViewModel(User user, MainWindowViewModel mw, bool gfs)
+            : this(user, mw)
+        {
+
         }
 
         public UserViewModel()
@@ -124,12 +137,232 @@ namespace Kbtter4.ViewModels
             get
             { return _IsProtected; }
             set
-            { 
+            {
                 if (_IsProtected == value)
                     return;
                 _IsProtected = value;
                 RaisePropertyChanged();
             }
+        }
+        #endregion
+
+
+        #region Location変更通知プロパティ
+        private string _Location;
+
+        public string Location
+        {
+            get
+            { return _Location; }
+            set
+            {
+                if (_Location == value)
+                    return;
+                _Location = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UriString変更通知プロパティ
+        private string _UriString;
+
+        public string UriString
+        {
+            get
+            { return _UriString; }
+            set
+            {
+                if (_UriString == value)
+                    return;
+                _UriString = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Description変更通知プロパティ
+        private string _Description;
+
+        public string Description
+        {
+            get
+            { return _Description; }
+            set
+            {
+                if (_Description == value)
+                    return;
+                _Description = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsFollowingMe変更通知プロパティ
+        private bool _IsFollowingMe;
+
+        public bool IsFollowingMe
+        {
+            get
+            { return _IsFollowingMe; }
+            set
+            {
+                if (_IsFollowingMe == value)
+                    return;
+                _IsFollowingMe = value;
+                RaisePropertyChanged("IsFollowingMe");
+            }
+        }
+        #endregion
+
+
+        #region IsFollowedbyMe変更通知プロパティ
+        private bool _IsFollowedbyMe;
+
+        public bool IsFollowedbyMe
+        {
+            get
+            { return _IsFollowedbyMe; }
+            set
+            {
+                if (_IsFollowedbyMe == value)
+                    return;
+                _IsFollowedbyMe = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsBlockingMe変更通知プロパティ
+        private bool _IsBlockingMe;
+
+        public bool IsBlockingMe
+        {
+            get
+            { return _IsBlockingMe; }
+            set
+            {
+                if (_IsBlockingMe == value)
+                    return;
+                _IsBlockingMe = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsBlockedByMe変更通知プロパティ
+        private bool _IsBlockedByMe;
+
+        public bool IsBlockedByMe
+        {
+            get
+            { return _IsBlockedByMe; }
+            set
+            {
+                if (_IsBlockedByMe == value)
+                    return;
+                _IsBlockedByMe = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Statuses変更通知プロパティ
+        private int _Statuses;
+
+        public int Statuses
+        {
+            get
+            { return _Statuses; }
+            set
+            {
+                if (_Statuses == value)
+                    return;
+                _Statuses = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Favorites変更通知プロパティ
+        private int _Favorites;
+
+        public int Favorites
+        {
+            get
+            { return _Favorites; }
+            set
+            {
+                if (_Favorites == value)
+                    return;
+                _Favorites = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Friends変更通知プロパティ
+        private int _Friends;
+
+        public int Friends
+        {
+            get
+            { return _Friends; }
+            set
+            {
+                if (_Friends == value)
+                    return;
+                _Friends = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Followers変更通知プロパティ
+        private int _Followers;
+
+        public int Followers
+        {
+            get
+            { return _Followers; }
+            set
+            {
+                if (_Followers == value)
+                    return;
+                _Followers = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region OpenUriCommand
+        private ViewModelCommand _OpenUriCommand;
+
+        public ViewModelCommand OpenUriCommand
+        {
+            get
+            {
+                if (_OpenUriCommand == null)
+                {
+                    _OpenUriCommand = new ViewModelCommand(OpenUri);
+                }
+                return _OpenUriCommand;
+            }
+        }
+
+        public void OpenUri()
+        {
+            if (src.Url != null) main.View.OpenInDefault(src.Url);
         }
         #endregion
 
@@ -157,5 +390,24 @@ namespace Kbtter4.ViewModels
         }
         #endregion
 
+        bool fsgot;
+        public async void GetFriendship()
+        {
+            if (fsgot) return;
+            try
+            {
+                var fs = await Kbtter.Token.Friendships.ShowAsync(source_id => Kbtter.AuthenticatedUser.Id, target_id => src.Id);
+                IsFollowedbyMe = fs.Target.IsFollowedBy ?? false;
+                IsFollowingMe = fs.Target.IsFollowing ?? false;
+                IsBlockedByMe = fs.Source.IsBlocking ?? false;
+                IsBlockingMe = fs.Target.IsBlocking ?? false;
+                fsgot = true;
+                return;
+            }
+            catch (TwitterException e)
+            {
+                main.View.Notify("フォロー関係を取得できませんでした : " + e.Message);
+            }
+        }
     }
 }

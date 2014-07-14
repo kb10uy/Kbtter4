@@ -6,7 +6,7 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:Kbtter4.Views"
         xmlns:vm="clr-namespace:Kbtter4.ViewModels"
-        Title="Kbtter4 Polypropylene" Height="700" Width="600"
+        Title="Kbtter4 Polypropylene" Height="720" Width="640"
         Name="WindowMainWindow"
         WindowChrome.IsHitTestVisibleInChrome="False">
 
@@ -536,7 +536,7 @@
                         <ListView Margin="4" HorizontalContentAlignment="Stretch"
                                   ItemsSource="{Binding ElementName=ListViewDirectMessageTimelines, Path=SelectedItem.DirectMessages}"
                                   ItemTemplate="{StaticResource DirectMessageTemplate}"/>
-                       
+
                         <Grid VerticalAlignment="Stretch" Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -593,7 +593,7 @@
                               IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
                 </Grid>
             </Grid>
-            <Grid Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
+            <Grid Panel.ZIndex="1" Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUser,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -608,8 +608,84 @@
                     <ListView Margin="4" ItemsSource="{Binding View.Users}" 
                               Name="ListViewUsers" HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource UserTemplate}"
-                              IsSynchronizedWithCurrentItem="True"/>
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectedItem="{Binding SelectedUser,Mode=OneWayToSource}"/>
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="96"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Border BorderBrush="White" BorderThickness="4" Height="80" Width="80" Margin="8" CornerRadius="8">
+                                    <Image>
+                                        <i:Interaction.Behaviors>
+                                            <v:ImageWebLazyBindBehavior UriSource="{Binding SelectedUser.ProfileImageUri}"/>
+                                        </i:Interaction.Behaviors>
+                                    </Image>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedUser.Name}" FontSize="28"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontSize="16">@</TextBlock>
+                                        <TextBlock FontSize="16" Text="{Binding SelectedUser.ScreenName}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" MaxWidth="640" FontSize="18" Margin="4" TextAlignment="Left" HorizontalAlignment="Left"
+                                   Text="{Binding SelectedUser.Description}" TextWrapping="Wrap"/>
+                            <StackPanel Grid.Row="2">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="4" FontSize="16">場所</TextBlock>
+                                    <TextBlock Margin="4" FontSize="14" VerticalAlignment="Center" Text="{Binding SelectedUser.Location}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="4" FontSize="16">URL</TextBlock>
+                                    <TextBlock Margin="4" FontSize="14" VerticalAlignment="Center">
+                                        <Hyperlink Command="{Binding SelectedUser.OpenUriCommand}">
+                                            <TextBlock Text="{Binding SelectedUser.UriString}"/>
+                                            <i:Interaction.Behaviors>
+                                                <v:HyperlinkMouseOverUnderlineBehavior/>
+                                                <v:HyperlinkMouseOverColorChangeBehavior MouseLeftForeground="DarkBlue" MouseEnteredForeground="Red"/>
+                                            </i:Interaction.Behaviors>
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Row="3">
+                                <TextBlock Foreground="DarkBlue" FontSize="20" TextAlignment="Center" Margin="4" Visibility="{Binding SelectedUser.IsFollowingMe,Converter={StaticResource BooleanToVisibilityConverter}}">フォローされています</TextBlock>
+                                <TextBlock Foreground="Red" FontSize="20" TextAlignment="Center" Margin="4" Visibility="{Binding SelectedUser.IsBlockingMe,Converter={StaticResource BooleanToVisibilityConverter}}">ブロックされています</TextBlock>
+                            </StackPanel>
+                            <WrapPanel ItemWidth="280" Grid.Row="4" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel Width="140">
+                                        <TextBlock FontSize="18" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center">ツイート</TextBlock>
+                                        <TextBlock Grid.Column="1" FontSize="22" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SelectedUser.Statuses}"/>
+                                    </StackPanel>
+                                    <StackPanel Width="140">
+                                        <TextBlock FontSize="18" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center">お気に入り</TextBlock>
+                                        <TextBlock Grid.Column="1" FontSize="22" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SelectedUser.Favorites}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel Width="140">
+                                        <TextBlock FontSize="18" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center">フォロー</TextBlock>
+                                        <TextBlock Grid.Column="1" FontSize="22" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SelectedUser.Friends}"/>
+                                    </StackPanel>
+                                    <StackPanel Width="140">
+                                        <TextBlock FontSize="18" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center">フォロワー</TextBlock>
+                                        <TextBlock Grid.Column="1" FontSize="22" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SelectedUser.Followers}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </WrapPanel>
+                        </Grid>
+                    </ScrollViewer>
                 </Grid>
+
             </Grid>
             <Grid Name="GridUserStatusTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUserTimeline,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -638,7 +714,6 @@
                     <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding ElementName=ListViewUserTimelines,Path=SelectedItem.Statuses}" 
                               HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource StatusTemplate}"
-                              Style="{StaticResource SlidingListView}"
                               IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
                 </Grid>
             </Grid>

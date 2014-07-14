@@ -417,6 +417,10 @@
             </StackPanel.ContextMenu>
         </StackPanel>
     </DataTemplate>
+    
+    <ControlTemplate x:Key="CircleProgress" TargetType="ProgressBar">
+        
+    </ControlTemplate>
 
     <Style x:Key="SlidingListView" TargetType="{x:Type ListView}">
         <Setter Property="ItemContainerStyle">

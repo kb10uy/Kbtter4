@@ -423,6 +423,8 @@ namespace Kbtter3.Query.Grammer
                     return new Kbtter3QueryValue(x.AsString() == y.AsString());
                 case Kbtter3QueryValueType.Boolean:
                     return new Kbtter3QueryValue(x.AsBoolean() == y.AsBoolean());
+                case Kbtter3QueryValueType.Undefined:
+                    return new Kbtter3QueryValue(x.AsUndefined() == y.AsUndefined());
                 default:
                     throw new InvalidCastException("==演算出来ません");
             }
@@ -438,6 +440,8 @@ namespace Kbtter3.Query.Grammer
                     return new Kbtter3QueryValue(x.AsString() != y.AsString());
                 case Kbtter3QueryValueType.Boolean:
                     return new Kbtter3QueryValue(x.AsBoolean() != y.AsBoolean());
+                case Kbtter3QueryValueType.Undefined:
+                    return new Kbtter3QueryValue(x.AsUndefined() != y.AsUndefined());
                 default:
                     throw new InvalidCastException("!=演算出来ません");
             }

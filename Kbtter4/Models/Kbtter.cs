@@ -203,7 +203,7 @@ namespace Kbtter4.Models
         #region Streaming接続
         public void StartStreaming()
         {
-            
+
             Streaming = Token.Streaming.StartObservableStream(
                 StreamingType.User,
                 new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
@@ -350,8 +350,18 @@ namespace Kbtter4.Models
                         break;
                 }
             }
-            UpdateUserInformation(s.Source);
-            UpdateUserInformation(s.Target);
+            switch (s.Event)
+            {
+                case EventCode.UserUpdate:
+                    UpdateUserInformation(s.Source);
+                    break;
+                default:
+                    UpdateUserInformation(s.Source);
+                    UpdateUserInformation(s.Target);
+                    break;
+            }
+
+
 
             foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s;
 
