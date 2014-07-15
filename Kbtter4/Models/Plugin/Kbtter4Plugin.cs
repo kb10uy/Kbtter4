@@ -51,6 +51,16 @@ namespace Kbtter4.Models.Plugin
 
         public Kbtter Instance { get; private set; }
 
+        public void SaveString(string key, string value)
+        {
+            Instance.PluginData[key] = value;
+        }
+
+        public string LoadString(string key)
+        {
+            return Instance.PluginData.ContainsKey(key) ? Instance.PluginData[key] : "";
+        }
+
         public void AddCommand(Kbtter4Command cmd)
         {
             Instance.CommandManager.AddCommand(cmd);
@@ -64,6 +74,30 @@ namespace Kbtter4.Models.Plugin
         public Kbtter4CommandParameter CreateCommandParameter(string name, bool req)
         {
             return new Kbtter4CommandParameter(name, req);
+        }
+
+        public Kbtter4Command CreateCommand(string name, string desc, IEnumerable<string> prm, Func<IDictionary<string, object>, string> func)
+        {
+            var ret = new Kbtter4Command();
+            ret.Name = name;
+            ret.Description = desc;
+            ret.Function = func;
+            foreach (var i in prm)
+            {
+                var cn = i.TrimStart('!');
+                var cp = new Kbtter4CommandParameter(cn, i.StartsWith("!"));
+            }
+            return ret;
+        }
+
+        public IDictionary<string, object> CreateParameter()
+        {
+            return new Dictionary<string, object>();
+        }
+
+        public void Tweet(IDictionary<string, object> prms)
+        {
+            Instance.Token.Statuses.UpdateAsync(prms);
         }
 
     }

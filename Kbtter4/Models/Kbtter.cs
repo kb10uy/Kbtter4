@@ -47,6 +47,7 @@ namespace Kbtter4.Models
 
         public static readonly string LoggingFileName = "Kbtter4.log";
         public static readonly string ConfigurationFileName = ConfigurationFolderName + "/config.json";
+        public static readonly string PluginLocalDataFileName = ConfigurationFolderName + "/plugindata.json";
 
         private static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
         //private static readonly string CacheUserImageFileNameSuffix = "-icon.png";
@@ -94,6 +95,7 @@ namespace Kbtter4.Models
 
         public ObservableSynchronizedCollection<Kbtter4Plugin> GlobalPlugins { get; private set; }
         public IList<Kbtter4PluginLoader> PluginLoaders { get; private set; }
+        public IDictionary<string, string> PluginData { get; private set; }
 
         public Kbtter4CommandManager CommandManager { get; private set; }
 
@@ -124,6 +126,7 @@ namespace Kbtter4.Models
 
             GlobalPlugins = new ObservableSynchronizedCollection<Kbtter4Plugin>();
             PluginLoaders = new List<Kbtter4PluginLoader>();
+            PluginData = new Dictionary<string, string>();
             PluginMonitoringToken = new object();
 
             GlobalMuteQuery = new Kbtter3Query("false");
@@ -141,6 +144,7 @@ namespace Kbtter4.Models
             StopStreaming();
             Parallel.ForEach(GlobalPlugins, p => p.Dispose());
             SaveLog();
+            SaveSetting();
         }
         #endregion
 
@@ -180,6 +184,7 @@ namespace Kbtter4.Models
         {
             if (!Directory.Exists(ConfigurationFolderName)) Directory.CreateDirectory(ConfigurationFolderName);
             Setting = Kbtter4Extension.LoadJson<Kbtter4Setting>(ConfigurationFileName);
+            PluginData = Kbtter4Extension.LoadJson<Dictionary<string, string>>(PluginLocalDataFileName);
             foreach (var i in Setting.Accounts) Accounts.Add(i);
         }
 
@@ -187,6 +192,7 @@ namespace Kbtter4.Models
         {
             UpdateUserTimelineData();
             Setting.SaveJson(ConfigurationFileName);
+            PluginData.SaveJson(PluginLocalDataFileName);
         }
 
         public void UpdateUserTimelineData()
@@ -425,7 +431,6 @@ namespace Kbtter4.Models
                     }
                     break;
                 case MessageType.DeleteDirectMessage:
-                    mes = mes;
                     foreach (var i in DirectMessageTimelines)
                     {
                         var dvm = i.DirectMessages.FirstOrDefault(p => p.Id == mes.Id);

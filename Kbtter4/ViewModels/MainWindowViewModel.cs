@@ -107,6 +107,24 @@ namespace Kbtter4.ViewModels
         }
 
 
+        #region Extra変更通知プロパティ
+        private MainWindowExtraViewModel _Extra = new MainWindowExtraViewModel();
+
+        public MainWindowExtraViewModel Extra
+        {
+            get
+            { return _Extra; }
+            set
+            {
+                if (_Extra == value)
+                    return;
+                _Extra = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region アカウント登録関係
         OAuth.OAuthSession nowsettion;
 
@@ -632,7 +650,7 @@ namespace Kbtter4.ViewModels
 
         public void StartTegaki()
         {
-            Messenger.Raise(new TransitionMessage(new TegakiWindowViewModel(this), "Tegaki"));
+            Messenger.RaiseAsync(new TransitionMessage(new TegakiWindowViewModel(this), "Tegaki"));
         }
         #endregion
 
@@ -750,7 +768,7 @@ namespace Kbtter4.ViewModels
 
 
         #region SendingDirectMessageTextLength変更通知プロパティ
-        private int _SendingDirectMessageTextLength;
+        //private int _SendingDirectMessageTextLength;
 
         public int SendingDirectMessageTextLength
         {
@@ -852,7 +870,7 @@ namespace Kbtter4.ViewModels
             set
             {
                 if (value == null) return;
-                if (value==_SelectedUser)
+                if (value == _SelectedUser)
                     return;
                 if (_SelectedUser.IdString != value.IdString) value.GetFriendship();
                 _SelectedUser = value;

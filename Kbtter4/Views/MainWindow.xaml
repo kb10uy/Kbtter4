@@ -7,8 +7,7 @@
         xmlns:v="clr-namespace:Kbtter4.Views"
         xmlns:vm="clr-namespace:Kbtter4.ViewModels"
         Title="Kbtter4 Polypropylene" Height="720" Width="640"
-        Name="WindowMainWindow"
-        WindowChrome.IsHitTestVisibleInChrome="False">
+        Name="WindowMainWindow">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -484,7 +483,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">タイムライン</TextBlock>
                 <ListView ItemTemplate="{StaticResource StatusTemplate}" ItemsSource="{Binding View.HomeTimeline.Statuses}" 
-                         Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"
+                         Margin="4" Grid.Row="1"
                          Style="{StaticResource SlidingListView}"/>
             </Grid>
             <Grid Name="GridHomeNotificationTimeline" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
@@ -495,7 +494,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">通知</TextBlock>
                 <ListView ItemTemplate="{StaticResource NotificationTemplate}" ItemsSource="{Binding View.HomeNotification.Notificaitons}" 
-                          Margin="4" Grid.Row="1" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False"
+                          Margin="4" Grid.Row="1"
                           Style="{StaticResource SlidingListView}"/>
             </Grid>
             <Grid Name="GridDirectMessage" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
@@ -516,10 +515,10 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <ListView Margin="4" ItemsSource="{Binding View.DirectMessageTimelines}" 
-                              Name="ListViewDirectMessageTimelines" HorizontalContentAlignment="Stretch"
+                        <ListView Margin="4" ItemsSource="{Binding View.DirectMessageTimelines,IsAsync=True}" 
+                              Name="ListViewDirectMessageTimelines" Style="{StaticResource SlidingListView}"
                               ItemTemplate="{StaticResource DirectMessageTimelineTemplate}"
-                              SelectedItem="{Binding SelectedParty,Mode=OneWayToSource,UpdateSourceTrigger=PropertyChanged}"/>
+                              SelectedItem="{Binding SelectedParty,Mode=OneWayToSource,UpdateSourceTrigger=PropertyChanged,IsAsync=True}"/>
                         <TextBox Margin="4" Grid.Row="1" ToolTip="新しくDMを送りたいユーザーのスクリーンネームを入力"
                                  Text="{Binding NewDirectMessagePartyScreenName,UpdateSourceTrigger=PropertyChanged}">
                             <TextBox.InputBindings>
@@ -533,9 +532,10 @@
                             <RowDefinition Height="5*"/>
                             <RowDefinition Height="*" MinHeight="120" MaxHeight="160"/>
                         </Grid.RowDefinitions>
-                        <ListView Margin="4" HorizontalContentAlignment="Stretch"
-                                  ItemsSource="{Binding ElementName=ListViewDirectMessageTimelines, Path=SelectedItem.DirectMessages}"
-                                  ItemTemplate="{StaticResource DirectMessageTemplate}"/>
+                        <ListView Margin="4" 
+                                  ItemsSource="{Binding ElementName=ListViewDirectMessageTimelines, Path=SelectedItem.DirectMessages,IsAsync=True}"
+                                  ItemTemplate="{StaticResource DirectMessageTemplate}"
+                                  Style="{StaticResource VirtualizingListView}"/>
 
                         <Grid VerticalAlignment="Stretch" Grid.Row="1">
                             <Grid.ColumnDefinitions>
@@ -586,14 +586,16 @@
                     <ListView Margin="4" ItemsSource="{Binding View.SearchResultStatuses}" 
                               HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource StatusTemplate}"
-                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
+                              Style="{StaticResource SlidingListView}"
+                              IsSynchronizedWithCurrentItem="True"/>
                     <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding View.SearchResultUsers}" 
                               HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource UserTemplate}"
-                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
+                              Style="{StaticResource SlidingListView}"
+                              IsSynchronizedWithCurrentItem="True"/>
                 </Grid>
             </Grid>
-            <Grid Panel.ZIndex="1" Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
+            <Grid Name="GridUser" Background="{StaticResource TwitterColorWhite}" Grid.Column="1" Grid.Row="2"
                             Visibility="{Binding ElementName=ButtonMenuUser,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -609,6 +611,7 @@
                               Name="ListViewUsers" HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource UserTemplate}"
                               IsSynchronizedWithCurrentItem="True"
+                              Style="{StaticResource SlidingListView}"
                               SelectedItem="{Binding SelectedUser,Mode=OneWayToSource}"/>
                     <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <Grid>
@@ -699,9 +702,9 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="2*"/>
                     </Grid.ColumnDefinitions>
-                    <ListView Margin="4" ItemsSource="{Binding View.UserDefinitionTimelines}"
+                    <ListView Margin="4" ItemsSource="{Binding View.UserDefinitionTimelines,IsAsync=True}"
                               Name="ListViewUserTimelines"
-                              HorizontalContentAlignment="Stretch"
+                              Style="{StaticResource SlidingListView}"
                               ItemTemplate="{StaticResource StatusTimelineTemplate}"
                               IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False">
                         <ListView.ContextMenu>
@@ -711,10 +714,10 @@
                         </ListView.ContextMenu>
                     </ListView>
 
-                    <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding ElementName=ListViewUserTimelines,Path=SelectedItem.Statuses}" 
+                    <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding ElementName=ListViewUserTimelines,Path=SelectedItem.Statuses,IsAsync=True}" 
                               HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource StatusTemplate}"
-                              IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="False"/>
+                              IsSynchronizedWithCurrentItem="True" Style="{StaticResource VirtualizingListView}"/>
                 </Grid>
             </Grid>
             <!--
@@ -838,6 +841,20 @@
                             <TextBox Grid.Column="1" Grid.Row="1" Margin="4" Text="{Binding View.SettingInstance.Searching.UserCount,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
 
                         </Grid>
+                    </TabItem>
+                    <TabItem Header="Kbtter4について">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition MaxHeight="200"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Image Source="/Kbtter4;component/Resources/Kbtter4.png" Grid.ColumnSpan="2"/>
+                        </Grid>
+                        
                     </TabItem>
                 </TabControl>
                 <Button Margin="4" Grid.Row="4" Command="{Binding View.SaveSettingCommand}">保存</Button>

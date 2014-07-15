@@ -21,7 +21,7 @@ namespace Kbtter4.ViewModels
         Kbtter Kbtter;
         User src;
         MainWindowViewModel main;
-        PropertyChangedEventListener listener;
+        //PropertyChangedEventListener listener;
 
         public UserViewModel(User user, MainWindowViewModel mw)
         {

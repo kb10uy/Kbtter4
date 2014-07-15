@@ -44,16 +44,31 @@ MIT Licenseとします。
 LICENSE.txtを参照してください。
 
 ##Special Thanks
-* あじょぶじんさん
- - Kbtter2の時にGitHub上のソースでビルド出来なかった問題を解決していただきました。
-   そしてCoreTweetの機能とか仕様についていろいろ教えていただきました。
-* Javaはクソさん
- - Entityの取り扱いについてアドバイスしていただきました。
-   WPF関係でもありがとうござした。
-* 竹内さん
- - Kbtter1時代からお世話になってます。
-* 七瀬さん
- - Nanasetterすごそうです
+TwitterのSNの昇順です。  
+実際に開発に協力してくれた人以外にも、個人的にSpecial Thanksな人が入る可能性が大いにあります。
+
+* [@aayh](https://twitter.com/aayh)
+* [@alalwww](https://twitter.com/alalwww)
+* [@azyobuzin](https://twitter.com/azyobuzin)
+* [@func_hs](https://twitter.com/func_hs)
+* [@g2simm](https://twitter.com/g2simm)
+* [@hiyaudon](https://twitter.com/hiyaudon)
+* [@java_shit](https://twitter.com/java_shit)
+* [@karno](https://twitter.com/karno)
+* [@kb10uy](https://twitter.com/kb10uy)
+* [@laco0416](https://twitter.com/laco0416)
+* [@mumei_himazin](https://twitter.com/mumei_himazin)
+* [@nanase_coder](https://twitter.com/nanase_coder)
+* [@noko_k](https://twitter.com/noko_k)
+* [@orekyuu](https://twitter.com/orekyuu)
+* [@otack](https://twitter.com/otack)
+* [@paralleltree](https://twitter.com/paralleltree)
+* [@sukirer](https://twitter.com/sukirer)
+* [@syuilo](https://twitter.com/syuilo)
+* [@taiki_hacker](https://twitter.com/taiki_hacker)
+* [@toshi_a](https://twitter.com/toshi_a)
+* [@tsuteto](https://twitter.com/tsuteto)
+* [@ulicknormanowen](https://twitter.com/ulicknormanowen)
 
 ##ライセンス
 * KbtterのソースのライセンスはLICENSE.txtを参照してください。

@@ -100,6 +100,16 @@ namespace Kbtter4.Tenko
         }
 
         /// <summary>
+        /// 実行します。
+        /// </summary>
+        /// <param name="cmd">コマンドライン</param>
+        /// <returns>結果</returns>
+        public Task<string> ExecuteAsync(string cmd)
+        {
+            return Task<string>.Run(() => Execute(cmd));
+        }
+
+        /// <summary>
         /// コマンドを名前で取得します。
         /// </summary>
         /// <param name="name">名前</param>
@@ -121,12 +131,18 @@ namespace Kbtter4.Tenko
                 Description = "登録されているコマンドの詳細を表示します。",
                 Function = Help,
             };
-            hc.Parameters.Add(new Kbtter4CommandParameter { Name = "cmd", IsRequired = true });
+            hc.Parameters.Add(new Kbtter4CommandParameter { Name = "cmd"});
             AddCommand(hc);
         }
 
         private string Help(IDictionary<string, object> args)
         {
+            if (!args.ContainsKey("cmd"))
+            {
+                var r = "コマンド一覧\n";
+                foreach (var i in Commands) r += i.Name + "\n";
+                return r;
+            }
             if (this[args["cmd"] as string] == null) return "指定されたコマンドがありません";
             var ret = args["cmd"] + "コマンドの詳細 : \n";
             ret += this[args["cmd"] as string].Description;

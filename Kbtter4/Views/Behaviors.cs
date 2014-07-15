@@ -146,7 +146,11 @@ namespace Kbtter4.Views
                     bi.StreamSource = new MemoryStream(ba);
                     bi.EndInit();
                     bi.Freeze();
-                    (sender as ImageWebLazyBindBehavior).AssociatedObject.Source = bi;
+                    await DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
+                    {
+                        (sender as ImageWebLazyBindBehavior).AssociatedObject.Source = bi;
+                    }));
+
                 }
                 catch
                 {

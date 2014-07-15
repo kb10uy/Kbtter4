@@ -383,7 +383,7 @@
                                Visibility="{Binding IsSentByMe,Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <Image Width="24" Height="24" Margin="4">
                         <i:Interaction.Behaviors>
-                            <v:ImageWebLazyBindBehavior UriSource="{Binding Sender.ProfileImageUri}"/>
+                            <v:ImageWebLazyBindBehavior UriSource="{Binding Sender.ProfileImageUri,IsAsync=True}"/>
                         </i:Interaction.Behaviors>
                     </Image>
                     <TextBlock Grid.Column="1" FontSize="14" Margin="4" VerticalAlignment="Center" Text="{Binding Sender.Name}"/>
@@ -417,12 +417,14 @@
             </StackPanel.ContextMenu>
         </StackPanel>
     </DataTemplate>
-    
+
     <ControlTemplate x:Key="CircleProgress" TargetType="ProgressBar">
-        
+
     </ControlTemplate>
 
     <Style x:Key="SlidingListView" TargetType="{x:Type ListView}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type ListViewItem}">
@@ -452,4 +454,26 @@
         </Setter>
     </Style>
 
+    <Style x:Key="VirtualizingListView" TargetType="{x:Type ListView}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/>
+    </Style>
+
+    <Style x:Key="WrappingItemsControl" TargetType="{x:Type ItemsControl}">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock FontSize="14" Margin="4" Text="{Binding}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
