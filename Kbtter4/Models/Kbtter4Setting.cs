@@ -17,12 +17,15 @@ namespace Kbtter4.Models
 
         public Kbtter4SettingSearching Searching { get; set; }
 
+        public Kbtter4SettingExternalService ExternalService { get; set; }
+
         public Kbtter4Setting()
         {
             Consumer = new Kbtter4SettingConsumer { Key = Kbtter4SettingConsumer.DefaultKey, Secret = Kbtter4SettingConsumer.DefaultSecret };
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
             Timelines = new Kbtter4SettingTimelines();
             Searching = new Kbtter4SettingSearching();
+            ExternalService = new Kbtter4SettingExternalService();
         }
     }
 
@@ -206,7 +209,7 @@ namespace Kbtter4.Models
     {
 
         #region Name変更通知プロパティ
-        private string _Name="No name";
+        private string _Name = "No name";
 
         public string Name
         {
@@ -235,6 +238,46 @@ namespace Kbtter4.Models
                 if (_Query == value)
                     return;
                 _Query = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+    }
+
+    public sealed class Kbtter4SettingExternalService : NotificationObject
+    {
+
+        #region ShindanMakerDirectly変更通知プロパティ
+        private bool _ShindanMakerDirectly = true;
+
+        public bool ShindanMakerDirectly
+        {
+            get
+            { return _ShindanMakerDirectly; }
+            set
+            {
+                if (_ShindanMakerDirectly == value)
+                    return;
+                _ShindanMakerDirectly = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ShindanMakerDirectlyWithTweet変更通知プロパティ
+        private bool _ShindanMakerDirectlyWithTweet = false;
+
+        public bool ShindanMakerDirectlyWithTweet
+        {
+            get
+            { return _ShindanMakerDirectlyWithTweet; }
+            set
+            {
+                if (_ShindanMakerDirectlyWithTweet == value)
+                    return;
+                _ShindanMakerDirectlyWithTweet = value;
                 RaisePropertyChanged();
             }
         }

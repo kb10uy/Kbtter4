@@ -26,6 +26,7 @@ using Newtonsoft.Json.Serialization;
 
 using Kbtter4.Models.Plugin;
 using Kbtter4.Tenko;
+using Kbtter4.Ayaya;
 using Kbtter4.Cache;
 using Kbtter3.Query;
 
@@ -144,6 +145,7 @@ namespace Kbtter4.Models
             StopStreaming();
             Parallel.ForEach(GlobalPlugins, p => p.Dispose());
             SaveLog();
+            Setting = Kbtter4Extension.LoadJson<Kbtter4Setting>(ConfigurationFileName);
             SaveSetting();
         }
         #endregion
@@ -799,10 +801,23 @@ namespace Kbtter4.Models
                 Description = "????????",
                 Function = CommandLouise,
             });
+            CommandManager.AddCommand(new Kbtter4Command
+            {
+                Name = "shindanmaker",
+                Description = "診断メーカーの結果を直接取得します。idパラメータに取得したい診断のIDを指定してください。\nnameパラメータに文字列を指定すると、その名前で診断します(ない場合はログイン中のユーザーの名前)。",
+                AsynchronousFunction = CommandShindanMakerDirectly,
+                IsAsync = true,
+                Parameters = new[] { 
+                    new Kbtter4CommandParameter("id",true),
+                    new Kbtter4CommandParameter("name",false),
+                    new Kbtter4CommandParameter("tweet",false)
+                }
+            });
         }
 
         private string CommandUpdate(IDictionary<string, object> args)
         {
+            if (AuthenticatedUser == null) return "ログインしてください";
             if (args["text"] as string == "") return "テキストを入力してください";
             Token.Statuses.UpdateAsync(status => args["text"]);
             return "投稿しました";
@@ -832,6 +847,7 @@ namespace Kbtter4.Models
 
         public string CommandEternalForceBlizzard(IDictionary<string, object> args)
         {
+            if (AuthenticatedUser == null) return "ログインしてください";
             int c = 100;
             var un = args["user"] as string;
             if (args.ContainsKey("count")) c = (int)args["count"];
@@ -849,6 +865,36 @@ namespace Kbtter4.Models
             });
 
             return un + "さんの最新ツイート" + c.ToString() + "件をエターナルフォースブリザードしました";
+        }
+
+        private async Task<string> CommandShindanMakerDirectly(IDictionary<string, object> args)
+        {
+            if (AuthenticatedUser == null) return "ログインしてください";
+            string name;
+            if (args.ContainsKey("name"))
+            {
+                name = args["name"] as string;
+            }
+            else
+            {
+                name = AuthenticatedUser.Name;
+            }
+            var id = (int)args["id"];
+            var ret = await Kbtter4ShindanMakerCooperator.DiagnoseAsync(id, name);
+            if (ret == null) return "取得できませんでした";
+            if (args.ContainsKey("tweet") && (bool)args["tweet"])
+            {
+                try
+                {
+                    await Token.Statuses.UpdateAsync(status => ret + " shindanmaker.com/" + id.ToString());
+                }
+                catch (TwitterException e)
+                {
+                    return ret + "\n\nツイートは出来ませんでした : " + e.Message;
+                }
+                ret += "\nツイートできました";
+            }
+            return ret;
         }
         #endregion
     }

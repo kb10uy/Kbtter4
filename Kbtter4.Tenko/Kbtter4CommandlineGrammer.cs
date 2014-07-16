@@ -31,7 +31,7 @@ namespace Kbtter4.Tenko
             var Parameters = new NonTerminal("Parameters");
             var Command = new NonTerminal("Command");
 
-            Value.Rule = Number | String;
+            Value.Rule = Number | String | "true" | "false";
             Parameter.Rule = Identifer + "=>" + Value;
             Parameters.Rule = MakeStarRule(Parameters, ToTerm(","), Parameter);
             Command.Rule = Identifer + Parameters;
@@ -77,11 +77,18 @@ namespace Kbtter4.Tenko
 
             var ret = new Kbtter4CommandlineParseResult();
             ret.Name = tree.ChildNodes[0].Token.ValueString;
-            
+
             if (tree.ChildNodes.Count == 1) return ret;
             foreach (var i in tree.ChildNodes[1].ChildNodes)
             {
-                ret.Parameters[i.ChildNodes[0].Token.ValueString] = i.ChildNodes[1].Token.Value;
+                if (i.ChildNodes[1].Term.Name == "true" || i.ChildNodes[1].Term.Name == "false")
+                {
+                    ret.Parameters[i.ChildNodes[0].Token.ValueString] = Convert.ToBoolean(i.ChildNodes[1].Token.ValueString);
+                }
+                else
+                {
+                    ret.Parameters[i.ChildNodes[0].Token.ValueString] = i.ChildNodes[1].Token.Value;
+                }
             }
             return ret;
         }

@@ -269,6 +269,10 @@
       <Project>{8546db30-0f0b-4378-ba4e-b0a4f71f960c}</Project>
       <Name>Kbtter3.Query</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Kbtter4.Ayaya\Kbtter4.Ayaya.csproj">
+      <Project>{e0ea4d74-ff49-4d2f-8077-c9bbaa785bd7}</Project>
+      <Name>Kbtter4.Ayaya</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Kbtter4.Cache\Kbtter4.Cache.csproj">
       <Project>{494df5bb-1735-4f3c-843f-6c9eea93d660}</Project>
       <Name>Kbtter4.Cache</Name>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 using Livet;
 using Livet.Commands;
@@ -632,16 +633,138 @@ namespace Kbtter4.ViewModels
 
         #endregion
 
+        #region コマンド
+
+        #region CommandResults変更通知プロパティ
+        private string _CommandResults = "";
+
+        public string CommandResults
+        {
+            get
+            { return _CommandResults; }
+            set
+            {
+                if (_CommandResults == value)
+                    return;
+                _CommandResults = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region CommandText変更通知プロパティ
+        private string _CommandText = "";
+
+        public string CommandText
+        {
+            get
+            { return _CommandText; }
+            set
+            {
+                if (_CommandText == value)
+                    return;
+                _CommandText = value;
+                RaisePropertyChanged();
+                ExecuteCommandCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region ExecuteCommandCommand
+        private ViewModelCommand _ExecuteCommandCommand;
+
+        public ViewModelCommand ExecuteCommandCommand
+        {
+            get
+            {
+                if (_ExecuteCommandCommand == null)
+                {
+                    _ExecuteCommandCommand = new ViewModelCommand(ExecuteCommand, CanExecuteCommand);
+                }
+                return _ExecuteCommandCommand;
+            }
+        }
+
+        public bool CanExecuteCommand()
+        {
+            return CommandText != "";
+        }
+
+        public void ExecuteCommand()
+        {
+            Task.Run(async () =>
+            {
+                var c = CommandText;
+                CommandText = "";
+                CommandResults += "$ " + c + "\n";
+                CommandResults += (await Kbtter.Instance.CommandManager.Execute(c)) + "\n";
+                CommandResults += "\n";
+            });
+        }
+        #endregion
+
+
+        #region ResetCommandResultsCommand
+        private ViewModelCommand _ResetCommandResultsCommand;
+
+        public ViewModelCommand ResetCommandResultsCommand
+        {
+            get
+            {
+                if (_ResetCommandResultsCommand == null)
+                {
+                    _ResetCommandResultsCommand = new ViewModelCommand(ResetCommandResults);
+                }
+                return _ResetCommandResultsCommand;
+            }
+        }
+
+        public void ResetCommandResults()
+        {
+            CommandResults = "";
+        }
+        #endregion
+
+        #endregion
+
         #region デフォで開くあれ
 
         public void OpenInDefault(Uri uri)
         {
-            Process.Start(uri.ToString());
+            Task.Run(() =>
+            {
+                var str = uri.ToString();
+                if (str.IndexOf("shindanmaker.com/") != -1)
+                {
+                    var ids = str.Split('/').Last();
+                    CommandText = "shindanmaker id=>" + ids;
+                    if (Kbtter.Instance.Setting.ExternalService.ShindanMakerDirectlyWithTweet) CommandText += " , tweet=>true";
+                    ExecuteCommandCommand.Execute();
+                    ChangeToCommandline();
+                    return;
+                }
+                Process.Start(uri.ToString());
+            });
+
         }
 
         public void OpenInDefault(string f)
         {
-            Process.Start(f);
+            Task.Run(() =>
+            {
+                if (f.IndexOf("shindanmaker.com/") != -1)
+                {
+                    var ids = f.Split('/').Last();
+                    CommandText = "shindanmaker id=>" + ids;
+                    if (Kbtter.Instance.Setting.ExternalService.ShindanMakerDirectlyWithTweet) CommandText += " , tweet=>true";
+                    ExecuteCommandCommand.Execute();
+                    ChangeToCommandline();
+                    return;
+                }
+                Process.Start(f);
+            });
         }
 
         #endregion
@@ -943,7 +1066,7 @@ namespace Kbtter4.ViewModels
             get
             { return _HeadlineText; }
             set
-            { 
+            {
                 if (_HeadlineText == value)
                     return;
                 _HeadlineText = value;
@@ -961,7 +1084,7 @@ namespace Kbtter4.ViewModels
             get
             { return _UserDefinitionTimelines; }
             set
-            { 
+            {
                 if (_UserDefinitionTimelines == value)
                     return;
                 _UserDefinitionTimelines = value;

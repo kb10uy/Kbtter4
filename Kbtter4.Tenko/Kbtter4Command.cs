@@ -60,7 +60,7 @@ namespace Kbtter4.Tenko
         /// </summary>
         /// <param name="cmd">コマンドライン</param>
         /// <returns>結果</returns>
-        public string Execute(string cmd)
+        public async Task<string> Execute(string cmd)
         {
             var cmdret = Kbtter4CommandlineParser.Parse(cmd);
             if (cmdret == null)
@@ -88,25 +88,30 @@ namespace Kbtter4.Tenko
                 return "必須パラメータが不足しています\n必須パラメータ : " + string.Join(" , ", reql);
             }
 
-            if (ecm.Function != null)
+            if (ecm.IsAsync)
             {
-                return ecm.Function(cmdret.Parameters);
+                if (ecm.AsynchronousFunction != null)
+                {
+                    return await ecm.AsynchronousFunction(cmdret.Parameters);
+                }
+                else
+                {
+                    return "動作が定義されていません";
+                }
             }
             else
             {
-                return "動作が定義されていません";
+                if (ecm.Function != null)
+                {
+                    return ecm.Function(cmdret.Parameters);
+                }
+                else
+                {
+                    return "動作が定義されていません";
+                }
             }
             
-        }
-
-        /// <summary>
-        /// 実行します。
-        /// </summary>
-        /// <param name="cmd">コマンドライン</param>
-        /// <returns>結果</returns>
-        public Task<string> ExecuteAsync(string cmd)
-        {
-            return Task<string>.Run(() => Execute(cmd));
+            
         }
 
         /// <summary>
@@ -179,6 +184,18 @@ namespace Kbtter4.Tenko
         public Func<IDictionary<string, object>, string> Function { get; set; }
 
         /// <summary>
+        /// 実行されるアクション。非同期メソッドを使用したい場合はこちらにメソッドを割り当てて
+        /// IsAsyncをにtrueしてください。
+        /// </summary>
+        public Func<IDictionary<string, object>, Task<string>> AsynchronousFunction { get; set; }
+
+        /// <summary>
+        /// アクションを非同期で実行するかどうかのフラグを取得・設定します。
+        /// trueの場合、FunctionのかわりにAsynchronousFunctionが呼び出されます。
+        /// </summary>
+        public bool IsAsync { get; set; }
+
+        /// <summary>
         /// 新しいインスタンスを初期化します。
         /// </summary>
         public Kbtter4Command()
@@ -186,6 +203,7 @@ namespace Kbtter4.Tenko
             Name = "";
             Description = "There is no description for this command.";
             Parameters = new List<Kbtter4CommandParameter>();
+            IsAsync = false;
         }
     }
 

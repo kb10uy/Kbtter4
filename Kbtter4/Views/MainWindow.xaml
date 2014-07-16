@@ -738,12 +738,12 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock FontSize="32" Margin="4">コマンド</TextBlock>
-                <TextBox Grid.Row="1" Margin="4" FontSize="16" Text="{Binding CommandText,UpdateSourceTrigger=PropertyChanged}">
+                <TextBox Grid.Row="1" Margin="4" FontSize="16" Text="{Binding View.CommandText,UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.InputBindings>
-                        <KeyBinding Key="Enter" Command="{Binding ExecuteCommandCommand}"/>
+                        <KeyBinding Key="Enter" Command="{Binding View.ExecuteCommandCommand}"/>
                     </TextBox.InputBindings>
                 </TextBox>
-                <TextBox Grid.Row="2" AcceptsReturn="True" IsReadOnly="True" Margin="4"  Text="{Binding CommandResults}"
+                <TextBox Grid.Row="2" AcceptsReturn="True" IsReadOnly="True" Margin="4"  Text="{Binding View.CommandResults}"
                          ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
             </Grid>
 
@@ -811,7 +811,8 @@
                             <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">ツイートタイムライン最大</TextBlock>
                             <TextBox Grid.Column="1" Grid.Row="0" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineMax,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <CheckBox Name="SettingTimelineCheckBoxAllowInitialReading" Grid.ColumnSpan="2" Grid.Row="1" Margin="4" IsChecked="{Binding View.SettingInstance.Timelines.AllowHomeStatusTimelineInitialReading}">タイムラインの初期読み込みを有効にする</CheckBox>
+                            <CheckBox Name="SettingTimelineCheckBoxAllowInitialReading" Grid.ColumnSpan="2" Grid.Row="1" Margin="4" IsChecked="{Binding View.SettingInstance.Timelines.AllowHomeStatusTimelineInitialReading}"
+                                      VerticalAlignment="Center">タイムラインの初期読み込みを有効にする</CheckBox>
 
                             <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">ツイートタイムライン初期読み込み</TextBlock>
                             <TextBox Grid.Column="1" Grid.Row="2" Margin="4" Text="{Binding View.SettingInstance.Timelines.HomeStatusTimelineInitialRead,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"
@@ -842,6 +843,28 @@
 
                         </Grid>
                     </TabItem>
+                    <TabItem Header="外部サービス連携">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <CheckBox Name="SettingExServiceShindanMakerDirectly" Grid.ColumnSpan="2" Grid.Row="1" Margin="4" IsChecked="{Binding View.SettingInstance.ExternalService.ShindanMakerDirectly}"
+                                      VerticalAlignment="Center">診断メーカーのURLをクリックした時にKbtter4内で直接取得する</CheckBox>
+                            <CheckBox Name="SettingExServiceShindanMakerDirectlyWithTweet" Grid.ColumnSpan="2" Grid.Row="2" Margin="16,0,0,0" IsChecked="{Binding View.SettingInstance.ExternalService.ShindanMakerDirectlyWithTweet}"
+                                      IsEnabled="{Binding ElementName=SettingExServiceShindanMakerDirectly,Path=IsChecked}"
+                                      VerticalAlignment="Center">その後に自動で結果をツイート</CheckBox>
+
+                        </Grid>
+                    </TabItem>
                     <TabItem Header="Kbtter4について">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -854,7 +877,7 @@
                             </Grid.RowDefinitions>
                             <Image Source="/Kbtter4;component/Resources/Kbtter4.png" Grid.ColumnSpan="2"/>
                         </Grid>
-                        
+
                     </TabItem>
                 </TabControl>
                 <Button Margin="4" Grid.Row="4" Command="{Binding View.SaveSettingCommand}">保存</Button>
