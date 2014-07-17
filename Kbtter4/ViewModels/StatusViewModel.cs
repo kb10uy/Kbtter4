@@ -14,6 +14,7 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter4.Models;
+using Kbtter4.Ayaya;
 using CoreTweet;
 
 namespace Kbtter4.ViewModels
@@ -73,22 +74,35 @@ namespace Kbtter4.ViewModels
             IsMyStatus = SourceStatus.User.Id == Kbtter.AuthenticatedUser.Id;
             IsRetweetable = !IsMyStatus && !SourceStatus.User.IsProtected;
 
-            if (SourceStatus.Entities != null )
+            if (SourceStatus.Entities.UserMentions != null)
             {
-                if (SourceStatus.Entities.Media != null)
-                {
-                    HasMedia = SourceStatus.Entities.Media.Length != 0;
-                    Medias = new ObservableSynchronizedCollection<StatusMediaViewModel>(
-                        SourceStatus.Entities.Media.Select(p => new StatusMediaViewModel { Uri = p.MediaUrlHttps }));
-                }
-                if (SourceStatus.Entities.UserMentions != null)
-                {
-                    IsReplyToMe = SourceStatus.Entities.UserMentions.Any(p => p.Id == Kbtter.AuthenticatedUser.Id);
-                }
+                IsReplyToMe = SourceStatus.Entities.UserMentions.Any(p => p.Id == Kbtter.AuthenticatedUser.Id);
             }
-
             ExtractVia();
             AnalyzeTextElements();
+
+            DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
+            {
+                if (SourceStatus.Entities != null)
+                {
+                    Medias = new ObservableSynchronizedCollection<StatusMediaViewModel>();
+                    if (SourceStatus.Entities.Urls != null)
+                    {
+                        var r = Kbtter4ExtraMediaUriConverter.TryGetDirectUri(SourceStatus.Entities.Urls.Select(p => p.ExpandedUrl));
+                        foreach (var i in r) Medias.Add(new StatusMediaViewModel { Uri = i });
+                    }
+                    if (SourceStatus.Entities.Media != null)
+                    {
+                        foreach (var i in SourceStatus.Entities.Media)
+                        {
+                            Medias.Add(new StatusMediaViewModel { Uri = i.MediaUrlHttps });
+                        }
+                    }
+
+                    HasMedia = Medias.Count != 0;
+
+                }
+            }));
         }
 
         protected override void Dispose(bool disposing)
@@ -96,8 +110,6 @@ namespace Kbtter4.ViewModels
             base.Dispose(disposing);
             CompositeDisposable.Dispose();
         }
-
-
 
         #region TextElements変更通知プロパティ
         private ObservableSynchronizedCollection<StatusTextElement> _TextElements;
@@ -414,7 +426,7 @@ namespace Kbtter4.ViewModels
             get
             { return _IsReplyToMe; }
             set
-            { 
+            {
                 if (_IsReplyToMe == value)
                     return;
                 _IsReplyToMe = value;
@@ -573,10 +585,12 @@ namespace Kbtter4.ViewModels
                 {
                     Medias.Add(new StatusMediaViewModel { Uri = i.MediaUrlHttps });
                 }
+                var r = Kbtter4ExtraMediaUriConverter.TryGetDirectUri(SourceStatus.Entities.Urls.Select(p => p.ExpandedUrl));
+                foreach (var i in r) Medias.Add(new StatusMediaViewModel { Uri = i });
                 gotexm = true;
                 GetExtendedMediaCommand.RaiseCanExecuteChanged();
             }
-            catch(TwitterException e)
+            catch (TwitterException e)
             {
                 main.View.Notify("ツイートの取得に失敗しました : " + e.Message);
             }
@@ -603,6 +617,28 @@ namespace Kbtter4.ViewModels
         public void OpenVia()
         {
             if (viauri != null) main.View.OpenInDefault(viauri);
+        }
+        #endregion
+
+
+        #region OpenStatusLinkCommand
+        private ViewModelCommand _OpenStatusLinkCommand;
+
+        public ViewModelCommand OpenStatusLinkCommand
+        {
+            get
+            {
+                if (_OpenStatusLinkCommand == null)
+                {
+                    _OpenStatusLinkCommand = new ViewModelCommand(OpenStatusLink);
+                }
+                return _OpenStatusLinkCommand;
+            }
+        }
+
+        public void OpenStatusLink()
+        {
+            main.View.OpenInDefault(string.Format("https://twitter.com/{0}/status/{1}", User.ScreenName, SourceStatus.Id));
         }
         #endregion
 

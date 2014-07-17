@@ -145,6 +145,15 @@
         </Border>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="ReplyButton" TargetType="Button">
+        <Border Name="Main" SnapsToDevicePixels="True">
+            <Border.Background>
+                <ImageBrush ImageSource="/Kbtter4;component/Resources/icon_reply.png" Stretch="None"/>
+            </Border.Background>
+            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+    </ControlTemplate>
+
     <DataTemplate DataType="{x:Type vm:AccountViewModel}" x:Key="AccountTemplate">
         <StackPanel>
             <StackPanel Orientation="Horizontal">
@@ -174,7 +183,7 @@
     <DataTemplate DataType="{x:Type vm:StatusViewModel}" x:Key="StatusTemplate">
         <Grid Background="{StaticResource Kbtter4StatusBackColor}" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="48"/>
+                <ColumnDefinition Width="56"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -200,27 +209,32 @@
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="44"/>
-                    <RowDefinition Height="24"/>
-                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
                 </Grid.RowDefinitions>
                 <Image Margin="4" Width="32">
                     <i:Interaction.Behaviors>
                         <v:ImageWebLazyBindBehavior UriSource="{Binding User.ProfileImageUri}"/>
                     </i:Interaction.Behaviors>
                 </Image>
-                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4">
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4,2,4,2">
                     <ToggleButton Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited}"  Width="16" Height="16"
                                   ToolTip="お気に入り"/>
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding FavoriteCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4" Visibility="{Binding IsRetweetable,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4,2,4,2" Visibility="{Binding IsRetweetable,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ToggleButton Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted}" Width="16" Height="16"
                                   ToolTip="リツイート"/>
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center" Text="{Binding RetweetCount,Converter={StaticResource Int32ShortenConverter}}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4" Visibility="{Binding IsMyStatus,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="4,2,4,2" Visibility="{Binding IsMyStatus,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Button Template="{StaticResource DestroyStatusButton}" Width="16" Height="16" Command="{Binding DestroyStatusCommand}" ToolTip="削除"/>
                     <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center">削除</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="4,2,4,2">
+                    <Button Template="{StaticResource ReplyButton}" Width="16" Height="16" Command="{Binding ReplyCommand}" ToolTip="返信"/>
+                    <TextBlock Margin="2" FontSize="10" VerticalAlignment="Center">返信</TextBlock>
                 </StackPanel>
             </Grid>
             <Grid Grid.Column="1">
@@ -251,7 +265,7 @@
                     </i:Interaction.Behaviors>
                 </TextBlock>
 
-                <Expander Visibility="{Binding HasMedia,Converter={StaticResource BooleanToVisibilityConverter}}" Grid.Row="2"
+                <Expander Visibility="{Binding HasMedia,Converter={StaticResource BooleanToVisibilityConverter},Mode=OneWay}" Grid.Row="2"
                           Focusable="False" Header="画像を表示" HorizontalAlignment="Left">
                     <ListView Style="{StaticResource HorizontalListView}" ItemsSource="{Binding Medias}" IsHitTestVisible="False" Background="Transparent">
                         <ListView.ItemTemplate>
@@ -267,7 +281,15 @@
                 </Expander>
 
                 <StackPanel Grid.Row="3" Margin="4,4,4,0" Orientation="Horizontal">
-                    <TextBlock Foreground="DarkBlue" Text="{Binding CreatedTimeText}"/>
+                    <TextBlock>
+                        <Hyperlink Command="{Binding OpenStatusLinkCommand}">
+                            <TextBlock Text="{Binding CreatedTimeText}"/>
+                            <i:Interaction.Behaviors>
+                                <v:HyperlinkMouseOverUnderlineBehavior/>
+                                <v:HyperlinkMouseOverColorChangeBehavior MouseEnteredForeground="DarkBlue" MouseLeftForeground="DarkBlue"/>
+                            </i:Interaction.Behaviors>
+                        </Hyperlink>
+                    </TextBlock>
                     <TextBlock Foreground="Gray" Margin="4,0,4,0">via</TextBlock>
                     <TextBlock>
                         <Hyperlink Command="{Binding OpenViaCommand}">

@@ -50,6 +50,8 @@ TwitterのSNの昇順です。
 * [@aayh](https://twitter.com/aayh)
 * [@alalwww](https://twitter.com/alalwww)
 * [@azyobuzin](https://twitter.com/azyobuzin)
+ - 外部サービス画像展開に[img.azyobuzi.net](http://img.azyobuzi.net)を利用しています。
+   ありがとうございます。超便利です。
 * [@func_hs](https://twitter.com/func_hs)
 * [@g2simm](https://twitter.com/g2simm)
 * [@hiyaudon](https://twitter.com/hiyaudon)

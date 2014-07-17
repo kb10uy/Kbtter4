@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="kbtter4ExtraMediaUriConverter.cs" />
+    <Compile Include="Kbtter4ExtraMediaUriConverter.cs" />
     <Compile Include="Kbtter4ShindanMakerCooperator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
