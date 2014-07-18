@@ -176,7 +176,8 @@ namespace Kbtter4.ViewModels
                         e.Surface = i.DisplayUrl;
                         l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
                     }
-
+                /*
+                //互換性上の理由で画像がUrlとMedia両方で送られてくるらしいので暫定的に削除
                 if (Source.Entities.Media != null)
                     foreach (var i in Source.Entities.Media)
                     {
@@ -189,7 +190,7 @@ namespace Kbtter4.ViewModels
                         e.Surface = i.DisplayUrl;
                         l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
                     }
-
+                */
                 if (Source.Entities.UserMentions != null)
                     foreach (var i in Source.Entities.UserMentions)
                     {

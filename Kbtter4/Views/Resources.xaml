@@ -133,6 +133,9 @@
                     </Setter.Value>
                 </Setter>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Main" Property="Opacity" Value="0.5"/>
+            </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
@@ -195,6 +198,27 @@
                     <MenuItem Command="{Binding GetExtendedMediaCommand}" Header="画像を追加で取得(1枚だけの場合もあります)"/>
                     <Separator/>
                     <MenuItem Header="返信" Command="{Binding ReplyCommand}"/>
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <TextBlock FontWeight="Bold">情報</TextBlock>
+                        </MenuItem.Header>
+                        <MenuItem IsEnabled="False">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FavoriteCount}"/>
+                                    <TextBlock Text="お気に入り" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem IsEnabled="False">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding RetweetCount}"/>
+                                    <TextBlock Text="リツイート" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
                 </ContextMenu>
             </Grid.ContextMenu>
 
