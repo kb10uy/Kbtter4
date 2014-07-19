@@ -35,6 +35,15 @@ namespace Kbtter4.ViewModels
         {
         }
 
+        public StatusViewModel(MainWindowViewModel mw, Status st, bool isinc)
+        {
+            Kbtter = Kbtter.Instance;
+            main = mw;
+            SourceStatus = st;
+            OnelineText = st.Text;
+            User = new UserViewModel(st.User, mw);
+        }
+
         public StatusViewModel(MainWindowViewModel mw, Status st)
         {
             Kbtter = Kbtter.Instance;

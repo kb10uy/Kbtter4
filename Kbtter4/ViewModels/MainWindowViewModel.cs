@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 using Livet;
 using Livet.Commands;
@@ -301,6 +302,9 @@ namespace Kbtter4.ViewModels
                     return;
                 _IsLogined = value;
                 RaisePropertyChanged();
+                OpenDraftWindowCommand.RaiseCanExecuteChanged();
+                QuickReceiveDraftCommand.RaiseCanExecuteChanged();
+                QuickSendDraftCommand.RaiseCanExecuteChanged();
             }
         }
         #endregion
@@ -343,6 +347,7 @@ namespace Kbtter4.ViewModels
                 RaisePropertyChanged();
                 RaisePropertyChanged(() => UpdateStatusTextLength);
                 UpdateStatusCommand.RaiseCanExecuteChanged();
+                QuickSendDraftCommand.RaiseCanExecuteChanged();
             }
         }
         #endregion
@@ -589,6 +594,7 @@ namespace Kbtter4.ViewModels
 
         public void SetReplyTo(StatusViewModel st)
         {
+            if (View.SettingInstance.Draft.MakeDraftWhenReply && UpdateStatusText != "") Kbtter.AuthenticatedUserDrafts.Add(new Kbtter4Draft(UpdateStatusText, DateTime.Now, IsReplying, IsReplying ? ReplyingStatus.SourceStatus : null));
             ReplyingStatus = st;
             IsReplying = true;
 
@@ -676,6 +682,114 @@ namespace Kbtter4.ViewModels
             var vm = new StatusTimelineEditWindowViewModel { EditingTarget = new StatusTimelineViewModel(this, stt) };
             Messenger.Raise(new TransitionMessage(vm, "StatusTimelineEdit"));
             if (vm.Updated) Kbtter.StatusTimelines.Add(stt);
+        }
+        #endregion
+
+
+        #region OpenDraftWindowCommand
+        private ViewModelCommand _OpenDraftWindowCommand;
+
+        public ViewModelCommand OpenDraftWindowCommand
+        {
+            get
+            {
+                if (_OpenDraftWindowCommand == null)
+                {
+                    _OpenDraftWindowCommand = new ViewModelCommand(OpenDraftWindow, CanOpenDraftWindow);
+                }
+                return _OpenDraftWindowCommand;
+            }
+        }
+
+        public bool CanOpenDraftWindow()
+        {
+            return IsLogined;
+        }
+
+        public void OpenDraftWindow()
+        {
+            Messenger.Raise(new TransitionMessage(new DraftWindowViewModel(this), "DraftWindow"));
+        }
+        #endregion
+
+
+        #region QuickDraft変更通知プロパティ
+        private DraftViewModel _QuickDraft;
+
+        public DraftViewModel QuickDraft
+        {
+            get
+            { return _QuickDraft; }
+            set
+            {
+                if (_QuickDraft == value)
+                    return;
+                _QuickDraft = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region QuickSendDraftCommand
+        private ViewModelCommand _QuickSendDraftCommand;
+
+        public ViewModelCommand QuickSendDraftCommand
+        {
+            get
+            {
+                if (_QuickSendDraftCommand == null)
+                {
+                    _QuickSendDraftCommand = new ViewModelCommand(QuickSendDraft, CanQuickSendDraft);
+                }
+                return _QuickSendDraftCommand;
+            }
+        }
+
+        public bool CanQuickSendDraft()
+        {
+            return IsLogined && !string.IsNullOrEmpty(UpdateStatusText);
+        }
+
+        public void QuickSendDraft()
+        {
+            var dr = new Kbtter4Draft(UpdateStatusText, DateTime.Now, IsReplying, IsReplying ? ReplyingStatus.SourceStatus : null);
+            QuickDraft = new DraftViewModel(dr);
+            QuickReceiveDraftCommand.RaiseCanExecuteChanged();
+            IsReplying = false;
+            UpdateStatusText = "";
+        }
+        #endregion
+
+
+        #region QuickReceiveDraftCommand
+        private ViewModelCommand _QuickReceiveDraftCommand;
+
+        public ViewModelCommand QuickReceiveDraftCommand
+        {
+            get
+            {
+                if (_QuickReceiveDraftCommand == null)
+                {
+                    _QuickReceiveDraftCommand = new ViewModelCommand(QuickReceiveDraft, CanQuickReceiveDraft);
+                }
+                return _QuickReceiveDraftCommand;
+            }
+        }
+
+        public bool CanQuickReceiveDraft()
+        {
+            return IsLogined && QuickDraft != null;
+        }
+
+        public void QuickReceiveDraft()
+        {
+            UpdateStatusText = QuickDraft.Text;
+            IsReplying = QuickDraft.IsReply;
+            ReplyingStatus = QuickDraft.CreateVirtualStatusViewModel(this);
+            QuickDraft = null;
+            QuickReceiveDraftCommand.RaiseCanExecuteChanged();
+
         }
         #endregion
 
@@ -882,6 +996,6 @@ namespace Kbtter4.ViewModels
 
         #endregion
 
-        
+
     }
 }

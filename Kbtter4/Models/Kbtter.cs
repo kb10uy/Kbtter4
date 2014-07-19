@@ -74,6 +74,7 @@ namespace Kbtter4.Models
         public ObservableSynchronizedCollection<Status> SearchResultStatuses { get; private set; }
 
         public Kbtter4Cache AuthenticatedUserCache { get; private set; }
+        public ObservableSynchronizedCollection<Kbtter4Draft> AuthenticatedUserDrafts { get; private set; }
 
         #region AuthenticatedUser変更通知プロパティ
         private User _AuthenticatedUser;
@@ -192,12 +193,12 @@ namespace Kbtter4.Models
 
         public void SaveSetting()
         {
-            UpdateUserTimelineData();
+            UpdateUserDataSetting();
             Setting.SaveJson(ConfigurationFileName);
             PluginData.SaveJson(PluginLocalDataFileName);
         }
 
-        public void UpdateUserTimelineData()
+        public void UpdateUserDataSetting()
         {
             var ac = Setting.Accounts.FirstOrDefault(p => p.UserId == AuthenticatedUser.Id);
             if (ac == null) return;
@@ -205,6 +206,11 @@ namespace Kbtter4.Models
             foreach (var i in StatusTimelines)
             {
                 ac.Timelines.Add(new Kbtter4SettingStatusTimelineData { Name = i.Name, Query = i.Query.QueryText });
+            }
+            ac.Drafts.Clear();
+            foreach (var i in AuthenticatedUserDrafts)
+            {
+                ac.Drafts.Add(i);
             }
         }
 
@@ -499,6 +505,7 @@ namespace Kbtter4.Models
                     var u = await Token.Users.ShowAsync(user_id => ac.UserId);
                     AuthenticatedUser = u;
                     AuthenticatedUserCache = new Kbtter4Cache(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheDatabaseFileNameSuffix);
+                    AuthenticatedUserDrafts = new ObservableSynchronizedCollection<Kbtter4Draft>(ac.Drafts);
                     Parallel.ForEach(GlobalPlugins, p => p.OnLogin(AuthenticatedUser));
                     InitializeUserCaches();
                     InitializeDirectMessages();

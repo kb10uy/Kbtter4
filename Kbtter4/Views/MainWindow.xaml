@@ -53,6 +53,10 @@
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="StatusTimelineEdit">
             <l:TransitionInteractionMessageAction WindowType="{x:Type v:StatusTimelineEditWindow}" Mode="Modal"/>
         </l:InteractionMessageTrigger>
+
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="DraftWindow">
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:DraftWindow}"/>
+        </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
 
     <Window.Resources>
@@ -394,13 +398,14 @@
                 <Grid VerticalAlignment="Stretch" MinHeight="120">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="400"/>
-                        <ColumnDefinition MaxWidth="160"/>
+                        <ColumnDefinition MaxWidth="240"/>
                     </Grid.ColumnDefinitions>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Height="32" Orientation="Horizontal" Visibility="{Binding IsReplying,Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Button Command="{Binding CancelReplyCommand}" Margin="4">キャンセル</Button>
@@ -429,34 +434,39 @@
                                  Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged}" MinHeight="80">
                             <TextBox.InputBindings>
                                 <KeyBinding Key="Enter" Modifiers="Control" Command="{Binding UpdateStatusCommand}"/>
+                                <KeyBinding Key="Down" Modifiers="Control" Command="{Binding QuickSendDraftCommand}"/>
+                                <KeyBinding Key="Up" Modifiers="Control" Command="{Binding QuickReceiveDraftCommand}"/>
                             </TextBox.InputBindings>
                             <i:Interaction.Behaviors>
                                 <v:FileDragDropBehavior ListenerCommand="{Binding MediaDragDropAcceptCommand}"/>
                             </i:Interaction.Behaviors>
                         </TextBox>
-
+                        <StackPanel Grid.Row="3" Orientation="Horizontal">
+                            <Button Margin="4" Width="120" Command="{Binding OpenDraftWindowCommand}">下書き</Button>
+                            <Button Margin="4" Width="80" Command="{Binding QuickSendDraftCommand}">クイック保存</Button>
+                            <Button Margin="4" Width="80" Command="{Binding QuickReceiveDraftCommand}">クイック呼出</Button>
+                        </StackPanel>
                     </Grid>
+
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="40"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">残り</TextBlock>
                             <TextBlock VerticalAlignment="Center" FontSize="20" Text="{Binding UpdateStatusTextLength}"/>
                         </StackPanel>
-                        <StackPanel Grid.Row="1">
-                            <TextBlock TextAlignment="Center">画像</TextBlock>
+                        <GroupBox Header="画像" Grid.Row="1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Margin="4" Grid.Column="0" Command="{Binding StartTegakiCommand}">TEGAKI</Button>
-                                <Button Margin="4" Grid.Column="1">
-                                    追加
+                                <Button Margin="2" Grid.Column="0" Command="{Binding StartTegakiCommand}" ToolTip="絵を書いて投稿できます">TEGAKI</Button>
+                                <Button Margin="2" Grid.Column="1" ToolTip="既存の画像を参照します">
+                                    参照
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
                                             <l:OpenFileDialogInteractionMessageAction>
@@ -469,8 +479,8 @@
                                     </i:Interaction.Triggers>
                                 </Button>
                             </Grid>
-                        </StackPanel>
-                        <Button Grid.Row="2" Margin="4" Command="{Binding UpdateStatusCommand}">ツイート</Button>
+                        </GroupBox>
+                        <Button Grid.Row="2" Grid.Column="1" Margin="4" Command="{Binding UpdateStatusCommand}" ToolTip="ツイートを送信します">ツイート</Button>
                     </Grid>
                 </Grid>
             </Expander>
@@ -841,6 +851,20 @@
                             <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">ユーザー最大表示数</TextBlock>
                             <TextBox Grid.Column="1" Grid.Row="1" Margin="4" Text="{Binding View.SettingInstance.Searching.UserCount,ValidatesOnExceptions=True,UpdateSourceTrigger=PropertyChanged}"/>
 
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="下書き">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <CheckBox Grid.ColumnSpan="2" Margin="4" IsChecked="{Binding View.SettingInstance.ExternalService.ShindanMakerDirectly}"
+                                      VerticalAlignment="Center">返信しようとした時に何か入力されていたら自動的に保存する</CheckBox>
                         </Grid>
                     </TabItem>
                     <TabItem Header="外部サービス連携">

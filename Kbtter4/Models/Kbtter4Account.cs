@@ -17,6 +17,7 @@ namespace Kbtter4.Models
             AccessTokenSecret = "";
             ScreenName = "";
             Timelines = new ObservableSynchronizedCollection<Kbtter4SettingStatusTimelineData>();
+            Drafts = new ObservableSynchronizedCollection<Kbtter4Draft>();
             UserId = 0;
         }
 
@@ -100,6 +101,24 @@ namespace Kbtter4.Models
                 if (_Timelines == value)
                     return;
                 _Timelines = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Drafts変更通知プロパティ
+        private ObservableSynchronizedCollection<Kbtter4Draft> _Drafts;
+
+        public ObservableSynchronizedCollection<Kbtter4Draft> Drafts
+        {
+            get
+            { return _Drafts; }
+            set
+            { 
+                if (_Drafts == value)
+                    return;
+                _Drafts = value;
                 RaisePropertyChanged();
             }
         }

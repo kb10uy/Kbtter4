@@ -19,6 +19,9 @@ namespace Kbtter4.Models
 
         public Kbtter4SettingExternalService ExternalService { get; set; }
 
+        public Kbtter4SettingDraft Draft { get; set; }
+
+
         public Kbtter4Setting()
         {
             Consumer = new Kbtter4SettingConsumer { Key = Kbtter4SettingConsumer.DefaultKey, Secret = Kbtter4SettingConsumer.DefaultSecret };
@@ -26,6 +29,7 @@ namespace Kbtter4.Models
             Timelines = new Kbtter4SettingTimelines();
             Searching = new Kbtter4SettingSearching();
             ExternalService = new Kbtter4SettingExternalService();
+            Draft = new Kbtter4SettingDraft();
         }
     }
 
@@ -238,6 +242,28 @@ namespace Kbtter4.Models
                 if (_Query == value)
                     return;
                 _Query = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+    }
+
+    public sealed class Kbtter4SettingDraft : NotificationObject
+    {
+
+        #region MakeDraftWhenReply変更通知プロパティ
+        private bool _MakeDraftWhenReply = true;
+
+        public bool MakeDraftWhenReply
+        {
+            get
+            { return _MakeDraftWhenReply; }
+            set
+            {
+                if (_MakeDraftWhenReply == value)
+                    return;
+                _MakeDraftWhenReply = value;
                 RaisePropertyChanged();
             }
         }
