@@ -98,6 +98,7 @@ namespace Kbtter4.ViewModels
             listener.Add("HeadlineText", (s, e) =>
             {
                 View.HeadlineText = Kbtter.HeadlineText;
+                View.HeadlineUserImage = Kbtter.HeadlineUserImage;
             });
         }
 

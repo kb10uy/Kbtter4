@@ -22,6 +22,7 @@ namespace Kbtter4.ViewModels
         public TegakiWindowViewModel(MainWindowViewModel mw)
         {
             main = mw;
+            PenThickness = main.View.SettingInstance.Miscellaneous.TegakiPenThickness;
         }
 
         public void Initialize()
@@ -33,6 +34,25 @@ namespace Kbtter4.ViewModels
         {
             main.AddMedia(new OpeningFileSelectionMessage { Response = new[] { path } });
         }
+
+
+        #region PenThickness変更通知プロパティ
+        private double _PenThickness;
+
+        public double PenThickness
+        {
+            get
+            { return _PenThickness; }
+            set
+            { 
+                if (_PenThickness == value)
+                    return;
+                _PenThickness = value;
+                main.View.SettingInstance.Miscellaneous.TegakiPenThickness = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
     }
 }

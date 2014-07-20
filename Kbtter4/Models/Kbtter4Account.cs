@@ -106,7 +106,6 @@ namespace Kbtter4.Models
         }
         #endregion
 
-
         #region Drafts変更通知プロパティ
         private ObservableSynchronizedCollection<Kbtter4Draft> _Drafts;
 
@@ -123,6 +122,24 @@ namespace Kbtter4.Models
             }
         }
         #endregion
+
+        #region TegakiPenthickness変更通知プロパティ
+        private double _TegakiPenthickness;
+
+        public double TegakiPenthickness
+        {
+            get
+            { return _TegakiPenthickness; }
+            set
+            { 
+                if (_TegakiPenthickness == value)
+                    return;
+                _TegakiPenthickness = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
 
     }
 }

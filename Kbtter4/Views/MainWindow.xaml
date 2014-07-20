@@ -55,7 +55,7 @@
         </l:InteractionMessageTrigger>
 
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="DraftWindow">
-            <l:TransitionInteractionMessageAction WindowType="{x:Type v:DraftWindow}"/>
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:DraftWindow}" Mode="NewOrActive"/>
         </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
 
@@ -379,7 +379,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="40"/>
@@ -391,7 +391,14 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="10" FontStyle="Oblique">ヘッドライン</TextBlock>
-                <TextBlock Margin="32,0,0,0" VerticalAlignment="Center" FontSize="20" Grid.Row="1" Text="{Binding View.HeadlineText}"/>
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <Image Width="24" Height="24" Margin="2">
+                        <i:Interaction.Behaviors>
+                            <v:ImageWebLazyBindBehavior UriSource="{Binding View.HeadlineUserImage}"/>
+                        </i:Interaction.Behaviors>
+                    </Image>
+                    <TextBlock Margin="0,0,0,0" VerticalAlignment="Center" FontSize="20" Text="{Binding View.HeadlineText}"/>
+                </StackPanel>
             </Grid>
 
             <Expander Name="ExpanderNewTweet" Grid.Row="1" Grid.Column="1" Header="新しいツイート" IsExpanded="{Binding View.IsStatusCreatorExpanded}">

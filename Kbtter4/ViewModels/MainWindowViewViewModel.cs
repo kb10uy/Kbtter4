@@ -1076,6 +1076,24 @@ namespace Kbtter4.ViewModels
         #endregion
 
 
+        #region HeadlineUserImage変更通知プロパティ
+        private Uri _HeadlineUserImage;
+
+        public Uri HeadlineUserImage
+        {
+            get
+            { return _HeadlineUserImage; }
+            set
+            { 
+                if (_HeadlineUserImage == value)
+                    return;
+                _HeadlineUserImage = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region UserDefinitionTimelines変更通知プロパティ
         private ReadOnlyDispatcherCollection<StatusTimelineViewModel> _UserDefinitionTimelines;
 

@@ -32,7 +32,14 @@
     <Window.Resources>
         <ResourceDictionary Source="Resources.xaml"/>
     </Window.Resources>
-
+    
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding SendDraftCommand}" Gesture="Alt+Up"/>
+        <KeyBinding Command="{Binding SendAndDeleteDraftCommand}" Gesture="Alt+Ctrl+Up"/>
+        <KeyBinding Command="{Binding ReceiveDraftCommand}" Gesture="Alt+Down"/>
+        <KeyBinding Command="{Binding DeleteDraftCommand}" Gesture="Delete"/>
+    </Window.InputBindings>
+    
     <Grid Background="{StaticResource TwitterColorWhite}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -53,10 +60,10 @@
         <StackPanel Grid.Column="1">
             <GroupBox Header="操作">
                 <StackPanel>
-                    <Button Margin="4" Command="{Binding SendDraftCommand}">メイン画面へ転送</Button>
-                    <Button Margin="4" Command="{Binding SendAndDeleteDraftCommand}">メイン画面へ転送して削除</Button>
-                    <Button Margin="4" Command="{Binding ReceiveDraftCommand}">メイン画面から受取</Button>
-                    <Button Margin="4" Command="{Binding DeleteDraftCommand}">削除</Button>
+                    <Button Margin="4" Command="{Binding SendDraftCommand}" ToolTip="選択中の下書きをメイン画面へ転送します。">メイン画面へ転送</Button>
+                    <Button Margin="4" Command="{Binding SendAndDeleteDraftCommand}" ToolTip="選択中の下書きをメイン画面へ転送した後、削除します">メイン画面へ転送して削除</Button>
+                    <Button Margin="4" Command="{Binding ReceiveDraftCommand}" ToolTip="メイン画面からデータを受け取ります。">メイン画面から受取</Button>
+                    <Button Margin="4" Command="{Binding DeleteDraftCommand}" ToolTip="選択中の下書きを削除します。">削除</Button>
                 </StackPanel>
             </GroupBox>
         </StackPanel>

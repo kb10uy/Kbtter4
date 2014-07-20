@@ -70,7 +70,8 @@
             </GroupBox>
             <GroupBox Header="太さ" Margin="4,0,4,0">
                 <Slider Margin="4" Minimum="1" Maximum="20" TickFrequency="1" TickPlacement="BottomRight" 
-                    Name="SliderPenWidth" ValueChanged="SliderPenWidth_ValueChanged"/>
+                        Name="SliderPenWidth" ValueChanged="SliderPenWidth_ValueChanged"
+                        Value="{Binding PenThickness}"/>
             </GroupBox>
             <GroupBox Header="ファイル名" Margin="4">
                 <TextBox Name="TextBoxFileName"/>

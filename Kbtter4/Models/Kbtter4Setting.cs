@@ -21,6 +21,7 @@ namespace Kbtter4.Models
 
         public Kbtter4SettingDraft Draft { get; set; }
 
+        public Kbtter4SettingMiscellaneous Miscellaneous { get; set; }
 
         public Kbtter4Setting()
         {
@@ -30,6 +31,7 @@ namespace Kbtter4.Models
             Searching = new Kbtter4SettingSearching();
             ExternalService = new Kbtter4SettingExternalService();
             Draft = new Kbtter4SettingDraft();
+            Miscellaneous = new Kbtter4SettingMiscellaneous();
         }
     }
 
@@ -251,7 +253,6 @@ namespace Kbtter4.Models
 
     public sealed class Kbtter4SettingDraft : NotificationObject
     {
-
         #region MakeDraftWhenReply変更通知プロパティ
         private bool _MakeDraftWhenReply = true;
 
@@ -268,7 +269,6 @@ namespace Kbtter4.Models
             }
         }
         #endregion
-
     }
 
     public sealed class Kbtter4SettingExternalService : NotificationObject
@@ -304,6 +304,28 @@ namespace Kbtter4.Models
                 if (_ShindanMakerDirectlyWithTweet == value)
                     return;
                 _ShindanMakerDirectlyWithTweet = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+    }
+
+    public sealed class Kbtter4SettingMiscellaneous : NotificationObject
+    {
+
+        #region TegakiPenThickness変更通知プロパティ
+        private double _TegakiPenThickness = 1.0;
+
+        public double TegakiPenThickness
+        {
+            get
+            { return _TegakiPenThickness; }
+            set
+            {
+                if (_TegakiPenThickness == value)
+                    return;
+                _TegakiPenThickness = value;
                 RaisePropertyChanged();
             }
         }

@@ -283,7 +283,7 @@
                     </TextBlock>
                 </StackPanel>
 
-                <TextBlock Grid.Row="1" Margin="4,0,4,0" FontSize="14">
+                <TextBlock Grid.Row="1" Margin="4,0,4,0" FontSize="14" TextWrapping="Wrap">
                     <i:Interaction.Behaviors>
                         <v:TextBlockStatusTextBehavior TextElements="{Binding TextElements}"/>
                     </i:Interaction.Behaviors>

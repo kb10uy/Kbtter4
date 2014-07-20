@@ -146,7 +146,9 @@ namespace Kbtter4.Models
             StopStreaming();
             Parallel.ForEach(GlobalPlugins, p => p.Dispose());
             SaveLog();
+            var misc = Setting.Miscellaneous;
             Setting = Kbtter4Extension.LoadJson<Kbtter4Setting>(ConfigurationFileName);
+            Setting.Miscellaneous = misc;
             SaveSetting();
         }
         #endregion
@@ -317,7 +319,7 @@ namespace Kbtter4.Models
                 if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id ||
                     s.Status.Text.StartsWith("RT @" + AuthenticatedUser.ScreenName + ":"))
                 {
-                    UpdateHeadline("リツイートされました : " + s.Status.RetweetedStatus.Text.TrimLineFeeds());
+                    UpdateHeadline("リツイートされました : " + s.Status.RetweetedStatus.Text.TrimLineFeeds(), s.Status.User.ProfileImageUrlHttps);
                     HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }
             }
@@ -334,7 +336,7 @@ namespace Kbtter4.Models
             RaisePropertyChanged("Statuses");
             if (s.Status.Entities.UserMentions.Any(p => p.Id == AuthenticatedUser.Id) && s.Status.RetweetedStatus == null)
             {
-                UpdateHeadline("メンション : " + s.Status.Text.TrimLineFeeds());
+                UpdateHeadline("メンション : " + s.Status.Text.TrimLineFeeds(), s.Status.User.ProfileImageUrlHttps);
             }
 
             Parallel.ForEach(GlobalPlugins, p => p.OnStatus(s.DeepCopy()));
@@ -384,7 +386,7 @@ namespace Kbtter4.Models
                 switch (s.Event)
                 {
                     case EventCode.Favorite:
-                        UpdateHeadline("ふぁぼられました : " + s.TargetStatus.Text.TrimLineFeeds());
+                        UpdateHeadline("ふぁぼられました : " + s.TargetStatus.Text.TrimLineFeeds(), s.Source.ProfileImageUrlHttps);
                         break;
                 }
 
@@ -682,6 +684,24 @@ namespace Kbtter4.Models
         }
 
 
+        #region HeadlineUserImage変更通知プロパティ
+        private Uri _HeadlineUserImage;
+
+        public Uri HeadlineUserImage
+        {
+            get
+            { return _HeadlineUserImage; }
+            set
+            {
+                if (_HeadlineUserImage == value)
+                    return;
+                _HeadlineUserImage = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region HeadlineText変更通知プロパティ
         private string _HeadlineText;
 
@@ -699,13 +719,13 @@ namespace Kbtter4.Models
         }
         #endregion
 
-        private void UpdateHeadline(string text)
+        private void UpdateHeadline(string text, Uri uri)
         {
+            HeadlineUserImage = uri;
             HeadlineText = DateTime.Now.ToShortTimeString() + " " + text;
         }
 
         #endregion
-
 
         #endregion
 
@@ -861,14 +881,15 @@ namespace Kbtter4.Models
             Task.Run(() =>
             {
                 var tl = Token.Statuses.UserTimeline(screen_name => un, count => c);
-                Parallel.ForEach<Status>(tl, p =>
+                foreach (var p in tl)
                 {
                     try
                     {
                         Token.Favorites.Create(id => p.Id);
                     }
                     catch { }
-                });
+                }
+
             });
 
             return un + "さんの最新ツイート" + c.ToString() + "件をエターナルフォースブリザードしました";
