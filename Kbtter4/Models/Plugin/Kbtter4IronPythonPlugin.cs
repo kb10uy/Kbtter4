@@ -17,8 +17,10 @@ namespace Kbtter4.Models.Plugin
     class Kbtter4IronPythonPlugin : Kbtter4Plugin
     {
         ScriptScope scope;
-        public Kbtter4IronPythonPlugin(ScriptScope code)
+        Kbtter ins;
+        public Kbtter4IronPythonPlugin(ScriptScope code,Kbtter k)
         {
+            ins = k;
             this.scope = code;
         }
 
@@ -32,20 +34,6 @@ namespace Kbtter4.Models.Plugin
             }
         }
 
-        string cn = null;
-        public override string CommandName
-        {
-            get
-            {
-                if (cn == null)
-                {
-                    var t = scope.TryGetVariable("CommandName", out cn);
-                    if (!t) cn = "";
-                }
-                return cn;
-            }
-        }
-
         public override void Dispose()
         {
             try
@@ -56,7 +44,11 @@ namespace Kbtter4.Models.Plugin
                     a();
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void Initialize()
@@ -69,7 +61,11 @@ namespace Kbtter4.Models.Plugin
                     a();
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         Action<User> login;
@@ -84,7 +80,11 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (haslogin ?? false) login(user);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         Action<User> logout;
@@ -99,7 +99,10 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (haslogout ?? false) logout(user);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+            }
         }
 
         Action bstream;
@@ -114,7 +117,11 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (hasbstream ?? false) bstream();
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         Action fstream;
@@ -129,32 +136,10 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (hasfstream ?? false) fstream();
             }
-            catch { }
-        }
-
-        Func<IList<string>, string> cmd;
-        bool? hascmd;
-        public override string OnCommand(IList<string> args)
-        {
-            try
+            catch (Exception e)
             {
-                if (hascmd == null)
-                {
-                    hascmd = scope.TryGetVariable("OnCommand", out cmd);
-                }
-
-                if (hascmd ?? false)
-                {
-                    return cmd(args);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch
-            {
-                return null;
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
             }
         }
 
@@ -171,7 +156,11 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (hasdm ?? false) dm(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         Func<DirectMessageMessage, DirectMessageMessage> dmD;
@@ -193,8 +182,10 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
@@ -211,7 +202,11 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (hasev ?? false) ev(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         Func<EventMessage, EventMessage> evD;
@@ -233,36 +228,42 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
 
-        Action<IdMessage> id;
+        Action<DeleteMessage> id;
         bool? hasid;
-        public override void OnIdEvent(IdMessage mes)
+        public override void OnDelete(DeleteMessage mes)
         {
             try
             {
                 if (hasid == null)
                 {
-                    hasid = scope.TryGetVariable("OnIdEvent", out id);
+                    hasid = scope.TryGetVariable("OnDelete", out id);
                 }
                 if (hasid ?? false) id(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
-        Func<IdMessage, IdMessage> idD;
+        Func<DeleteMessage, DeleteMessage> idD;
         bool? hasidD;
-        public override IdMessage OnIdEventDestructive(IdMessage mes)
+        public override DeleteMessage OnDeleteDestructive(DeleteMessage mes)
         {
             try
             {
                 if (hasidD == null)
                 {
-                    hasidD = scope.TryGetVariable("OnIdEventDestructive", out idD);
+                    hasidD = scope.TryGetVariable("OnDeleteDestructive", out idD);
                 }
                 if (hasidD ?? false)
                 {
@@ -273,8 +274,10 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
@@ -291,7 +294,11 @@ namespace Kbtter4.Models.Plugin
                 }
                 if (hasst ?? false) st(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         Func<StatusMessage, StatusMessage> stD;
@@ -313,8 +320,10 @@ namespace Kbtter4.Models.Plugin
                     return null;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
@@ -356,7 +365,7 @@ namespace Kbtter4.Models.Plugin
                     var src = engine.CreateScriptSourceFromFile(i);
                     var code = src.Compile();
                     code.Execute(scope);
-                    var p = new Kbtter4IronPythonPlugin(scope);
+                    var p = new Kbtter4IronPythonPlugin(scope,instance);
                     ret.Add(p);
                 }
                 catch (Exception e)

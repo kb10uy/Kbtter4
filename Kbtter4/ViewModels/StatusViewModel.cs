@@ -15,6 +15,7 @@ using Livet.Messaging.Windows;
 
 using Kbtter4.Models;
 using Kbtter4.Ayaya;
+using Kbtter4.Models.Plugin;
 using CoreTweet;
 
 namespace Kbtter4.ViewModels
@@ -25,6 +26,9 @@ namespace Kbtter4.ViewModels
         public Status SourceStatus { get; private set; }
 
         public Status ReceivedStatus { get; private set; }
+
+        
+
         private long rtid = 0;
 
         public Kbtter Kbtter;
@@ -38,6 +42,10 @@ namespace Kbtter4.ViewModels
         public StatusViewModel(MainWindowViewModel mw, Status st, bool isinc)
         {
             Kbtter = Kbtter.Instance;
+            AdditionalMenus = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.StatusMenus,
+                p => new StatusAdditionalMenuViewModel(p, st),
+                DispatcherHelper.UIDispatcher);
             main = mw;
             SourceStatus = st;
             OnelineText = st.Text;
@@ -48,7 +56,10 @@ namespace Kbtter4.ViewModels
         {
             Kbtter = Kbtter.Instance;
             main = mw;
-
+            AdditionalMenus = ViewModelHelper.CreateReadOnlyDispatcherCollection(
+                Kbtter.StatusMenus,
+                p => new StatusAdditionalMenuViewModel(p, st),
+                DispatcherHelper.UIDispatcher);
             RegisterEventListeners();
 
             SourceStatus = st;
@@ -804,6 +815,25 @@ namespace Kbtter4.ViewModels
 
         #endregion
 
+
+        #region AdditionalMenus変更通知プロパティ
+        private ReadOnlyDispatcherCollection<StatusAdditionalMenuViewModel> _AdditionalMenus;
+
+        public ReadOnlyDispatcherCollection<StatusAdditionalMenuViewModel> AdditionalMenus
+        {
+            get
+            { return _AdditionalMenus; }
+            set
+            { 
+                if (_AdditionalMenus == value)
+                    return;
+                _AdditionalMenus = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
     }
 
     public sealed class StatusTextElement
@@ -823,6 +853,70 @@ namespace Kbtter4.ViewModels
         Media,
         User,
         Hashtag,
+    }
+
+    public sealed class StatusAdditionalMenuViewModel : ViewModel
+    {
+
+        Action<Status> act;
+        Predicate<Status> pred;
+        Status src;
+
+        #region Text変更通知プロパティ
+        private string _Text;
+
+        public string Text
+        {
+            get
+            { return _Text; }
+            set
+            { 
+                if (_Text == value)
+                    return;
+                _Text = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ExecuteCommand
+        private ViewModelCommand _ExecuteCommand;
+
+        public ViewModelCommand ExecuteCommand
+        {
+            get
+            {
+                if (_ExecuteCommand == null)
+                {
+                    _ExecuteCommand = new ViewModelCommand(Execute, CanExecute);
+                }
+                return _ExecuteCommand;
+            }
+        }
+
+        public bool CanExecute()
+        {
+            return pred(src);
+        }
+
+        public void Execute()
+        {
+            act(src);
+            ExecuteCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
+
+        public StatusAdditionalMenuViewModel(Kbtter4PluginStatusMenu sm, Status s)
+        {
+            src = s;
+            act = sm.Action;
+            pred = sm.Predicate;
+            Text = sm.Text;
+            ExecuteCommand.RaiseCanExecuteChanged();
+        }
+
     }
 
 }

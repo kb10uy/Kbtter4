@@ -12,7 +12,6 @@ namespace Kbtter4.Models.Plugin
     public abstract class Kbtter4Plugin : IDisposable
     {
         public abstract string Name { get; }
-        public abstract string CommandName { get; }
 
         public abstract void Initialize();
         public abstract void Dispose();
@@ -22,15 +21,13 @@ namespace Kbtter4.Models.Plugin
         public abstract void OnStartStreaming();
         public abstract void OnStopStreaming();
 
-        public abstract string OnCommand(IList<string> args);
-
         public abstract void OnStatus(StatusMessage mes);
         public abstract void OnEvent(EventMessage mes);
-        public abstract void OnIdEvent(IdMessage mes);
+        public abstract void OnDelete(DeleteMessage mes);
         public abstract void OnDirectMessage(DirectMessageMessage mes);
         public abstract StatusMessage OnStatusDestructive(StatusMessage mes);
         public abstract EventMessage OnEventDestructive(EventMessage mes);
-        public abstract IdMessage OnIdEventDestructive(IdMessage mes);
+        public abstract DeleteMessage OnDeleteDestructive(DeleteMessage mes);
         public abstract DirectMessageMessage OnDirectMessageDestructive(DirectMessageMessage mes);
 
     }
@@ -51,6 +48,7 @@ namespace Kbtter4.Models.Plugin
 
         public Kbtter Instance { get; private set; }
 
+        #region データ保存関係
         public void SaveString(string key, string value)
         {
             Instance.PluginData[key] = value;
@@ -60,7 +58,10 @@ namespace Kbtter4.Models.Plugin
         {
             return Instance.PluginData.ContainsKey(key) ? Instance.PluginData[key] : "";
         }
+        #endregion
 
+
+        #region コマンド追加
         public void AddCommand(Kbtter4Command cmd)
         {
             Instance.CommandManager.AddCommand(cmd);
@@ -89,16 +90,81 @@ namespace Kbtter4.Models.Plugin
             }
             return ret;
         }
+        #endregion
 
-        public IDictionary<string, object> CreateParameter()
+
+        #region メニュー追加
+
+        public void AddStatusMenu(string text, Action<Status> action)
         {
-            return new Dictionary<string, object>();
+            Instance.StatusMenus.Add(new Kbtter4PluginStatusMenu(text, action, null));
         }
 
-        public void Tweet(IDictionary<string, object> prms)
+        public void AddStatusMenu(string text, Action<Status> action, Predicate<Status> pred)
         {
-            Instance.Token.Statuses.UpdateAsync(prms);
+            Instance.StatusMenus.Add(new Kbtter4PluginStatusMenu(text, action, pred));
         }
+
+        #endregion
+
+
+        #region 簡単
+
+        public void UpdateStatus(string text)
+        {
+            Instance.Token.Statuses.UpdateAsync(status => text);
+        }
+
+        public void Reply(string text, long id)
+        {
+            Instance.Token.Statuses.UpdateAsync(status => text, in_reply_to_status_id => id);
+        }
+
+        public void Favorite(long sid)
+        {
+            Instance.Token.Favorites.CreateAsync(id => sid);
+        }
+
+        public void Unfavorite(long sid)
+        {
+            Instance.Token.Favorites.DestroyAsync(id => sid);
+        }
+
+        public void Retweet(long sid)
+        {
+            Instance.Token.Statuses.RetweetAsync(id => sid);
+        }
+
+        public void DeleteStatus(long sid)
+        {
+            Instance.Token.Statuses.DestroyAsync(id => sid);
+        }
+
+        #endregion
+
+
+        public void Notify(string text)
+        {
+            Instance.NotifyToView(text);
+        }
+
 
     }
+
+    public sealed class Kbtter4PluginStatusMenu
+    {
+        public string Text { get; set; }
+
+        public Action<Status> Action { get; set; }
+
+        public Predicate<Status> Predicate { get; set; }
+
+        public Kbtter4PluginStatusMenu(string t, Action<Status> a, Predicate<Status> p)
+        {
+            Text = t;
+            Action = a;
+            Predicate = p != null ? p : (Predicate<Status>)(q => true);
+        }
+    }
+
 }

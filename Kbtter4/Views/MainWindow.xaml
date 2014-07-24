@@ -788,7 +788,27 @@
                     </TabItem>
                     <TabItem Header="プラグイン">
                         <Grid>
-                            <ListBox ItemsSource="{Binding View.Plugins}" ItemTemplate="{StaticResource PluginTemplate}"/>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <ListBox ItemsSource="{Binding View.Plugins}" Margin="4" ItemTemplate="{StaticResource PluginTemplate}"
+                                     SelectedItem="{Binding View.SelectedPlugin}"/>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="4">選択中のプラグインを呼出</TextBlock>
+                                <Button Margin="4" IsEnabled="{Binding View.PluginCallable}" Command="{Binding View.SelectedPlugin.CallInitializeCommand}"
+                                        ToolTip="Initialize関数を呼び出します。">Initialize</Button>
+                                <Button Margin="4" IsEnabled="{Binding View.PluginCallable}" Command="{Binding View.SelectedPlugin.CallDisposeCommand}"
+                                        ToolTip="Dispose関数を呼び出します。">Dispose</Button>
+                                <Button Margin="4" IsEnabled="{Binding View.PluginCallable}" Command="{Binding View.SelectedPlugin.CallOnLoginCommand}"
+                                        ToolTip="現在のユーザーでOnLogin関数を呼び出します。">OnLogin</Button>
+                                <Button Margin="4" IsEnabled="{Binding View.PluginCallable}" Command="{Binding View.SelectedPlugin.CallOnLogoutCommand}"
+                                        ToolTip="現在のユーザーでOnLogout関数を呼び出します。">OnLogout</Button>
+                                <Button Margin="4" IsEnabled="{Binding View.PluginCallable}" Command="{Binding View.SelectedPlugin.CallStartStreamingCommand}"
+                                        ToolTip="OnStartStreaming関数を呼び出します。">OnStartStreaming</Button>
+                                <Button Margin="4" IsEnabled="{Binding View.PluginCallable}" Command="{Binding View.SelectedPlugin.CallStopStreamingCommand}"
+                                        ToolTip="OnStopStreaming関数を呼び出します。">OnStopStreaming</Button>
+                            </StackPanel>
                         </Grid>
                     </TabItem>
 

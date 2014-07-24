@@ -13,8 +13,10 @@ namespace Kbtter4.Models.Plugin
     class Kbtter4LuaPlugin : Kbtter4Plugin
     {
         Lua lua;
-        public Kbtter4LuaPlugin(Lua l)
+        Kbtter ins;
+        public Kbtter4LuaPlugin(Lua l,Kbtter k)
         {
+            ins = k;
             lua = l;
         }
 
@@ -26,11 +28,6 @@ namespace Kbtter4.Models.Plugin
             }
         }
 
-        public override string CommandName
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         public override void Initialize()
         {
             try
@@ -38,7 +35,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["Initialize"] as Action;
                 if (f != null) f();
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void Dispose()
@@ -48,7 +49,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["Dispose"] as Action;
                 if (f != null) f();
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnLogin(User user)
@@ -58,7 +63,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnLogin"] as Action<User>;
                 if (f != null) f(user);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnLogout(User user)
@@ -68,7 +77,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnLogout"] as Action<User>;
                 if (f != null) f(user);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnStartStreaming()
@@ -78,7 +91,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnStartStreaming"] as Action;
                 if (f != null) f();
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnStopStreaming()
@@ -88,12 +105,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnStopStreaming"] as Action;
                 if (f != null) f();
             }
-            catch { }
-        }
-
-        public override string OnCommand(IList<string> args)
-        {
-            throw new NotImplementedException();
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnStatus(StatusMessage mes)
@@ -103,7 +119,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnStatus"] as Action<StatusMessage>;
                 if (f != null) f(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnEvent(EventMessage mes)
@@ -113,17 +133,25 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnEvent"] as Action<EventMessage>;
                 if (f != null) f(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
-        public override void OnIdEvent(IdMessage mes)
+        public override void OnDelete(DeleteMessage mes)
         {
             try
             {
-                var f = lua["OnIdEvent"] as Action<IdMessage>;
+                var f = lua["OnDelete"] as Action<DeleteMessage>;
                 if (f != null) f(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override void OnDirectMessage(DirectMessageMessage mes)
@@ -133,7 +161,11 @@ namespace Kbtter4.Models.Plugin
                 var f = lua["OnDirectMessage"] as Action<DirectMessageMessage>;
                 if (f != null) f(mes);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
+            }
         }
 
         public override StatusMessage OnStatusDestructive(StatusMessage mes)
@@ -150,8 +182,10 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
@@ -170,17 +204,19 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
 
-        public override IdMessage OnIdEventDestructive(IdMessage mes)
+        public override DeleteMessage OnDeleteDestructive(DeleteMessage mes)
         {
             try
             {
-                var f = lua["OnIdEventDestructive"] as Func<IdMessage, IdMessage>;
+                var f = lua["OnDeleteDestructive"] as Func<DeleteMessage, DeleteMessage>;
                 if (f != null)
                 {
                     return f(mes);
@@ -190,8 +226,10 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
@@ -210,8 +248,10 @@ namespace Kbtter4.Models.Plugin
                     return mes;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ins.LogError("プラグイン " + Name + "でエラーが発生しました : " + e.Message);
+                ins.SaveLog();
                 return mes;
             }
         }
@@ -237,7 +277,7 @@ namespace Kbtter4.Models.Plugin
                     l.LoadCLRPackage();
                     l["Kbtter4"] = new Kbtter4PluginProvider(instance);
                     l.DoFile(i);
-                    list.Add(new Kbtter4LuaPlugin(l));
+                    list.Add(new Kbtter4LuaPlugin(l,instance));
                 }
                 catch (Exception e)
                 {

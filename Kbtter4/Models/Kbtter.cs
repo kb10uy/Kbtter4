@@ -98,6 +98,7 @@ namespace Kbtter4.Models
         public ObservableSynchronizedCollection<Kbtter4Plugin> GlobalPlugins { get; private set; }
         public IList<Kbtter4PluginLoader> PluginLoaders { get; private set; }
         public IDictionary<string, string> PluginData { get; private set; }
+        public ObservableSynchronizedCollection<Kbtter4PluginStatusMenu> StatusMenus { get; private set; }
 
         public Kbtter4CommandManager CommandManager { get; private set; }
 
@@ -129,6 +130,7 @@ namespace Kbtter4.Models
             GlobalPlugins = new ObservableSynchronizedCollection<Kbtter4Plugin>();
             PluginLoaders = new List<Kbtter4PluginLoader>();
             PluginData = new Dictionary<string, string>();
+            StatusMenus = new ObservableSynchronizedCollection<Kbtter4PluginStatusMenu>();
             PluginMonitoringToken = new object();
 
             GlobalMuteQuery = new Kbtter3Query("false");
@@ -243,7 +245,7 @@ namespace Kbtter4.Models
                                 break;
                             case MessageType.DeleteStatus:
                             case MessageType.DeleteDirectMessage:
-                                Kbtter_OnId(this, new Kbtter4MessageReceivedEventArgs<IdMessage>(p as IdMessage));
+                                Kbtter_OnId(this, new Kbtter4MessageReceivedEventArgs<DeleteMessage>(p as DeleteMessage));
                                 break;
                             case MessageType.Disconnect:
                                 LogInformation("Disconnected");
@@ -418,17 +420,17 @@ namespace Kbtter4.Models
             Parallel.ForEach(GlobalPlugins, p => p.OnDirectMessage(dm.DeepCopy()));
         }
 
-        private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<IdMessage> e)
+        private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<DeleteMessage> e)
         {
             var mes = e.Message;
-            foreach (var i in GlobalPlugins) mes = i.OnIdEventDestructive(mes.DeepCopy()) ?? mes;
+            foreach (var i in GlobalPlugins) mes = i.OnDeleteDestructive(mes.DeepCopy()) ?? mes;
 
             switch (mes.Type)
             {
                 case MessageType.DeleteStatus:
                     if (AuthenticatedUserCache.Retweets().Where(p => p.Id == mes.Id).Count() != 0)
                     {
-                        AuthenticatedUserCache.RemoveRetweet(mes.Id ?? 0);
+                        AuthenticatedUserCache.RemoveRetweet(mes.Id);
                         RaisePropertyChanged("Retweets");
                     }
 
@@ -451,7 +453,7 @@ namespace Kbtter4.Models
                     break;
             }
 
-            Parallel.ForEach(GlobalPlugins, p => p.OnIdEvent(mes.DeepCopy()));
+            Parallel.ForEach(GlobalPlugins, p => p.OnDelete(mes.DeepCopy()));
         }
         #endregion
 
@@ -678,7 +680,7 @@ namespace Kbtter4.Models
         }
         #endregion
 
-        private void NotifyToView(string text)
+        public void NotifyToView(string text)
         {
             NotifyText = text;
         }

@@ -40,7 +40,7 @@
     <ApplicationIcon>Resources\Kbtter4_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoreTweet, Version=0.3.3.30509, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CoreTweet, Version=0.3.4.31406, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libraries\CoreTweet.dll</HintPath>
     </Reference>

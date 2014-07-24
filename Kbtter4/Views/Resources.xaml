@@ -219,6 +219,15 @@
                             </MenuItem.Header>
                         </MenuItem>
                     </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="プラグイン" ItemsSource="{Binding AdditionalMenus}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding Text}"/>
+                                <Setter Property="Command" Value="{Binding ExecuteCommand}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
                 </ContextMenu>
             </Grid.ContextMenu>
 

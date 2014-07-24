@@ -736,7 +736,7 @@ namespace Kbtter4.ViewModels
             Task.Run(() =>
             {
                 var str = uri.ToString();
-                if (str.IndexOf("shindanmaker.com/") != -1)
+                if (str.IndexOf("shindanmaker.com/") != -1 && SettingInstance.ExternalService.ShindanMakerDirectly)
                 {
                     var ids = str.Split('/').Last();
                     CommandText = "shindanmaker id=>" + ids;
@@ -754,7 +754,7 @@ namespace Kbtter4.ViewModels
         {
             Task.Run(() =>
             {
-                if (f.IndexOf("shindanmaker.com/") != -1)
+                if (f.IndexOf("shindanmaker.com/") != -1 && SettingInstance.ExternalService.ShindanMakerDirectly)
                 {
                     var ids = f.Split('/').Last();
                     CommandText = "shindanmaker id=>" + ids;
@@ -1084,7 +1084,7 @@ namespace Kbtter4.ViewModels
             get
             { return _HeadlineUserImage; }
             set
-            { 
+            {
                 if (_HeadlineUserImage == value)
                     return;
                 _HeadlineUserImage = value;
@@ -1108,6 +1108,35 @@ namespace Kbtter4.ViewModels
                 _UserDefinitionTimelines = value;
                 RaisePropertyChanged();
             }
+        }
+        #endregion
+
+
+        #region SelectedPlugin変更通知プロパティ
+        private PluginViewModel _SelectedPlugin;
+
+        public PluginViewModel SelectedPlugin
+        {
+            get
+            { return _SelectedPlugin; }
+            set
+            {
+                if (_SelectedPlugin == value)
+                    return;
+                _SelectedPlugin = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(() => PluginCallable);
+            }
+        }
+        #endregion
+
+
+        #region PluginCallable変更通知プロパティ
+
+        public bool PluginCallable
+        {
+            get
+            { return SelectedPlugin != null; }
         }
         #endregion
 

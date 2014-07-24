@@ -229,12 +229,44 @@
             <param name="value">The value.</param>
             <param name="serializer">The calling serializer.</param>
         </member>
+        <member name="T:CoreTweet.Core.TimestampConverter">
+            <summary>
+            Provides the <see cref="T:System.DateTimeOffset"/> converter of the <see cref="T:Newtonsoft.Json.JsonSerializer"/>.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Core.TimestampConverter.CanConvert(System.Type)">
+            <summary>
+            Returns whether this converter can convert the object to the specified type.
+            </summary>
+            <param name="objectType">A <see cref="T:System.Type"/> that represents the type you want to convert to.</param>
+            <returns>
+            <c>true</c> if this converter can perform the conversion; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Core.TimestampConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Reads the JSON representation of the object.
+            </summary>
+            <param name="reader">The <see cref="T:Newtonsoft.Json.JsonReader"/> to read from.</param>
+            <param name="objectType">The <see cref="T:System.Type"/> of the object.</param>
+            <param name="existingValue">The existing value of object being read.</param>
+            <param name="serializer">The calling serializer.</param>
+            <returns>The object value.</returns>
+        </member>
+        <member name="M:CoreTweet.Core.TimestampConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Writes the JSON representation of the object.
+            </summary>
+            <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter"/> to write to.</param>
+            <param name="value">The value.</param>
+            <param name="serializer">The calling serializer.</param>
+        </member>
         <member name="T:CoreTweet.Core.CoreBase">
             <summary>
             Represents a Twitter object. This is an <c>abstract</c> class.
             </summary>
         </member>
-        <member name="M:CoreTweet.Core.CoreBase.Convert``1(CoreTweet.Core.TokensBase,System.String,System.String)">
+        <member name="M:CoreTweet.Core.CoreBase.Convert``1(System.String,System.String)">
             <summary>
             Converts the JSON to a twitter object of the specified type.
             </summary>
@@ -242,13 +274,12 @@
             <para>This method is used internally in CoreTweet.</para>
             <para>You can use this method for debugging.</para>
             </remarks>
-            <param name="tokens">The OAuth tokens.</param>
             <param name="json">The json message.</param>
             <param name="jsonPath">JSONPath of object to be deserialize.</param>
             <typeparam name="T">The type of a twitter object.</typeparam>
             <returns>The twitter object.</returns>
         </member>
-        <member name="M:CoreTweet.Core.CoreBase.ConvertArray``1(CoreTweet.Core.TokensBase,System.String,System.String)">
+        <member name="M:CoreTweet.Core.CoreBase.ConvertArray``1(System.String,System.String)">
             <summary>
             <para>Converts the json to a twitter object of the specified type.</para>
             <para>This is used for APIs that return an array.</para>
@@ -257,7 +288,6 @@
             <para>This method is used internally in CoreTweet.</para>
             <para>You can use this method for debugging.</para>
             </remarks>
-            <param name="tokens">OAuth tokens.</param>
             <param name="json">The json message.</param>
             <param name="jsonPath">JSONPath of object to be deserialize.</param>
             <typeparam name="T">The type of a twitter object.</typeparam>
@@ -806,6 +836,18 @@
             Gets or sets the previous cursor.
             </summary>
         </member>
+        <member name="P:CoreTweet.Cursored`1.Item(System.Int32)">
+            <summary>
+            Gets the element at the specified index.
+            </summary>
+            <param name="index">The zero-based index of the element to get or set.</param>
+            <returns>The element at the specified index.</returns>
+        </member>
+        <member name="P:CoreTweet.Cursored`1.Count">
+            <summary>
+            Gets the number of elements actually contained in the <see cref="T:CoreTweet.Cursored`1"/>.
+            </summary>
+        </member>
         <member name="P:CoreTweet.Cursored`1.RateLimit">
             <summary>
             Gets or sets the rate limit of the response.
@@ -978,6 +1020,12 @@
             Gets or sets the wrapped URL, corresponding to the value embedded directly into the raw Tweet text, and the values for the indices parameter.
             </summary>
         </member>
+        <member name="M:CoreTweet.MediaEntity.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
+        </member>
         <member name="P:CoreTweet.MediaEntity.Id">
             <summary>
             Gets or sets the ID of the media expressed as a 64-bit integer.
@@ -1061,6 +1109,12 @@
             Represents a mention object that contains the user information.
             </summary>
         </member>
+        <member name="M:CoreTweet.UserMentionEntity.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
+        </member>
         <member name="P:CoreTweet.UserMentionEntity.Id">
             <summary>
             Gets or sets the ID of the mentioned user.
@@ -1104,12 +1158,37 @@
         </member>
         <member name="F:CoreTweet.ErrorCode.PageDoesNotExist">
             <summary>
-            Corresponds with a HTTP 404 - The specified resource was not found.
+            The specified resource was not found.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.NotAuthorizedToUseThisEndpoint">
+            <summary>
+            Undocumented: The client is not authorized to use this endpoint.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.ParameterIsMissing">
+            <summary>
+            Undocumented: The required parameter is missing.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.YouCannotBlockYourself">
+            <summary>
+            Undocumented: The user can't block the user itself.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.UserHasBeenSuspended">
+            <summary>
+            Undocumented: The user has been suspended.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.AccountIsSuspended">
             <summary>
-            Corresponds with a HTTP 403 - The user is suspended (as well as its access token) and could not complete the request.
+            The user is suspended (as well as its access token) and could not complete the request.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.BackEndServiceIsUnavailable">
+            <summary>
+            Undocumented: The back end service is unavailable.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.RestApiV1IsNoLongerActive">
@@ -1132,24 +1211,39 @@
             Only SSL connections are allowed in specified request.
             </summary>
         </member>
+        <member name="F:CoreTweet.ErrorCode.NotAllowedToAccessOrDeleteDirectMessages">
+            <summary>
+            Undocumented: The client is not allowed to access or delete direct messages.
+            </summary>
+        </member>
         <member name="F:CoreTweet.ErrorCode.UnableToVerifyCredentials">
             <summary>
             Undocumented: Credentials in the request is invalid (thrown on application-only authentication).
             </summary>
         </member>
+        <member name="F:CoreTweet.ErrorCode.CannotFindSpecifiedUser">
+            <summary>
+            Undocumented: Cannot find specified user.
+            </summary>
+        </member>
         <member name="F:CoreTweet.ErrorCode.OverCapacity">
             <summary>
-            Corresponds with a HTTP 503 - Twitter is temporarily over capacity.
+            Twitter is temporarily over capacity.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.InternalError">
             <summary>
-            Corresponds with a HTTP 500 - An unknown internal occurred while Twitter trying to serve the request.
+            An unknown internal occurred while Twitter trying to serve the request.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.CouldNotAuthenticate_TimestampIsInvalid">
             <summary>
-            Corresponds with a HTTP 401 - The oauth_timestamp of the request is either ahead or behind its acceptable range.
+            The oauth_timestamp of the request is either ahead or behind its acceptable range.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.BlockedFromOperatingStatus">
+            <summary>
+            Undocumented: The authenticating user has been blocked from favoriting or retweeting this user's tweets.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.AlreadyFavorited">
@@ -1157,14 +1251,29 @@
             Undocumented: The authenticating user have already favorited specified status.
             </summary>
         </member>
+        <member name="F:CoreTweet.ErrorCode.CannotFavoriteTweetsOfProtectedUsersYouAreNotFollowing">
+            <summary>
+            Undocumented: The authenticating user cannot favorite the protected user s/he doesn't follow.
+            </summary>
+        </member>
         <member name="F:CoreTweet.ErrorCode.CannotSendDirectMessagesToUsersNotFollowingMe">
             <summary>
-            Undocumented: The authenticating user cannot send a direct message to a user not following the authenticating user.
+            Undocumented: The authenticating user cannot send a direct message to a user not following him/her.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.CannotSendLongDirectMessages">
             <summary>
-            Undocumented: The direct message is too long to send.
+            Undocumented: The direct message is too long to send or blank.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.YouCannotFollowYourself">
+            <summary>
+            Undocumented: The authenticating user cannot follow the user itself.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.ThisAccountHasBeenSuspended">
+            <summary>
+            Undocumented: This account has been suspended.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.AlreadyFollowRequested">
@@ -1174,22 +1283,37 @@
         </member>
         <member name="F:CoreTweet.ErrorCode.UnableToFollowMorePeople">
             <summary>
-            Corresponds with a HTTP 403 - The follow request could not be completed due to some kind of limit.
+            The follow request could not be completed due to some kind of limit.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.BlockedFromFollowingUser">
+            <summary>
+            Undocumented: The authenticating user is blocked from following the user.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CouldNotFindStatus">
+            <summary>
+            Undocumented: The status is not found.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.NotAuthorizedToSeeStatus">
             <summary>
-            Corresponds with a HTTP 403 - The requested Tweet cannot be viewed by the authenticating user.
+            The requested Tweet cannot be viewed by the authenticating user.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.CannotDeleteOtherUsersStatus">
             <summary>
-            Undocumented: Can't delete other users' status.
+            Undocumented: The authenticating user cannot delete other users' status.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.OverStatusUpdateLimit">
             <summary>
-            Corresponds with a HTTP 403 - The authenticating user reached some kind of status update limit.
+            The authenticating user reached some kind of status update limit.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.OverCharactersLimit">
+            <summary>
+            Undocumented: The status is too long to send.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.StatusIsDuplicate">
@@ -1197,9 +1321,44 @@
             The status text have been Tweeted already by the authenticated user.
             </summary>
         </member>
+        <member name="F:CoreTweet.ErrorCode.StatusContainsMalware">
+            <summary>
+            Undocumented: The status might contain the URL to a malware.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.ErrorCreatingStatus">
+            <summary>
+            Undocumented: Cannot create status.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.StatusCreationFailed">
+            <summary>
+            Undocumented: Cannot create status.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.OverDailyPhotoLimit">
+            <summary>
+            Undocumented: The authenticating user reached some kind of photo update limit.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.MediaIsTooLarge">
+            <summary>
+            Undocumented: One or more of the uploaded media is too large.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.BadRequest">
+            <summary>
+            Undocumented: Bad request.
+            </summary>
+        </member>
         <member name="F:CoreTweet.ErrorCode.BadAuthenticationData">
             <summary>
             Authentication data of the request was invalid or missing.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.ErrorCode.CredentialsDoNotAllowAccessToThisResource">
+            <summary>
+            Undocumented: The client is not allowed to access this resource.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.DetectedAutomatedAction">
@@ -1219,17 +1378,17 @@
         </member>
         <member name="F:CoreTweet.ErrorCode.CannotPerformWriteActions">
             <summary>
-            Corresponds with a HTTP 403 - The application is restricted from performing write-related actions.
+            The application is restricted from performing write-related actions.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.CannotMuteMyself">
             <summary>
-            Corresponds with a HTTP 403 - The authenticated used cannot mute itself.
+            The authenticated used cannot mute the user itself.
             </summary>
         </member>
         <member name="F:CoreTweet.ErrorCode.NotMutingSpecifiedUser">
             <summary>
-            Corresponds with a HTTP 403 - The unmute request could not be completed because the authenticating user is not muting the specified user.
+            The unmute request could not be completed because the authenticating user is not muting the specified user.
             </summary>
         </member>
         <member name="T:CoreTweet.Configurations">
@@ -1308,6 +1467,12 @@
             Represents the Twitter Terms of Service.
             </summary>
         </member>
+        <member name="M:CoreTweet.StringResponse.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
+        </member>
         <member name="P:CoreTweet.StringResponse.Value">
             <summary>
             Gets or sets the value of response.
@@ -1327,6 +1492,12 @@
             <summary>
             Represents a collections of tweets, culled from a curated list of Twitter users.
             </summary>
+        </member>
+        <member name="M:CoreTweet.List.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
         </member>
         <member name="P:CoreTweet.List.Slug">
             <summary>
@@ -1450,6 +1621,12 @@
             <para>Places can be searched for.</para>
             <para>Tweets can also be found by place_id.</para>
             </summary>
+        </member>
+        <member name="M:CoreTweet.Place.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
         </member>
         <member name="P:CoreTweet.Place.Attributes">
             <summary>
@@ -1659,6 +1836,12 @@
             Represents a location.
             </summary>
         </member>
+        <member name="M:CoreTweet.Location.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
+        </member>
         <member name="P:CoreTweet.Location.Name">
             <summary>
             Gets or sets the name of the location.
@@ -1691,7 +1874,7 @@
         </member>
         <member name="T:CoreTweet.TrendLocation">
             <summary>
-            Represents a location
+            Represents a location.
             </summary>
         </member>
         <member name="P:CoreTweet.TrendLocation.Country">
@@ -1704,9 +1887,34 @@
             Gets or sets the country code of the location.
             </summary>
         </member>
+        <member name="P:CoreTweet.TrendLocation.ParentId">
+            <summary>
+            Gets or sets the WOEID of the parent location.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.TrendLocation.PlaceType">
+            <summary>
+            Gets or sets the WOEID type of the location.
+            </summary>
+        </member>
         <member name="P:CoreTweet.TrendLocation.Url">
             <summary>
             Gets or sets the URL of Yahoo! GeoPlanet API.
+            </summary>
+        </member>
+        <member name="T:CoreTweet.PlaceType">
+            <summary>
+            Represents a WOEID type of a location.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.PlaceType.Code">
+            <summary>
+            Gets or sets the WOEID of the location.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.PlaceType.Name">
+            <summary>
+            Gets or sets the WOEID name of the location.
             </summary>
         </member>
         <member name="T:CoreTweet.RateLimit">
@@ -1733,6 +1941,12 @@
             <summary>
             Represents a saved search query used in the Twitter Search API.
             </summary>
+        </member>
+        <member name="M:CoreTweet.SearchQuery.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
         </member>
         <member name="P:CoreTweet.SearchQuery.CreatedAt">
             <summary>
@@ -1890,6 +2104,12 @@
             <para>Users tweet Tweets, also known more generically as "status updates."</para>
             <para>Tweets can be embedded, replied to, favorited, unfavorited and deleted.</para>
             </summary>
+        </member>
+        <member name="M:CoreTweet.Status.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
         </member>
         <member name="P:CoreTweet.Status.Id">
             <summary>
@@ -2068,6 +2288,12 @@
             <para>Represents the contributors, a collection of brief user objects (usually only one) indicating users who contributed to the authorship of the tweet, on behalf of the official tweet author.</para>
             </summary>
         </member>
+        <member name="M:CoreTweet.Contributors.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
+        </member>
         <member name="P:CoreTweet.Contributors.Id">
             <summary>
             Gets or sets the integer representation of the ID of the user who contributed to the Tweet.
@@ -2115,6 +2341,12 @@
             <summary>
             Represents a direct message.
             </summary>
+        </member>
+        <member name="M:CoreTweet.DirectMessage.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
         </member>
         <member name="P:CoreTweet.DirectMessage.Id">
             <summary>
@@ -2231,6 +2463,12 @@
             Represents the result of the uploaded media.
             </summary>
         </member>
+        <member name="M:CoreTweet.MediaUploadResult.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
+        </member>
         <member name="P:CoreTweet.MediaUploadResult.Image">
             <summary>
             Gets or sets the data of the media.
@@ -2280,6 +2518,12 @@
             <summary>
             Represents a user.
             </summary>
+        </member>
+        <member name="M:CoreTweet.User.ToString">
+            <summary>
+            Returns the ID of this instance.
+            </summary>
+            <returns>The ID of this instance.</returns>
         </member>
         <member name="P:CoreTweet.User.IsContributorsEnabled">
             <summary>
@@ -3215,13 +3459,13 @@
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com as an asynchronous operation.</para>
             <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
             <para>Available parameters:</para>
-            <para><c>string</c> profile_background_color (optional)</para>
-            <para><c>string</c> profile_link_color (optional)</para>
-            <para><c>string</c> profile_sidebar_border_color (optional)</para>
-            <para><c>string</c> profile_sidebar_fill_color (optional)</para>
-            <para><c>string</c> profile_text_color (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> profile_background_color (optional)</para>
+            <para>- <c>string</c> profile_link_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_border_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_fill_color (optional)</para>
+            <para>- <c>string</c> profile_text_color (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -3234,13 +3478,13 @@
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com as an asynchronous operation.</para>
             <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
             <para>Available parameters:</para>
-            <para><c>string</c> profile_background_color (optional)</para>
-            <para><c>string</c> profile_link_color (optional)</para>
-            <para><c>string</c> profile_sidebar_border_color (optional)</para>
-            <para><c>string</c> profile_sidebar_fill_color (optional)</para>
-            <para><c>string</c> profile_text_color (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> profile_background_color (optional)</para>
+            <para>- <c>string</c> profile_link_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_border_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_fill_color (optional)</para>
+            <para>- <c>string</c> profile_text_color (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3254,13 +3498,13 @@
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
             <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
             <para>Available parameters:</para>
-            <para><c>string</c> profile_background_color (optional)</para>
-            <para><c>string</c> profile_link_color (optional)</para>
-            <para><c>string</c> profile_sidebar_border_color (optional)</para>
-            <para><c>string</c> profile_sidebar_fill_color (optional)</para>
-            <para><c>string</c> profile_text_color (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> profile_background_color (optional)</para>
+            <para>- <c>string</c> profile_link_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_border_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_fill_color (optional)</para>
+            <para>- <c>string</c> profile_text_color (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3591,13 +3835,13 @@
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
             <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
             <para>Available parameters:</para>
-            <para><c>string</c> profile_background_color (optional)</para>
-            <para><c>string</c> profile_link_color (optional)</para>
-            <para><c>string</c> profile_sidebar_border_color (optional)</para>
-            <para><c>string</c> profile_sidebar_fill_color (optional)</para>
-            <para><c>string</c> profile_text_color (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> profile_background_color (optional)</para>
+            <para>- <c>string</c> profile_link_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_border_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_fill_color (optional)</para>
+            <para>- <c>string</c> profile_text_color (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -3607,13 +3851,13 @@
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
             <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
             <para>Available parameters:</para>
-            <para><c>string</c> profile_background_color (optional)</para>
-            <para><c>string</c> profile_link_color (optional)</para>
-            <para><c>string</c> profile_sidebar_border_color (optional)</para>
-            <para><c>string</c> profile_sidebar_fill_color (optional)</para>
-            <para><c>string</c> profile_text_color (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> profile_background_color (optional)</para>
+            <para>- <c>string</c> profile_link_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_border_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_fill_color (optional)</para>
+            <para>- <c>string</c> profile_text_color (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -3623,13 +3867,13 @@
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
             <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
             <para>Available parameters:</para>
-            <para><c>string</c> profile_background_color (optional)</para>
-            <para><c>string</c> profile_link_color (optional)</para>
-            <para><c>string</c> profile_sidebar_border_color (optional)</para>
-            <para><c>string</c> profile_sidebar_fill_color (optional)</para>
-            <para><c>string</c> profile_text_color (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> profile_background_color (optional)</para>
+            <para>- <c>string</c> profile_link_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_border_color (optional)</para>
+            <para>- <c>string</c> profile_sidebar_fill_color (optional)</para>
+            <para>- <c>string</c> profile_text_color (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -3685,7 +3929,7 @@
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -3697,7 +3941,7 @@
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3710,7 +3954,7 @@
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3723,9 +3967,9 @@
             <summary>
             <para>Returns a collection of user objects that the authenticating user is blocking as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -3737,9 +3981,9 @@
             <summary>
             <para>Returns a collection of user objects that the authenticating user is blocking as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3752,9 +3996,9 @@
             <summary>
             <para>Returns a collection of user objects that the authenticating user is blocking as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3770,10 +4014,10 @@
             <para>If a follow or friend relationship exists it is destroyed.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -3788,10 +4032,10 @@
             <para>If a follow or friend relationship exists it is destroyed.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3807,10 +4051,10 @@
             <para>If a follow or friend relationship exists it is destroyed.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3826,10 +4070,10 @@
             <para>If relationships existed before the block was instated, they will not be restored.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -3844,10 +4088,10 @@
             <para>If relationships existed before the block was instated, they will not be restored.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3863,10 +4107,10 @@
             <para>If relationships existed before the block was instated, they will not be restored.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -3879,7 +4123,7 @@
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>IDs.</returns>
@@ -3888,7 +4132,7 @@
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>IDs.</returns>
@@ -3897,7 +4141,7 @@
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>IDs.</returns>
@@ -3906,7 +4150,7 @@
             <summary>
             <para>Enumerates numeric user ids the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
@@ -3916,7 +4160,7 @@
             <summary>
             <para>Enumerates numeric user ids the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
@@ -3926,7 +4170,7 @@
             <summary>
             <para>Enumerates numeric user ids the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
@@ -3936,9 +4180,9 @@
             <summary>
             <para>Returns a collection of user objects that the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The users.</returns>
@@ -3947,9 +4191,9 @@
             <summary>
             <para>Returns a collection of user objects that the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The users.</returns>
@@ -3958,9 +4202,9 @@
             <summary>
             <para>Returns a collection of user objects that the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The users.</returns>
@@ -3969,9 +4213,9 @@
             <summary>
             <para>Enumerates numeric user objects the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
@@ -3981,9 +4225,9 @@
             <summary>
             <para>Enumerates numeric user objects the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
@@ -3993,9 +4237,9 @@
             <summary>
             <para>Enumerates numeric user objects the authenticating user is blocking.</para>
             <para>Available parameters:</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
@@ -4008,10 +4252,10 @@
             <para>If a follow or friend relationship exists it is destroyed.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -4023,10 +4267,10 @@
             <para>If a follow or friend relationship exists it is destroyed.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -4038,10 +4282,10 @@
             <para>If a follow or friend relationship exists it is destroyed.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -4053,10 +4297,10 @@
             <para>If relationships existed before the block was instated, they will not be restored.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -4068,10 +4312,10 @@
             <para>If relationships existed before the block was instated, they will not be restored.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -4083,10 +4327,10 @@
             <para>If relationships existed before the block was instated, they will not be restored.</para>
             <para>Note: Either screen_name or user_id must be provided.</para>
             <para>Available parameters:</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
-            <para><c>bool</c> skip_status (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
+            <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
@@ -4103,11 +4347,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 incoming DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -4122,11 +4366,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 incoming DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4142,11 +4386,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 incoming DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4162,11 +4406,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -4181,11 +4425,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4201,11 +4445,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4220,7 +4464,7 @@
             <para>Like the /1.1/direct_messages.format request, this method will include the user objects of the sender and recipient.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
+            <para>- <c>long</c> id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -4234,7 +4478,7 @@
             <para>Like the /1.1/direct_messages.format request, this method will include the user objects of the sender and recipient.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
+            <para>- <c>long</c> id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4249,7 +4493,7 @@
             <para>Like the /1.1/direct_messages.format request, this method will include the user objects of the sender and recipient.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
+            <para>- <c>long</c> id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4266,9 +4510,9 @@
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Note: Either user_id or screen_name is required.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>string</c> text (required)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>string</c> text (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -4284,9 +4528,9 @@
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Note: Either user_id or screen_name is required.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>string</c> text (required)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>string</c> text (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4303,9 +4547,9 @@
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Note: Either user_id or screen_name is required.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>string</c> text (required)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>string</c> text (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4320,8 +4564,8 @@
             <para>The authenticating user must be the recipient of the specified direct message.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> id (required)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -4335,8 +4579,8 @@
             <para>The authenticating user must be the recipient of the specified direct message.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> id (required)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4351,8 +4595,8 @@
             <para>The authenticating user must be the recipient of the specified direct message.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> id (required)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -4368,11 +4612,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 incoming DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct messages.</returns>
@@ -4384,11 +4628,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 incoming DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct messages.</returns>
@@ -4400,11 +4644,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 incoming DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct messages.</returns>
@@ -4416,11 +4660,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct messages.</returns>
@@ -4432,11 +4676,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct messages.</returns>
@@ -4448,11 +4692,11 @@
             <para>You can request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> since_id (optional)</para>
-            <para><c>long</c> max_id (optional)</para>
-            <para><c>int</c> count (optional)</para>
-            <para><c>int</c> page (optional)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>int</c> page (optional)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct messages.</returns>
@@ -4463,7 +4707,7 @@
             <para>Like the /1.1/direct_messages.format request, this method will include the user objects of the sender and recipient.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
+            <para>- <c>long</c> id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct message.</returns>
@@ -4474,7 +4718,7 @@
             <para>Like the /1.1/direct_messages.format request, this method will include the user objects of the sender and recipient.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
+            <para>- <c>long</c> id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct message.</returns>
@@ -4485,7 +4729,7 @@
             <para>Like the /1.1/direct_messages.format request, this method will include the user objects of the sender and recipient.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
+            <para>- <c>long</c> id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct message.</returns>
@@ -4498,9 +4742,9 @@
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Note: Either user_id or screen_name is required.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>string</c> text (required)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>string</c> text (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The sent direct message.</returns>
@@ -4513,9 +4757,9 @@
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Note: Either user_id or screen_name is required.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>string</c> text (required)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>string</c> text (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The sent direct message.</returns>
@@ -4528,9 +4772,9 @@
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Note: Either user_id or screen_name is required.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> user_id (optional)</para>
-            <para><c>string</c> screen_name (optional)</para>
-            <para><c>string</c> text (required)</para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> screen_name (optional)</para>
+            <para>- <c>string</c> text (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The sent direct message.</returns>
@@ -4541,8 +4785,8 @@
             <para>The authenticating user must be the recipient of the specified direct message.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> id (required)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct message.</returns>
@@ -4553,8 +4797,8 @@
             <para>The authenticating user must be the recipient of the specified direct message.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> id (required)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct message.</returns>
@@ -4565,8 +4809,8 @@
             <para>The authenticating user must be the recipient of the specified direct message.</para>
             <para>This method requires an access token with RWD (read, write and direct message) permissions.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> id (required)</para>
-            <para><c>bool</c> include_entities (optional)</para>
+            <para>- <c>long</c> id (required)</para>
+            <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The direct message.</returns>
@@ -4583,8 +4827,8 @@
             <para>- <c>long</c> id (optional)</para>
             <para>- <c>string</c> screen_name (optonal)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id (optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
@@ -4600,8 +4844,8 @@
             <para>- <c>long</c> id (optional)</para>
             <para>- <c>string</c> screen_name (optonal)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id (optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
@@ -4618,8 +4862,8 @@
             <para>- <c>long</c> id (optional)</para>
             <para>- <c>string</c> screen_name (optonal)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id (optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
@@ -4730,8 +4974,8 @@
             <para>- <c>long</c> id (optional)</para>
             <para>- <c>string</c> screen_name (optonal)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id (optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
@@ -4744,8 +4988,8 @@
             <para>- <c>long</c> id (optional)</para>
             <para>- <c>string</c> screen_name (optonal)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id (optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
@@ -4758,8 +5002,8 @@
             <para>- <c>long</c> id (optional)</para>
             <para>- <c>string</c> screen_name (optonal)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id (optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id (optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
@@ -5517,7 +5761,7 @@
             <summary>
             <para>Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -5529,7 +5773,7 @@
             <summary>
             <para>Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -5542,7 +5786,7 @@
             <summary>
             <para>Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user as an asynchronous operation.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -5873,7 +6117,7 @@
             <summary>
             <para>Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The Ids.</returns>
@@ -5882,7 +6126,7 @@
             <summary>
             <para>Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The Ids.</returns>
@@ -5891,7 +6135,7 @@
             <summary>
             <para>Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user.</para>
             <para>Available parameters:</para>
-            <para><c>long</c> cursor (semi-optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The Ids.</returns>
@@ -6190,7 +6434,7 @@
             <summary>
             <para>Returns all the information about a known place as an asynchronous operation.</para>
             <para>Available parameters: </para>
-            <para><c>string</c> place_id (required)</para>
+            <para>- <c>string</c> place_id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>
@@ -6202,7 +6446,7 @@
             <summary>
             <para>Returns all the information about a known place as an asynchronous operation.</para>
             <para>Available parameters: </para>
-            <para><c>string</c> place_id (required)</para>
+            <para>- <c>string</c> place_id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -6215,7 +6459,7 @@
             <summary>
             <para>Returns all the information about a known place as an asynchronous operation.</para>
             <para>Available parameters: </para>
-            <para><c>string</c> place_id (required)</para>
+            <para>- <c>string</c> place_id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <param name="cancellationToken">The cancellation token.</param>
@@ -6417,7 +6661,7 @@
             <summary>
             <para>Returns all the information about a known place.</para>
             <para>Available parameters: </para>
-            <para><c>string</c> place_id (required)</para>
+            <para>- <c>string</c> place_id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The geo.</returns>
@@ -6426,7 +6670,7 @@
             <summary>
             <para>Returns all the information about a known place.</para>
             <para>Available parameters: </para>
-            <para><c>string</c> place_id (required)</para>
+            <para>- <c>string</c> place_id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The geo.</returns>
@@ -6435,7 +6679,7 @@
             <summary>
             <para>Returns all the information about a known place.</para>
             <para>Available parameters: </para>
-            <para><c>string</c> place_id (required)</para>
+            <para>- <c>string</c> place_id (required)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The geo.</returns>
@@ -9743,8 +9987,8 @@
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -9762,8 +10006,8 @@
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -9782,8 +10026,8 @@
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -9803,11 +10047,11 @@
             <para>This method can only return up to 3,200 of a user's most recent Tweets.</para>
             <para>Native retweets of other statuses by the user is included in this total, regardless of whether include_rts is set to false when requesting this resource.</para>
             <para>Available parameters: </para>
-            <para>- <c>int</c> user_id (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>string</c> screen_name (optional)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_rts (optional)</para>
@@ -9827,11 +10071,11 @@
             <para>This method can only return up to 3,200 of a user's most recent Tweets.</para>
             <para>Native retweets of other statuses by the user is included in this total, regardless of whether include_rts is set to false when requesting this resource.</para>
             <para>Available parameters: </para>
-            <para>- <c>int</c> user_id (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>string</c> screen_name (optional)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_rts (optional)</para>
@@ -9852,11 +10096,11 @@
             <para>This method can only return up to 3,200 of a user's most recent Tweets.</para>
             <para>Native retweets of other statuses by the user is included in this total, regardless of whether include_rts is set to false when requesting this resource.</para>
             <para>Available parameters: </para>
-            <para>- <c>int</c> user_id (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>string</c> screen_name (optional)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_rts (optional)</para>
@@ -9877,8 +10121,8 @@
             <para>It is more volatile for users that follow many users or follow users who tweet frequently.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -9898,8 +10142,8 @@
             <para>It is more volatile for users that follow many users or follow users who tweet frequently.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -9920,8 +10164,8 @@
             <para>It is more volatile for users that follow many users or follow users who tweet frequently.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -9940,8 +10184,8 @@
             <para>This timeline is a subset of the user's GET statuses/user_timeline.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> include_user_entities (optional)</para>
@@ -9958,8 +10202,8 @@
             <para>This timeline is a subset of the user's GET statuses/user_timeline.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> include_user_entities (optional)</para>
@@ -9977,8 +10221,8 @@
             <para>This timeline is a subset of the user's GET statuses/user_timeline.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> include_user_entities (optional)</para>
@@ -10489,8 +10733,8 @@
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -10505,8 +10749,8 @@
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -10521,8 +10765,8 @@
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -10538,11 +10782,11 @@
             <para>This method can only return up to 3,200 of a user's most recent Tweets.</para>
             <para>Native retweets of other statuses by the user is included in this total, regardless of whether include_rts is set to false when requesting this resource.</para>
             <para>Available parameters: </para>
-            <para>- <c>int</c> user_id (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>string</c> screen_name (optional)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_rts (optional)</para>
@@ -10559,11 +10803,11 @@
             <para>This method can only return up to 3,200 of a user's most recent Tweets.</para>
             <para>Native retweets of other statuses by the user is included in this total, regardless of whether include_rts is set to false when requesting this resource.</para>
             <para>Available parameters: </para>
-            <para>- <c>int</c> user_id (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>string</c> screen_name (optional)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_rts (optional)</para>
@@ -10580,11 +10824,11 @@
             <para>This method can only return up to 3,200 of a user's most recent Tweets.</para>
             <para>Native retweets of other statuses by the user is included in this total, regardless of whether include_rts is set to false when requesting this resource.</para>
             <para>Available parameters: </para>
-            <para>- <c>int</c> user_id (optional)</para>
+            <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>string</c> screen_name (optional)</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_rts (optional)</para>
@@ -10601,8 +10845,8 @@
             <para>It is more volatile for users that follow many users or follow users who tweet frequently.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -10619,8 +10863,8 @@
             <para>It is more volatile for users that follow many users or follow users who tweet frequently.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -10637,8 +10881,8 @@
             <para>It is more volatile for users that follow many users or follow users who tweet frequently.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> contributor_details (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
@@ -10653,8 +10897,8 @@
             <para>This timeline is a subset of the user's GET statuses/user_timeline.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> include_user_entities (optional)</para>
@@ -10668,8 +10912,8 @@
             <para>This timeline is a subset of the user's GET statuses/user_timeline.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> include_user_entities (optional)</para>
@@ -10683,8 +10927,8 @@
             <para>This timeline is a subset of the user's GET statuses/user_timeline.</para>
             <para>Available parameters:</para>
             <para>- <c>int</c> count (optional)</para>
-            <para>- <c>int</c> since_id(optional)</para>
-            <para>- <c>int</c> max_id (optional)</para>
+            <para>- <c>long</c> since_id(optional)</para>
+            <para>- <c>long</c> max_id (optional)</para>
             <para>- <c>bool</c> trim_user (optional)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> include_user_entities (optional)</para>
@@ -12437,6 +12681,16 @@
             The user updates a List.
             </summary>
         </member>
+        <member name="F:CoreTweet.Streaming.EventCode.Mute">
+            <summary>
+            The user mutes a user.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.Streaming.EventCode.Unmute">
+            <summary>
+            The user unmutes a user.
+            </summary>
+        </member>
         <member name="T:CoreTweet.Streaming.MessageType">
             <summary>
             Provides message types in Twitter Streaming API.
@@ -12525,15 +12779,49 @@
             Represents a streaming message. This class is an abstract class.
             </summary>
         </member>
+        <member name="M:CoreTweet.Streaming.StreamingMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
+        <member name="M:CoreTweet.Streaming.StreamingMessage.Parse(System.String)">
+            <summary>
+            Converts the JSON to a <see cref="T:CoreTweet.Streaming.StreamingMessage"/> object.
+            </summary>
+            <param name="x">The JSON value.</param>
+            <returns>The <see cref="T:CoreTweet.Streaming.StreamingMessage"/> object.</returns>
+        </member>
         <member name="P:CoreTweet.Streaming.StreamingMessage.Type">
             <summary>
             Gets the type of the message.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Streaming.StreamingMessage.Json">
+            <summary>
+            Gets or sets the raw JSON.
+            </summary>
+        </member>
+        <member name="T:CoreTweet.Streaming.TimestampMessage">
+            <summary>
+            Represents a streaming message containing a timestamp.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Streaming.TimestampMessage.Timestamp">
+            <summary>
+            Gets or sets the timestamp.
             </summary>
         </member>
         <member name="T:CoreTweet.Streaming.StatusMessage">
             <summary>
             Represents a status message.
             </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.StatusMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
         </member>
         <member name="P:CoreTweet.Streaming.StatusMessage.Status">
             <summary>
@@ -12545,6 +12833,12 @@
             Represents a Direct message message.
             </summary>
         </member>
+        <member name="M:CoreTweet.Streaming.DirectMessageMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
         <member name="P:CoreTweet.Streaming.DirectMessageMessage.DirectMessage">
             <summary>
             The direct message.
@@ -12555,6 +12849,12 @@
             <summary>
             Represents a message contains ids of friends.
             </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.FriendsMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
         </member>
         <member name="M:CoreTweet.Streaming.FriendsMessage.GetEnumerator">
             <summary>
@@ -12572,40 +12872,106 @@
             Represents the message with the rate limit.
             </summary>
         </member>
+        <member name="M:CoreTweet.Streaming.LimitMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
         <member name="P:CoreTweet.Streaming.LimitMessage.Track">
             <summary>
             Gets or sets a total count of the number of undelivered Tweets since the connection was opened.
             </summary>
         </member>
-        <member name="T:CoreTweet.Streaming.IdMessage">
+        <member name="T:CoreTweet.Streaming.DeleteMessage">
             <summary>
-            Represents a message contains ids.
+            Represents a delete message of statuses and direct messages.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.Id">
+        <member name="M:CoreTweet.Streaming.DeleteMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
+        <member name="P:CoreTweet.Streaming.DeleteMessage.Id">
             <summary>
             Gets or sets the ID.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.UserId">
+        <member name="P:CoreTweet.Streaming.DeleteMessage.UserId">
             <summary>
             Gets or sets the ID of the user.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.UpToStatusId">
+        <member name="T:CoreTweet.Streaming.ScrubGeoMessage">
+            <summary>
+            Represents a scrub-get message.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.ScrubGeoMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
+        <member name="P:CoreTweet.Streaming.ScrubGeoMessage.UserId">
+            <summary>
+            Gets or sets the ID of the user.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Streaming.ScrubGeoMessage.UpToStatusId">
             <summary>
             Gets or sets the ID of the status.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.WithheldInCountries">
+        <member name="T:CoreTweet.Streaming.WithheldMessage">
+            <summary>
+            Represents a withheld message.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.WithheldMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
+        <member name="P:CoreTweet.Streaming.WithheldMessage.Id">
+            <summary>
+            Gets or sets the ID.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Streaming.WithheldMessage.WithheldInCountries">
             <summary>
             Gets or sets the withhelds in countries.
+            </summary>
+        </member>
+        <member name="T:CoreTweet.Streaming.StatusWithheldMessage">
+            <summary>
+            Represents a withheld message.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.StatusWithheldMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
+        <member name="P:CoreTweet.Streaming.StatusWithheldMessage.UserId">
+            <summary>
+            Gets or sets the ID of the user.
             </summary>
         </member>
         <member name="T:CoreTweet.Streaming.DisconnectMessage">
             <summary>
             Represents the message published when Twitter disconnects the stream.
             </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.DisconnectMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
         </member>
         <member name="P:CoreTweet.Streaming.DisconnectMessage.Code">
             <summary>
@@ -12626,6 +12992,12 @@
             <summary>
             Represents a warning message.
             </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.WarningMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
         </member>
         <member name="P:CoreTweet.Streaming.WarningMessage.Code">
             <summary>
@@ -12672,6 +13044,12 @@
             Represents an event message.
             </summary>
         </member>
+        <member name="M:CoreTweet.Streaming.EventMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
         <member name="P:CoreTweet.Streaming.EventMessage.Target">
             <summary>
             Gets or sets the target user.
@@ -12712,6 +13090,12 @@
             Provides an envelopes message.
             </summary>
         </member>
+        <member name="M:CoreTweet.Streaming.EnvelopesMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
         <member name="P:CoreTweet.Streaming.EnvelopesMessage.ForUser">
             <summary>
             Gets or sets the ID of the user.
@@ -12727,6 +13111,12 @@
             Represents a control message.
             </summary>
         </member>
+        <member name="M:CoreTweet.Streaming.ControlMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
         <member name="P:CoreTweet.Streaming.ControlMessage.ControlUri">
             <summary>
             Gets or sets the URI.
@@ -12737,10 +13127,11 @@
             Represents a raw JSON message.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.RawJsonMessage.Json">
+        <member name="M:CoreTweet.Streaming.RawJsonMessage.GetMessageType">
             <summary>
-            Gets or sets the raw JSON.
+            Gets the type of the message.
             </summary>
+            <returns>The type of the message.</returns>
         </member>
         <member name="T:CoreTweet.Streaming.StreamingType">
             <summary>
