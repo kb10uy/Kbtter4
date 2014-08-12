@@ -16,7 +16,7 @@ namespace Kbtter4.Updater
             Console.WriteLine("Kbtter4 アップデーター");
             try
             {
-                var u=File.ReadAllLines(".\\config\\updateinfo.txt");
+                var u=File.ReadAllLines(".\\update.txt");
                 Console.WriteLine("--------------------------------");
                 Console.WriteLine("{0} 更新情報",u[1]);
                 foreach (var i in u.Skip(3))
@@ -35,7 +35,7 @@ namespace Kbtter4.Updater
                 Console.WriteLine("完了しました!");
                 Console.WriteLine("Enterキーで終了しKbtter4を再起動します");
                 Console.ReadLine();
-                Process.Start(".\\Kbtter4.exe");
+                Process.Start("..\\Kbtter4.exe");
             }
             catch
             {

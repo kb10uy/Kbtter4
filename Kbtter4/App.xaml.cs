@@ -29,7 +29,7 @@ namespace Kbtter4
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             try
             {
-                if (await CheckUpdate())
+                if (CheckUpdate())
                 {
 
                     DownloadExtractUpdateFile(File.ReadAllLines("update.txt")[2]);
@@ -60,21 +60,21 @@ namespace Kbtter4
 
         #region アップデータ
 
-        public async Task<bool> CheckUpdate()
+        public bool CheckUpdate()
         {
             var nowv = Convert.ToInt32(File.ReadAllLines("update.txt")[0]);
-            if (!await GetUpdateInformationFile()) return false;
+            if (!GetUpdateInformationFile()) return false;
             var newv = Convert.ToInt32(File.ReadAllLines("update.txt")[0]);
             return newv > nowv;
         }
 
-        public async Task<bool> GetUpdateInformationFile()
+        public bool GetUpdateInformationFile()
         {
             using (var wc = new WebClient())
             {
                 try
                 {
-                    await wc.DownloadFileTaskAsync(RemoteUpdateInformationFileAddress, "update.txt");
+                    wc.DownloadFile(RemoteUpdateInformationFileAddress, "update.txt");
                 }
                 catch (Exception)
                 {
