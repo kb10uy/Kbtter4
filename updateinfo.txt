@@ -1,4 +1,4 @@
-14
+15
 Release 4.1.3
 https://github.com/kb10uy/Kbtter4/releases/download/v4.1.3/Kbtter4.1.3.zip
 ・タイムラインのパフォーマンスを改善しました。
