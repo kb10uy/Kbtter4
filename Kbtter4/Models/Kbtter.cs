@@ -7,7 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Reflection;
+using System.Diagnostics;
 using System.Net;
+using System.IO.Compression;
 using System.Threading.Tasks;
 
 using CoreTweet;
@@ -48,7 +50,9 @@ namespace Kbtter4.Models
 
         public static readonly string LoggingFileName = "Kbtter4.log";
         public static readonly string ConfigurationFileName = ConfigurationFolderName + "/config.json";
+        public static readonly string UpdateInformationFileName = ConfigurationFolderName + "/updateinfo.txt";
         public static readonly string PluginLocalDataFileName = ConfigurationFolderName + "/plugindata.json";
+        public static readonly string RemoteUpdateInformationFileAddress = "http://github.com/kb10uy/Kbtter4/raw/master/updateinfo.txt";
 
         private static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
         //private static readonly string CacheUserImageFileNameSuffix = "-icon.png";
@@ -63,6 +67,7 @@ namespace Kbtter4.Models
         private IConnectableObservable<StreamingMessage> Streaming { get; set; }
 
         public StatusTimeline HomeStatusTimeline { get; private set; }
+        public object HomeStatusTimelineMonitoringToken { get; set; }
         public NotificationTimeline HomeNotificationTimeline { get; private set; }
         public ObservableSynchronizedCollection<StatusTimeline> StatusTimelines { get; private set; }
         public ObservableSynchronizedCollection<NotificationTimeline> NotificationTimelines { get; private set; }
@@ -117,6 +122,7 @@ namespace Kbtter4.Models
             Accounts = new ObservableSynchronizedCollection<Kbtter4Account>();
             LoadSetting();
             HomeStatusTimeline = new StatusTimeline(Setting, "true");
+            HomeStatusTimelineMonitoringToken = new object();
             HomeNotificationTimeline = new NotificationTimeline(Setting, "true");
             DirectMessageTimelines = new ObservableSynchronizedCollection<DirectMessageTimeline>();
             StatusTimelines = new ObservableSynchronizedCollection<StatusTimeline>();
@@ -330,7 +336,7 @@ namespace Kbtter4.Models
 
             foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s;
 
-            HomeStatusTimeline.TryAddStatus(s.Status);
+            lock (HomeStatusTimelineMonitoringToken) HomeStatusTimeline.TryAddStatus(s.Status);
             foreach (var tl in StatusTimelines)
             {
                 tl.TryAddStatus(s.Status);
@@ -598,10 +604,12 @@ namespace Kbtter4.Models
         private async void InitializeHomeStatusTimeline()
         {
             var tws = await Token.Statuses.HomeTimelineAsync(count => Setting.Timelines.HomeStatusTimelineInitialRead);
-
-            foreach (var i in tws.Reverse())
+            lock (HomeStatusTimelineMonitoringToken)
             {
-                Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(new StatusMessage { Status = i }));
+                foreach (var i in tws.Reverse())
+                {
+                    Kbtter_OnStatus(this, new Kbtter4MessageReceivedEventArgs<StatusMessage>(new StatusMessage { Status = i }));
+                }
             }
         }
 
@@ -730,6 +738,8 @@ namespace Kbtter4.Models
         #endregion
 
         #endregion
+
+        
 
         #region プラグイン
 

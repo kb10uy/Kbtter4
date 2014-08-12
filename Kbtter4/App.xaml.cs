@@ -7,6 +7,10 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using System.IO;
+using System.IO.Compression;
+using System.Net;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 using Livet;
 
@@ -17,11 +21,26 @@ namespace Kbtter4
     /// </summary>
     public partial class App : Application
     {
+        public static readonly string RemoteUpdateInformationFileAddress = "http://github.com/kb10uy/Kbtter4/raw/master/updateinfo.txt";
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        private async void Application_Startup(object sender, StartupEventArgs e)
         {
             DispatcherHelper.UIDispatcher = Dispatcher;
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            try
+            {
+                if (await CheckUpdate())
+                {
+
+                    DownloadExtractUpdateFile(File.ReadAllLines("update.txt")[2]);
+                    Current.Shutdown();
+
+                }
+            }
+            catch
+            {
+                return;
+            }
         }
 
         //集約エラーハンドラ
@@ -39,6 +58,51 @@ namespace Kbtter4
             Environment.Exit(1);
         }
 
+        #region アップデータ
+
+        public async Task<bool> CheckUpdate()
+        {
+            var nowv = Convert.ToInt32(File.ReadAllLines("update.txt")[0]);
+            if (!await GetUpdateInformationFile()) return false;
+            var newv = Convert.ToInt32(File.ReadAllLines("update.txt")[0]);
+            return newv > nowv;
+        }
+
+        public async Task<bool> GetUpdateInformationFile()
+        {
+            using (var wc = new WebClient())
+            {
+                try
+                {
+                    await wc.DownloadFileTaskAsync(RemoteUpdateInformationFileAddress, "update.txt");
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        public void DownloadExtractUpdateFile(string ad)
+        {
+            using (var wc = new WebClient())
+            {
+                try
+                {
+                    if (Directory.Exists("update")) Directory.Delete("update", true);
+                    wc.DownloadFile(ad, "update.zip");
+                    ZipFile.ExtractToDirectory("update.zip", "update");
+                    Process.Start("update/Kbtter4.Updater.exe");
+                }
+                catch
+                {
+                    return;
+                }
+            }
+        }
+
+        #endregion
 
     }
 
