@@ -23,24 +23,10 @@ namespace Kbtter4
     {
         public static readonly string RemoteUpdateInformationFileAddress = "http://github.com/kb10uy/Kbtter4/raw/master/updateinfo.txt";
 
-        private async void Application_Startup(object sender, StartupEventArgs e)
+        private void Application_Startup(object sender, StartupEventArgs e)
         {
             DispatcherHelper.UIDispatcher = Dispatcher;
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            try
-            {
-                if (CheckUpdate())
-                {
-
-                    DownloadExtractUpdateFile(File.ReadAllLines("update.txt")[2]);
-                    Current.Shutdown();
-
-                }
-            }
-            catch
-            {
-                return;
-            }
         }
 
         //集約エラーハンドラ
@@ -57,53 +43,6 @@ namespace Kbtter4
             ex.SaveJson("Excepion.txt");
             Environment.Exit(1);
         }
-
-        #region アップデータ
-
-        public bool CheckUpdate()
-        {
-            var nowv = Convert.ToInt32(File.ReadAllLines("update.txt")[0]);
-            if (!GetUpdateInformationFile()) return false;
-            var newv = Convert.ToInt32(File.ReadAllLines("update.txt")[0]);
-            return newv > nowv;
-        }
-
-        public bool GetUpdateInformationFile()
-        {
-            using (var wc = new WebClient())
-            {
-                try
-                {
-                    wc.DownloadFile(RemoteUpdateInformationFileAddress, "update.txt");
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-                return true;
-            }
-        }
-
-        public void DownloadExtractUpdateFile(string ad)
-        {
-            using (var wc = new WebClient())
-            {
-                try
-                {
-                    if (Directory.Exists("update")) Directory.Delete("update", true);
-                    wc.DownloadFile(ad, "update.zip");
-                    ZipFile.ExtractToDirectory("update.zip", "update");
-                    Process.Start("update/Kbtter4.Updater.exe");
-                }
-                catch
-                {
-                    return;
-                }
-            }
-        }
-
-        #endregion
-
     }
 
     internal static class Kbtter4Extension

@@ -657,7 +657,13 @@
                                 </StackPanel>
                             </StackPanel>
                             <TextBlock Grid.Row="1" MaxWidth="640" FontSize="18" Margin="4" TextAlignment="Left" HorizontalAlignment="Left"
-                                   Text="{Binding SelectedUser.Description}" TextWrapping="Wrap"/>
+                                   TextWrapping="Wrap" Text="{Binding SelectedUser.Description}">
+                                <!--
+                                <i:Interaction.Behaviors>
+                                    <v:TextBlockStatusTextBehavior TextElements="{Binding SelectedUser.DescriptionElements}"/>
+                                </i:Interaction.Behaviors>
+                                -->
+                            </TextBlock>
                             <StackPanel Grid.Row="2">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Margin="4" FontSize="16">場所</TextBlock>

@@ -65,6 +65,7 @@ TwitterのSNの昇順です。
 * [@orekyuu](https://twitter.com/orekyuu)
 * [@otack](https://twitter.com/otack)
 * [@paralleltree](https://twitter.com/paralleltree)
+* [@shibafu528](https://twitter.com/shibafu528)
 * [@sukirer](https://twitter.com/sukirer)
 * [@syuilo](https://twitter.com/syuilo)
 * [@taiki_hacker](https://twitter.com/taiki_hacker)

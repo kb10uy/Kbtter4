@@ -40,8 +40,109 @@ namespace Kbtter4.ViewModels
             Favorites = src.FavouritesCount;
             Friends = src.FriendsCount;
             Followers = src.FollowersCount;
+            //if (Description != null) AnalyzeDescription();
         }
+        /*
+        //UserStreamのStatus.UserにEntityがろくに含まれてないので凍結
+        public void AnalyzeDescription()
+        {
+            var l = new List<Tuple<int[], StatusTextElement>>();
 
+            if (src.Entities != null && src.Entities.Url != null)
+            {
+                if (src.Entities.Url.Urls != null)
+                    foreach (var i in src.Entities.Url.Urls)
+                    {
+                        //Text = Text.Replace(i.Url.ToString(), i.DisplayUrl.ToString());
+                        var e = new StatusTextElement();
+                        e.Original = i.Url.ToString();
+                        e.Action = main.View.OpenInDefault;
+                        e.Type = StatusTextElementType.Uri;
+                        e.Link = i.ExpandedUrl;
+                        e.Surface = i.DisplayUrl;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                if (src.Entities.Url.Media != null)
+                    foreach (var i in src.Entities.Url.Media)
+                    {
+                        //Text = Text.Replace(i.Url.ToString(), i.DisplayUrl.ToString());
+                        var e = new StatusTextElement();
+                        e.Original = i.Url.ToString();
+                        e.Action = main.View.OpenInDefault;
+                        e.Type = StatusTextElementType.Media;
+                        e.Link = i.ExpandedUrl;
+                        e.Surface = i.DisplayUrl;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                if (src.Entities.Url.UserMentions != null)
+                    foreach (var i in src.Entities.Url.UserMentions)
+                    {
+                        var e = new StatusTextElement();
+                        e.Action = async (p) =>
+                        {
+                            var user = await Kbtter.Token.Users.ShowAsync(id => i.Id);
+                            Kbtter.AddUserToUsersList(user);
+                            main.View.Notify(user.Name + "さんの情報");
+                            main.View.ChangeToUser();
+                        };
+                        e.Type = StatusTextElementType.User;
+                        e.Link = new Uri("https://twitter.com/" + i.ScreenName);
+                        e.Surface = "@" + i.ScreenName;
+                        e.Original = e.Surface;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                if (src.Entities.Url.HashTags != null)
+                    foreach (var i in src.Entities.Url.HashTags)
+                    {
+                        var e = new StatusTextElement();
+                        e.Action = (p) =>
+                        {
+                            main.View.ChangeToSearch();
+                            main.View.SearchText = "#" + i.Text;
+                            Kbtter.Search("#" + i.Text);
+                        };
+                        e.Type = StatusTextElementType.Hashtag;
+                        e.Link = new Uri("https://twitter.com/search?q=%23" + i.Text);
+                        e.Surface = "#" + i.Text;
+                        e.Original = e.Surface;
+                        l.Add(new Tuple<int[], StatusTextElement>(i.Indices, e));
+                    }
+
+                l.Sort((x, y) => x.Item1[0].CompareTo(y.Item1[0]));
+            }
+
+            int le = 0;
+            foreach (var i in l)
+            {
+                var el = i.Item1[1] - i.Item1[0];
+                var ntl = i.Item1[0] - le;
+                if (ntl != 0)
+                {
+                    var nt = Description.Substring(le, ntl);
+                    nt = nt
+                        .Replace("&lt;", "<")
+                        .Replace("&gt;", ">")
+                        .Replace("&amp;", "&");
+                    DescriptionElements.Add(new StatusTextElement { Surface = nt, Type = StatusTextElementType.None });
+                }
+                DescriptionElements.Add(i.Item2);
+                le = i.Item1[1];
+            }
+            //foreach (var i in l) Text = Text.Replace(i.Item2.Original, i.Item2.Surface);
+            if (Description.Length > le - 1)
+            {
+                var ls = Description.Substring(le);
+                ls = ls
+                        .Replace("&lt;", "<")
+                        .Replace("&gt;", ">")
+                        .Replace("&amp;", "&");
+                DescriptionElements.Add(new StatusTextElement { Surface = ls, Type = StatusTextElementType.None });
+            }
+        }
+        */
         public UserViewModel(User user, MainWindowViewModel mw, bool gfs)
             : this(user, mw)
         {
@@ -195,6 +296,24 @@ namespace Kbtter4.ViewModels
                 if (_Description == value)
                     return;
                 _Description = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region DescriptionElements変更通知プロパティ
+        private ObservableSynchronizedCollection<StatusTextElement> _DescriptionElements = new ObservableSynchronizedCollection<StatusTextElement>();
+
+        public ObservableSynchronizedCollection<StatusTextElement> DescriptionElements
+        {
+            get
+            { return _DescriptionElements; }
+            set
+            {
+                if (_DescriptionElements == value)
+                    return;
+                _DescriptionElements = value;
                 RaisePropertyChanged();
             }
         }
