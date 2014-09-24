@@ -133,29 +133,30 @@ namespace Kbtter4.Views
 
         private static async void RefreshImageSource(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-
-            using (var wc = new WebClient { CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.CacheIfAvailable) })
+            try
             {
-                try
-                {
-                    var ba = await wc.DownloadDataTaskAsync(e.NewValue as Uri);
-                    var bi = new BitmapImage();
-                    bi.BeginInit();
-                    bi.CacheOption = BitmapCacheOption.OnLoad;
-                    bi.CreateOptions = BitmapCreateOptions.None;
-                    bi.StreamSource = new MemoryStream(ba);
-                    bi.EndInit();
-                    bi.Freeze();
-                    await DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
-                    {
-                        (sender as ImageWebLazyBindBehavior).AssociatedObject.Source = bi;
-                    }));
+                byte[] ba;
+                using (var wc = new WebClient {
+                    CachePolicy = new System.Net.Cache.RequestCachePolicy(
+                        System.Net.Cache.RequestCacheLevel.CacheIfAvailable
+                        ) })
+                    ba = await wc.DownloadDataTaskAsync(e.NewValue as Uri);
 
-                }
-                catch
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.CreateOptions = BitmapCreateOptions.None;
+                bi.StreamSource = new MemoryStream(ba);
+                bi.EndInit();
+                bi.Freeze();
+                await DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
                 {
+                    (sender as ImageWebLazyBindBehavior).AssociatedObject.Source = bi;
+                }));
+            }
+            catch
+            {
 
-                }
             }
         }
     }

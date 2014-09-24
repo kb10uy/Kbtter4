@@ -261,7 +261,7 @@ namespace Kbtter4.Models
                                 break;
 
                         }
-                    }, TaskCreationOptions.PreferFairness)
+                    }, TaskCreationOptions.LongRunning)
                     .ContinueWith(t =>
                     {
                         if (t.Exception != null && !t.IsCanceled) RestartStreaming();
@@ -302,9 +302,9 @@ namespace Kbtter4.Models
         private void Kbtter_OnStatus(object sender, Kbtter4MessageReceivedEventArgs<StatusMessage> e)
         {
 
-            GlobalMuteQuery.ClearVariables();
-            GlobalMuteQuery.SetVariable("Status", e.Message.Status);
-            if (GlobalMuteQuery.Execute().AsBoolean()) return;
+            //GlobalMuteQuery.ClearVariables();
+            //GlobalMuteQuery.SetVariable("Status", e.Message.Status);
+            //if (GlobalMuteQuery.Execute().AsBoolean()) return;
 
             var s = e.Message;
 
@@ -334,7 +334,7 @@ namespace Kbtter4.Models
             var u = s.DeepCopy();
             if (u != null) UpdateUserInformation(u.Status.User);
 
-            foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s;
+            Task.Run(() => { foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s; });
 
             lock (HomeStatusTimelineMonitoringToken) HomeStatusTimeline.TryAddStatus(s.Status);
             foreach (var tl in StatusTimelines)
@@ -387,7 +387,7 @@ namespace Kbtter4.Models
 
 
 
-            foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s;
+            Task.Run(() => { foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s; });
 
             if (s.Source.Id != AuthenticatedUser.Id && s.Target.Id == AuthenticatedUser.Id)
             {
@@ -411,7 +411,7 @@ namespace Kbtter4.Models
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)
         {
             var dm = e.Message;
-            foreach (var i in GlobalPlugins) dm = i.OnDirectMessageDestructive(dm.DeepCopy()) ?? dm;
+            Task.Run(() => { foreach (var i in GlobalPlugins) dm = i.OnDirectMessageDestructive(dm.DeepCopy()) ?? dm; });
 
             UpdateUserInformation(dm.DirectMessage.Sender);
             UpdateUserInformation(dm.DirectMessage.Recipient);
@@ -429,7 +429,7 @@ namespace Kbtter4.Models
         private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<DeleteMessage> e)
         {
             var mes = e.Message;
-            foreach (var i in GlobalPlugins) mes = i.OnDeleteDestructive(mes.DeepCopy()) ?? mes;
+            Task.Run(() => { foreach (var i in GlobalPlugins) mes = i.OnDeleteDestructive(mes.DeepCopy()) ?? mes; });
 
             switch (mes.Type)
             {

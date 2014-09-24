@@ -530,6 +530,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
         <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/>
+        
     </Style>
 
     <Style x:Key="WrappingItemsControl" TargetType="{x:Type ItemsControl}">

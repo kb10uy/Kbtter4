@@ -552,7 +552,7 @@
                         <ListView Margin="4" 
                                   ItemsSource="{Binding ElementName=ListViewDirectMessageTimelines, Path=SelectedItem.DirectMessages,IsAsync=True}"
                                   ItemTemplate="{StaticResource DirectMessageTemplate}"
-                                  Style="{StaticResource VirtualizingListView}"/>
+                                  Style="{StaticResource SlidingListView}"/>
 
                         <Grid VerticalAlignment="Stretch" Grid.Row="1">
                             <Grid.ColumnDefinitions>
@@ -740,7 +740,7 @@
                     <ListView Margin="4" Grid.Column="1" ItemsSource="{Binding ElementName=ListViewUserTimelines,Path=SelectedItem.Statuses,IsAsync=True}" 
                               HorizontalContentAlignment="Stretch"
                               ItemTemplate="{StaticResource StatusTemplate}"
-                              IsSynchronizedWithCurrentItem="True" Style="{StaticResource VirtualizingListView}"/>
+                              IsSynchronizedWithCurrentItem="True" Style="{StaticResource SlidingListView}"/>
                 </Grid>
             </Grid>
             <!--
