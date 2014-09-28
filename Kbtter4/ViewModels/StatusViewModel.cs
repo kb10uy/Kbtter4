@@ -713,7 +713,6 @@ namespace Kbtter4.ViewModels
                 {
                     RaisePropertyChanged(() => CreatedTimeText);
                 });
-            CompositeDisposable.Add(listener);
             CompositeDisposable.Add(favl);
             CompositeDisposable.Add(unfavl);
             CompositeDisposable.Add(refl);
