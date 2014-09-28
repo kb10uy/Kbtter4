@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Net;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 using CoreTweet;
 using CoreTweet.Core;
@@ -113,6 +114,10 @@ namespace Kbtter4.Models
 
         public List<string> Logs { get; set; }
 
+        public event EventHandler<Kbtter4FavoriteEventArgs> OnFavorited;
+        public event EventHandler<Kbtter4FavoriteEventArgs> OnUnfavorited;
+        public event EventHandler ExtraInformationUpdate;
+
         #region コンストラクタ・デストラクタ
         private Kbtter()
         {
@@ -144,6 +149,10 @@ namespace Kbtter4.Models
             CommandManager = new Kbtter4CommandManager();
 
             Logs = new List<string>();
+
+            OnFavorited += (s, e) => { };
+            OnUnfavorited += (s, e) => { };
+            ExtraInformationUpdate += (s, e) => { };
         }
 
         /// <summary>
@@ -321,7 +330,8 @@ namespace Kbtter4.Models
                             OriginalId = s.Status.RetweetedStatus.Id,
                             ScreenName = s.Status.RetweetedStatus.User.ScreenName
                         });
-                    RaisePropertyChanged("Retweets");
+                    //RaisePropertyChanged("Retweets");
+                    ExtraInformationUpdate(this, null);
                 }
                 //自分のがRTされたかRTがRTされた
                 if (s.Status.RetweetedStatus.User.Id == AuthenticatedUser.Id ||
@@ -334,20 +344,21 @@ namespace Kbtter4.Models
             var u = s.DeepCopy();
             if (u != null) UpdateUserInformation(u.Status.User);
 
-            Task.Run(() => { foreach (var i in GlobalPlugins) s = i.OnStatusDestructive(s.DeepCopy()) ?? s; });
+            Parallel.ForEach(GlobalPlugins, i => s = i.OnStatusDestructive(s.DeepCopy()) ?? s);
 
             lock (HomeStatusTimelineMonitoringToken) HomeStatusTimeline.TryAddStatus(s.Status);
             foreach (var tl in StatusTimelines)
             {
                 tl.TryAddStatus(s.Status);
             }
-            RaisePropertyChanged("Statuses");
+            //RaisePropertyChanged("Statuses");
+            ExtraInformationUpdate(this, null);
             if (s.Status.Entities.UserMentions.Any(p => p.Id == AuthenticatedUser.Id) && s.Status.RetweetedStatus == null)
             {
                 UpdateHeadline("メンション : " + s.Status.Text.TrimLineFeeds(), s.Status.User.ProfileImageUrlHttps);
             }
 
-            Task.Run(() => { foreach (var i in GlobalPlugins) i.OnStatus(s.DeepCopy()); });
+            Task.Run(() => { Parallel.ForEach(GlobalPlugins, i => i.OnStatus(s.DeepCopy())); });
         }
 
         private void Kbtter_OnEvent(object sender, Kbtter4MessageReceivedEventArgs<EventMessage> e)
@@ -366,11 +377,15 @@ namespace Kbtter4.Models
                                 ScreenName = s.TargetStatus.User.ScreenName,
                                 CreatedDate = s.TargetStatus.CreatedAt.LocalDateTime
                             });
-                        RaisePropertyChanged("Favorites");
+                        //RaisePropertyChanged("Favorites");
+                        OnFavorited(this, new Kbtter4FavoriteEventArgs { Target = s.TargetStatus });
+                        ExtraInformationUpdate(this, null);
                         break;
                     case EventCode.Unfavorite:
                         AuthenticatedUserCache.RemoveFavorite(s.TargetStatus.Id);
-                        RaisePropertyChanged("Favorites");
+                        //RaisePropertyChanged("Favorites");
+                        OnUnfavorited(this, new Kbtter4FavoriteEventArgs { Target = s.TargetStatus });
+                        ExtraInformationUpdate(this, null);
                         break;
                 }
             }
@@ -387,7 +402,7 @@ namespace Kbtter4.Models
 
 
 
-            Task.Run(() => { foreach (var i in GlobalPlugins) s = i.OnEventDestructive(s.DeepCopy()) ?? s; });
+            Parallel.ForEach(GlobalPlugins, i => s = i.OnEventDestructive(s.DeepCopy()) ?? s);
 
             if (s.Source.Id != AuthenticatedUser.Id && s.Target.Id == AuthenticatedUser.Id)
             {
@@ -405,13 +420,13 @@ namespace Kbtter4.Models
                     tl.TryAddNotification(n);
                 }
             }
-            Task.Run(() => { foreach (var i in GlobalPlugins) i.OnEvent(s.DeepCopy()); });
+            Task.Run(() => { Parallel.ForEach(GlobalPlugins, i => i.OnEvent(s.DeepCopy())); });
         }
 
         private void Kbtter_OnDirectMessage(object sender, Kbtter4MessageReceivedEventArgs<DirectMessageMessage> e)
         {
             var dm = e.Message;
-            Task.Run(() => { foreach (var i in GlobalPlugins) dm = i.OnDirectMessageDestructive(dm.DeepCopy()) ?? dm; });
+            Parallel.ForEach(GlobalPlugins, i => dm = i.OnDirectMessageDestructive(dm.DeepCopy()) ?? dm);
 
             UpdateUserInformation(dm.DirectMessage.Sender);
             UpdateUserInformation(dm.DirectMessage.Recipient);
@@ -423,13 +438,13 @@ namespace Kbtter4.Models
             }
             DirectMessageTimelines.First(p => p.Party.Id == pu.Id).TryAddDirectMessage(dm.DirectMessage);
 
-            Task.Run(() => { foreach (var i in GlobalPlugins) i.OnDirectMessage(dm.DeepCopy()); });
+            Task.Run(() => { Parallel.ForEach(GlobalPlugins, i => i.OnDirectMessage(dm.DeepCopy())); });
         }
 
         private void Kbtter_OnId(object sender, Kbtter4MessageReceivedEventArgs<DeleteMessage> e)
         {
             var mes = e.Message;
-            Task.Run(() => { foreach (var i in GlobalPlugins) mes = i.OnDeleteDestructive(mes.DeepCopy()) ?? mes; });
+            Parallel.ForEach(GlobalPlugins, i => mes = i.OnDeleteDestructive(mes.DeepCopy()) ?? mes);
 
             switch (mes.Type)
             {
@@ -459,7 +474,7 @@ namespace Kbtter4.Models
                     break;
             }
 
-            Task.Run(() => { foreach (var i in GlobalPlugins) i.OnDelete(mes.DeepCopy()); });
+            Task.Run(() => { Parallel.ForEach(GlobalPlugins, i => i.OnDelete(mes.DeepCopy())); });
         }
         #endregion
 
@@ -941,7 +956,16 @@ namespace Kbtter4.Models
         #endregion
     }
 
+    public sealed class Kbtter4FavoriteEventArgs : EventArgs
+    {
+        public Status Target { get; internal set; }
+    }
 
+
+    public sealed class Kbtter4RetweetedEventArgs : EventArgs
+    {
+        public Status Target { get; private set; }
+    }
 
     public class Kbtter4MessageReceivedEventArgs<T> : EventArgs
     {

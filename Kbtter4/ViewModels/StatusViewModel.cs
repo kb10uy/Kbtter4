@@ -27,7 +27,7 @@ namespace Kbtter4.ViewModels
 
         public Status ReceivedStatus { get; private set; }
 
-        
+
 
         private long rtid = 0;
 
@@ -214,44 +214,46 @@ namespace Kbtter4.ViewModels
             {
                 if (_IsFavorited == value)
                     return;
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        if (value)
-                        {
-                            Kbtter.Token.Favorites.Create(id => SourceStatus.Id);
-                        }
-                        else
-                        {
-                            Kbtter.Token.Favorites.Destroy(id => SourceStatus.Id);
-                        }
-                    }
-                    catch (TwitterException e)
-                    {
-                        if (!Enum.IsDefined(typeof(ErrorCode), e.Errors[0].Code)) return;
-                        switch ((ErrorCode)e.Errors[0].Code)
-                        {
-                            case ErrorCode.AlreadyFavorited:
-                                Kbtter.AddFavorite(SourceStatus);
-                                main.View.Notify("すでにお気に入り登録済みです");
-                                break;
-                            case ErrorCode.PageDoesNotExist:
-                                Kbtter.RemoveFavorite(SourceStatus.Id);
-                                main.View.Notify("お気に入りに登録されていません");
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                SetFavoriteState(value);
+                RaisePropertyChanged();
 
-                    _IsFavorited = value;
-                    RaisePropertyChanged();
-                });
             }
         }
         #endregion
 
+        public async void SetFavoriteState(bool value)
+        {
+            try
+            {
+                if (value)
+                {
+                    await Kbtter.Token.Favorites.CreateAsync(id => SourceStatus.Id);
+                }
+                else
+                {
+                    await Kbtter.Token.Favorites.DestroyAsync(id => SourceStatus.Id);
+                }
+            }
+            catch (TwitterException e)
+            {
+                if (!Enum.IsDefined(typeof(ErrorCode), e.Errors[0].Code)) return;
+                switch ((ErrorCode)e.Errors[0].Code)
+                {
+                    case ErrorCode.AlreadyFavorited:
+                        Kbtter.AddFavorite(SourceStatus);
+                        main.View.Notify("すでにお気に入り登録済みです");
+                        break;
+                    case ErrorCode.PageDoesNotExist:
+                        Kbtter.RemoveFavorite(SourceStatus.Id);
+                        main.View.Notify("お気に入りに登録されていません");
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            _IsFavorited = value;
+        }
 
         #region IsRetweet変更通知プロパティ
         private bool _IsRetweet;
@@ -686,31 +688,35 @@ namespace Kbtter4.ViewModels
 
         public void RegisterEventListeners()
         {
-            listener = new PropertyChangedEventListener(Kbtter);
-            CompositeDisposable.Add(listener);
-            listener.Add("Favorites", (s, e) =>
-            {
-                Task.Run(() =>
+            var favl = new EventListener<EventHandler<Kbtter4FavoriteEventArgs>>(
+                h => Kbtter.OnFavorited += h,
+                h => Kbtter.OnFavorited -= h,
+                (s, e) =>
                 {
-                    _IsFavorited = Kbtter.CheckFavorited(SourceStatus.Id);
+                    if (e.Target.Id != SourceStatus.Id) return;
+                    _IsFavorited = true;
                     RaisePropertyChanged(() => IsFavorited);
-                    RaisePropertyChanged(() => CreatedTimeText);
                 });
-            });
-            listener.Add("Retweets", (s, e) =>
-            {
-                Task.Run(() =>
+            var unfavl = new EventListener<EventHandler<Kbtter4FavoriteEventArgs>>(
+                h => Kbtter.OnUnfavorited += h,
+                h => Kbtter.OnUnfavorited -= h,
+                (s, e) =>
                 {
-                    _IsRetweeted = Kbtter.CheckRetweeted(SourceStatus.Id);
-                    RaisePropertyChanged(() => IsRetweeted);
+                    if (e.Target.Id != SourceStatus.Id) return;
+                    _IsFavorited = false;
+                    RaisePropertyChanged(() => IsFavorited);
+                });
+            var refl = new EventListener<EventHandler>(
+                h => Kbtter.ExtraInformationUpdate += h,
+                h => Kbtter.ExtraInformationUpdate -= h,
+                (s, e) =>
+                {
                     RaisePropertyChanged(() => CreatedTimeText);
                 });
-            });
-
-            listener.Add("Statuses", (s, e) =>
-            {
-                RaisePropertyChanged(() => CreatedTimeText);
-            });
+            CompositeDisposable.Add(listener);
+            CompositeDisposable.Add(favl);
+            CompositeDisposable.Add(unfavl);
+            CompositeDisposable.Add(refl);
         }
 
         private void AnalyzeTextElements()
@@ -824,7 +830,7 @@ namespace Kbtter4.ViewModels
             get
             { return _AdditionalMenus; }
             set
-            { 
+            {
                 if (_AdditionalMenus == value)
                     return;
                 _AdditionalMenus = value;
@@ -870,7 +876,7 @@ namespace Kbtter4.ViewModels
             get
             { return _Text; }
             set
-            { 
+            {
                 if (_Text == value)
                     return;
                 _Text = value;
