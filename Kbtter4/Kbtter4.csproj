@@ -140,6 +140,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Kbtter.Commands.cs" />
     <Compile Include="Models\Kbtter4Draft.cs" />
     <Compile Include="ViewModels\DraftViewModel.cs" />
     <Compile Include="ViewModels\DraftWindowViewModel.cs" />
