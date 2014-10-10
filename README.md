@@ -21,11 +21,15 @@ Livetを基盤としてCoreTweetを使うTwitterクライアント
 ##構成
 * Kbtter4
  - メインの実行ファイル
+* Kbtter5
+ - おまけのネタクライアント
 * Kbtter4.Cache
  - キャッシュ機構専用ライブラリ
 * Kbtter4.Tenko
  - コマンドライン専用ライブラリ
-* Kbtter3.Cache
+* Kbtter4.Ayaya
+ - 外部サービス連携ライブラリ
+* Kbtter3.Query
  - クエリ用ライブラリ
 
 ## 参考にしました
@@ -79,6 +83,7 @@ TwitterのSNの昇順です。
 * Kbtterは、多くのライブラリを参照使用しています。  
   参照しているライブラリのライセンスは以下を参照してください。
   各ライブラリの使用については、それぞれの条文に従ってください。
+ - DXライブラリを使用しています。
  - WPF Color Dialogを使用しています。WPF Color Dialogはフリーウェアです。
    http://www.kanazawa-net.ne.jp/~pmansato/wpf/wpf_custom_ColorPicker.htm
  - WPF Brush Editorを使用しています。WPF Brush Editorはフリーウェアです。
