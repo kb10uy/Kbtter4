@@ -70,6 +70,21 @@
             Gets or sets the value of the User-agent HTTP header.
             </summary>
         </member>
+        <member name="P:CoreTweet.ConnectionOptions.UseCompression">
+            <summary>
+            Gets or sets whether the compression is used on non-streaming requests.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.UseCompressionOnStreaming">
+            <summary>
+            Gets or sets whether the compression is used on streaming requests.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.DisableKeepAlive">
+            <summary>
+            Gets or sets whether Keep-Alive requests are disabled.
+            </summary>
+        </member>
         <member name="P:CoreTweet.ConnectionOptions.BeforeRequestAction">
             <summary>
             Gets or sets the action which is called before sending request.
@@ -101,6 +116,21 @@
             Exception throwed by Twitter.
             </summary>
         </member>
+        <member name="T:CoreTweet.Core.ITwitterResponse">
+            <summary>
+            Represents a response that has rate limit.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Core.ITwitterResponse.RateLimit">
+            <summary>
+            Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Core.ITwitterResponse.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
         <member name="M:CoreTweet.TwitterException.Create(System.Net.WebException)">
             <summary>
             Create a <see cref="T:CoreTweet.TwitterException"/> instance from the <see cref="T:System.Net.WebException"/>.
@@ -116,6 +146,16 @@
         <member name="P:CoreTweet.TwitterException.Errors">
             <summary>
                 The error messages.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.TwitterException.RateLimit">
+            <summary>
+            Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.TwitterException.Json">
+            <summary>
+            Gets or sets the JSON of the response
             </summary>
         </member>
         <member name="T:CoreTweet.Core.ApiProviderBase">
@@ -292,21 +332,6 @@
             <param name="jsonPath">JSONPath of object to be deserialize.</param>
             <typeparam name="T">The type of a twitter object.</typeparam>
             <returns>Twitter objects.</returns>
-        </member>
-        <member name="T:CoreTweet.Core.ITwitterResponse">
-            <summary>
-            Represents a response that has rate limit.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Core.ITwitterResponse.RateLimit">
-            <summary>
-            Gets or sets the rate limit of the response.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Core.ITwitterResponse.Json">
-            <summary>
-            Gets or sets the JSON of the response
-            </summary>
         </member>
         <member name="T:CoreTweet.Core.ListedResponse`1">
             <summary>
@@ -570,6 +595,11 @@
             Gets the wrapper of account.
             </summary>
         </member>
+        <member name="P:CoreTweet.Core.TokensBase.Application">
+            <summary>
+            Gets the wrapper of application.
+            </summary>
+        </member>
         <member name="P:CoreTweet.Core.TokensBase.Blocks">
             <summary>
             Gets the wrapper of blocks.
@@ -688,7 +718,7 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns>
             <para>The task object representing the asynchronous operation.</para>
-            <para>The Result property on the task object returns the authorize URI.</para>        
+            <para>The Result property on the task object returns the authorize URI.</para>
             </returns>
         </member>
         <member name="M:CoreTweet.OAuth.GetTokensAsync(CoreTweet.OAuth.OAuthSession,System.String,System.Threading.CancellationToken)">
@@ -1798,7 +1828,7 @@
         </member>
         <member name="T:CoreTweet.GeoAttributes">
             <summary>
-            Represents the metadata about places. 
+            Represents the metadata about places.
             </summary>
         </member>
         <member name="P:CoreTweet.GeoAttributes.StreetAddress">
@@ -2162,6 +2192,12 @@
             <para>Nullable.</para>
             </summary>
         </member>
+        <member name="P:CoreTweet.Status.FilterLevel">
+            <summary>
+            <para>Gets or sets a value that indicates the maximum value of the filter_level parameter which may be used and still stream this Tweet.</para>
+            <para>Streaming only.</para>
+            </summary>
+        </member>
         <member name="P:CoreTweet.Status.InReplyToScreenName">
             <summary>
             <para>Gets or sets the screen name of the original Tweet's author if the represented Tweet is a reply.</para>
@@ -2179,6 +2215,13 @@
             <para>Gets or sets the integer representation of the original Tweet's author ID if the represented Tweet is a reply.</para>
             <para>Nullable.</para>
             </summary>
+        </member>
+        <member name="P:CoreTweet.Status.Language">
+            <summary>
+            <para>Gets or sets the BCP 47 language identifier.</para>
+            <para>Nullable.</para>
+            </summary>
+            <value>A BCP 47 language identifier corresponding to the machine-detected language of the Tweet text, or <c>"und"</c> if no language could be detected.</value>
         </member>
         <member name="P:CoreTweet.Status.Place">
             <summary>
@@ -2215,11 +2258,11 @@
         <member name="P:CoreTweet.Status.RetweetedStatus">
             <summary>
             <para>Gets or sets the original Tweet if the status is a retweet.</para>
-            <para>Users can amplify the broadcast of tweets authored by other users by retweeting.</para> 
+            <para>Users can amplify the broadcast of tweets authored by other users by retweeting.</para>
             <para>Retweets can be distinguished from typical Tweets by the existence of a retweeted_status attribute.</para>
-            <para>This attribute contains a representation of the original Tweet that was retweeted.</para> 
+            <para>This attribute contains a representation of the original Tweet that was retweeted.</para>
             <para>Note that retweets of retweets do not show representations of the intermediary retweet, but only the original tweet.</para>
-            <para>(Users can also unretweet a retweet they created by deleting their retweet.) </para> 
+            <para>(Users can also unretweet a retweet they created by deleting their retweet.) </para>
             </summary>
         </member>
         <member name="P:CoreTweet.Status.Source">
@@ -2337,6 +2380,11 @@
             <para>This will be "Point" for Tweet coordinates fields.</para>
             </summary>
         </member>
+        <member name="T:CoreTweet.FilterLevel">
+            <summary>
+            Values of filter_level parameter.
+            </summary>
+        </member>
         <member name="T:CoreTweet.DirectMessage">
             <summary>
             Represents a direct message.
@@ -2393,6 +2441,49 @@
             Gets or sets the JSON of the response
             </summary>
         </member>
+        <member name="T:CoreTweet.SearchResult">
+            <summary>
+            Represents a collection of Tweets.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.SearchResult.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>An IEnumerator object that can be used to iterate through the collection.</returns>
+        </member>
+        <member name="P:CoreTweet.SearchResult.SearchMetadata">
+            <summary>
+            Gets or sets the metadata of the search.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.SearchResult.RateLimit">
+            <summary>
+            Gets or sets the rate limit of the response.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.SearchResult.Json">
+            <summary>
+            Gets or sets the JSON of the response
+            </summary>
+        </member>
+        <member name="P:CoreTweet.SearchResult.Item(System.Int32)">
+            <summary>
+            Gets the element at the specified index.
+            </summary>
+            <param name="index">The zero-based index of the element to get or set.</param>
+            <returns>The element at the specified index.</returns>
+        </member>
+        <member name="P:CoreTweet.SearchResult.Count">
+            <summary>
+            Gets the number of elements actually contained in the <see cref="T:CoreTweet.SearchResult"/>.
+            </summary>
+        </member>
+        <member name="T:CoreTweet.SearchMetadata">
+            <summary>
+            Represents a metadata of the search.
+            </summary>
+        </member>
         <member name="T:CoreTweet.Tokens">
             <summary>
             Represents the OAuth tokens.
@@ -2446,7 +2537,7 @@
         <member name="P:CoreTweet.Tokens.AccessTokenSecret">
             <summary>
             Gets or sets the access token secret.
-            </summary> 
+            </summary>
         </member>
         <member name="P:CoreTweet.Tokens.UserId">
             <summary>
@@ -2991,13 +3082,6 @@
             </summary>
             <param name="source"></param>
         </member>
-        <member name="M:CoreTweet.AsyncResponse.GetResponseStream">
-            <summary>
-            Gets the stream that is used to read the body of the response from the server.
-            </summary>
-            <exception cref="T:System.PlatformNotSupportedException">The platform only supports asynchronous methods.</exception>
-            <returns>A <see cref="T:System.IO.Stream"/> containing the body of the response.</returns>
-        </member>
         <member name="M:CoreTweet.AsyncResponse.GetResponseStreamAsync">
             <summary>
             Gets the stream that is used to read the body of the response from the server as an asynchronous operation.
@@ -3457,7 +3541,7 @@
         <member name="M:CoreTweet.Rest.Account.UpdateProfileColorsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com as an asynchronous operation.</para>
-            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
+            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: &#35;fff or &#35;ffffff).</para>
             <para>Available parameters:</para>
             <para>- <c>string</c> profile_background_color (optional)</para>
             <para>- <c>string</c> profile_link_color (optional)</para>
@@ -3476,7 +3560,7 @@
         <member name="M:CoreTweet.Rest.Account.UpdateProfileColorsAsync(System.Collections.Generic.IDictionary{System.String,System.Object},System.Threading.CancellationToken)">
             <summary>
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com as an asynchronous operation.</para>
-            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
+            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: &#35;fff or &#35;ffffff).</para>
             <para>Available parameters:</para>
             <para>- <c>string</c> profile_background_color (optional)</para>
             <para>- <c>string</c> profile_link_color (optional)</para>
@@ -3496,7 +3580,7 @@
         <member name="M:CoreTweet.Rest.Account.UpdateProfileColorsAsync``1(``0,System.Threading.CancellationToken)">
             <summary>
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
-            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
+            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: &#35;fff or &#35;ffffff).</para>
             <para>Available parameters:</para>
             <para>- <c>string</c> profile_background_color (optional)</para>
             <para>- <c>string</c> profile_link_color (optional)</para>
@@ -3519,7 +3603,7 @@
             <para>Note that this method expects raw multipart data, not a URL to an image.</para>
             <para>This method asynchronously processes the uploaded file before updating the user's profile image URL.</para>
             <para>You can either update your local cache the next time you request the user's information, or, at least 5 seconds after uploading the image, ask for the updated URL using GET users/show.</para>
-            <para>Available parameters:</para> 
+            <para>Available parameters:</para>
             <para>- <c>Stream</c> / <c>IEnumerable&lt;byte&gt;</c> / <c>FileInfo</c> image (required)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> skip_status (optional)</para>
@@ -3536,7 +3620,7 @@
             <para>Note that this method expects raw multipart data, not a URL to an image.</para>
             <para>This method asynchronously processes the uploaded file before updating the user's profile image URL.</para>
             <para>You can either update your local cache the next time you request the user's information, or, at least 5 seconds after uploading the image, ask for the updated URL using GET users/show.</para>
-            <para>Available parameters:</para> 
+            <para>Available parameters:</para>
             <para>- <c>Stream</c> / <c>IEnumerable&lt;byte&gt;</c> / <c>FileInfo</c> image (required)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> skip_status (optional)</para>
@@ -3554,7 +3638,7 @@
             <para>Note that this method expects raw multipart data, not a URL to an image.</para>
             <para>This method asynchronously processes the uploaded file before updating the user's profile image URL.</para>
             <para>You can either update your local cache the next time you request the user's information, or, at least 5 seconds after uploading the image, ask for the updated URL using GET users/show.</para>
-            <para>Available parameters:</para> 
+            <para>Available parameters:</para>
             <para>- <c>Stream</c> / <c>IEnumerable&lt;byte&gt;</c> / <c>FileInfo</c> image (required)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> skip_status (optional)</para>
@@ -3833,7 +3917,7 @@
         <member name="M:CoreTweet.Rest.Account.UpdateProfileColors(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
-            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
+            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: &#35;fff or &#35;ffffff).</para>
             <para>Available parameters:</para>
             <para>- <c>string</c> profile_background_color (optional)</para>
             <para>- <c>string</c> profile_link_color (optional)</para>
@@ -3849,7 +3933,7 @@
         <member name="M:CoreTweet.Rest.Account.UpdateProfileColors(System.Collections.Generic.IDictionary{System.String,System.Object})">
             <summary>
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
-            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
+            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: &#35;fff or &#35;ffffff).</para>
             <para>Available parameters:</para>
             <para>- <c>string</c> profile_background_color (optional)</para>
             <para>- <c>string</c> profile_link_color (optional)</para>
@@ -3865,7 +3949,7 @@
         <member name="M:CoreTweet.Rest.Account.UpdateProfileColors``1(``0)">
             <summary>
             <para>Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com.</para>
-            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).</para>
+            <para>Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: &#35;fff or &#35;ffffff).</para>
             <para>Available parameters:</para>
             <para>- <c>string</c> profile_background_color (optional)</para>
             <para>- <c>string</c> profile_link_color (optional)</para>
@@ -3884,7 +3968,7 @@
             <para>Note that this method expects raw multipart data, not a URL to an image.</para>
             <para>This method asynchronously processes the uploaded file before updating the user's profile image URL.</para>
             <para>You can either update your local cache the next time you request the user's information, or, at least 5 seconds after uploading the image, ask for the updated URL using GET users/show.</para>
-            <para>Available parameters:</para> 
+            <para>Available parameters:</para>
             <para>- <c>Stream</c> / <c>IEnumerable&lt;byte&gt;</c> / <c>FileInfo</c> image (required)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> skip_status (optional)</para>
@@ -3898,7 +3982,7 @@
             <para>Note that this method expects raw multipart data, not a URL to an image.</para>
             <para>This method asynchronously processes the uploaded file before updating the user's profile image URL.</para>
             <para>You can either update your local cache the next time you request the user's information, or, at least 5 seconds after uploading the image, ask for the updated URL using GET users/show.</para>
-            <para>Available parameters:</para> 
+            <para>Available parameters:</para>
             <para>- <c>Stream</c> / <c>IEnumerable&lt;byte&gt;</c> / <c>FileInfo</c> image (required)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> skip_status (optional)</para>
@@ -3912,13 +3996,83 @@
             <para>Note that this method expects raw multipart data, not a URL to an image.</para>
             <para>This method asynchronously processes the uploaded file before updating the user's profile image URL.</para>
             <para>You can either update your local cache the next time you request the user's information, or, at least 5 seconds after uploading the image, ask for the updated URL using GET users/show.</para>
-            <para>Available parameters:</para> 
+            <para>Available parameters:</para>
             <para>- <c>Stream</c> / <c>IEnumerable&lt;byte&gt;</c> / <c>FileInfo</c> image (required)</para>
             <para>- <c>bool</c> include_entities (optional)</para>
             <para>- <c>bool</c> skip_status (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
             <returns>The user object.</returns>
+        </member>
+        <member name="T:CoreTweet.Rest.Application">
+            <summary>
+            Provides a set of methods for the wrapper of GET application.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Rest.Application.RateLimitStatusAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns the current rate limits for methods belonging to the specified resource families as an asynchronous operation.</para>
+            <para>Available parameters:</para>
+            <para>- <c>string</c>string / <c>IEnumerable&lt;string&gt;</c> resources (optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>
+            <para>The task object representing the asynchronous operation.</para>
+            <para>The Result property on the task object returns the dictionary.</para>
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Application.RateLimitStatusAsync(System.Collections.Generic.IDictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <summary>
+            <para>Returns the current rate limits for methods belonging to the specified resource families as an asynchronous operation.</para>
+            <para>Available parameters:</para>
+            <para>- <c>string</c>string / <c>IEnumerable&lt;string&gt;</c> resources (optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>
+            <para>The task object representing the asynchronous operation.</para>
+            <para>The Result property on the task object returns the dictionary.</para>
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Application.RateLimitStatusAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            <para>Returns the current rate limits for methods belonging to the specified resource families as an asynchronous operation.</para>
+            <para>Available parameters:</para>
+            <para>- <c>string</c>string / <c>IEnumerable&lt;string&gt;</c> resources (optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>
+            <para>The task object representing the asynchronous operation.</para>
+            <para>The Result property on the task object returns the dictionary.</para>
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Application.RateLimitStatus(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns the current rate limits for methods belonging to the specified resource families.</para>
+            <para>Available parameters:</para>
+            <para>- <c>string</c>string / <c>IEnumerable&lt;string&gt;</c> resources (optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>The dictionary.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Application.RateLimitStatus(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            <para>Returns the current rate limits for methods belonging to the specified resource families.</para>
+            <para>Available parameters:</para>
+            <para>- <c>string</c>string / <c>IEnumerable&lt;string&gt;</c> resources (optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>The dictionary.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Application.RateLimitStatus``1(``0)">
+            <summary>
+            <para>Returns the current rate limits for methods belonging to the specified resource families.</para>
+            <para>Available parameters:</para>
+            <para>- <c>string</c>string / <c>IEnumerable&lt;string&gt;</c> resources (optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>The dictionary.</returns>
         </member>
         <member name="T:CoreTweet.Rest.Blocks">
             <summary>
@@ -5665,7 +5819,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Friends.EnumerateList(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
-            <para>Enumerates user objects for every user the specified user is following (otherwise known as their "friends").</para> 
+            <para>Enumerates user objects for every user the specified user is following (otherwise known as their "friends").</para>
             <para>At this time, results are ordered with the most recent following first; however, this ordering is subject to unannounced change and eventual consistency issues.</para>
             <para>Results are given in groups of 20 users and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests.</para>
             <para>Note: Either a screen_name or a user_id should be provided.</para>
@@ -5682,7 +5836,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Friends.EnumerateList(CoreTweet.EnumerateMode,System.Collections.Generic.IDictionary{System.String,System.Object})">
             <summary>
-            <para>Enumerates user objects for every user the specified user is following (otherwise known as their "friends").</para> 
+            <para>Enumerates user objects for every user the specified user is following (otherwise known as their "friends").</para>
             <para>At this time, results are ordered with the most recent following first; however, this ordering is subject to unannounced change and eventual consistency issues.</para>
             <para>Results are given in groups of 20 users and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests.</para>
             <para>Note: Either a screen_name or a user_id should be provided.</para>
@@ -5699,7 +5853,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Friends.EnumerateList``1(CoreTweet.EnumerateMode,``0)">
             <summary>
-            <para>Enumerates user objects for every user the specified user is following (otherwise known as their "friends").</para> 
+            <para>Enumerates user objects for every user the specified user is following (otherwise known as their "friends").</para>
             <para>At this time, results are ordered with the most recent following first; however, this ordering is subject to unannounced change and eventual consistency issues.</para>
             <para>Results are given in groups of 20 users and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests.</para>
             <para>Note: Either a screen_name or a user_id should be provided.</para>
@@ -7232,7 +7386,7 @@
             <param name="parameters">The parameters.</param>
             <returns>
             <para>The task object representing the asynchronous operation.</para>
-            <para>The Result property on the task object returns the users.</para>
+            <para>The Result property on the task object returns the lists.</para>
             </returns>
         </member>
         <member name="M:CoreTweet.Rest.Lists.MembershipsAsync(System.Collections.Generic.IDictionary{System.String,System.Object},System.Threading.CancellationToken)">
@@ -7249,7 +7403,7 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns>
             <para>The task object representing the asynchronous operation.</para>
-            <para>The Result property on the task object returns the users.</para>
+            <para>The Result property on the task object returns the lists.</para>
             </returns>
         </member>
         <member name="M:CoreTweet.Rest.Lists.MembershipsAsync``1(``0,System.Threading.CancellationToken)">
@@ -7266,7 +7420,57 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns>
             <para>The task object representing the asynchronous operation.</para>
-            <para>The Result property on the task object returns the users.</para>
+            <para>The Result property on the task object returns the lists.</para>
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.OwnershipsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns the lists owned by the specified Twitter user as an asynchronous operation. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>
+            <para>The task object representing the asynchronous operation.</para>
+            <para>The Result property on the task object returns the lists.</para>
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.OwnershipsAsync(System.Collections.Generic.IDictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <summary>
+            <para>Returns the lists owned by the specified Twitter user as an asynchronous operation. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>
+            <para>The task object representing the asynchronous operation.</para>
+            <para>The Result property on the task object returns the lists.</para>
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.OwnershipsAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            <para>Returns the lists owned by the specified Twitter user as an asynchronous operation. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>
+            <para>The task object representing the asynchronous operation.</para>
+            <para>The Result property on the task object returns the lists.</para>
             </returns>
         </member>
         <member name="M:CoreTweet.Rest.Lists.ShowAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
@@ -7658,7 +7862,7 @@
             <para>- <c>bool</c> filter_to_owned_lists (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
-            <returns>The users.</returns>
+            <returns>The lists.</returns>
         </member>
         <member name="M:CoreTweet.Rest.Lists.Memberships(System.Collections.Generic.IDictionary{System.String,System.Object})">
             <summary>
@@ -7671,7 +7875,7 @@
             <para>- <c>bool</c> filter_to_owned_lists (optional)</para>
             </summary>
             <param name="parameters">The parameters.</param>
-            <returns>The users.</returns>
+            <returns>The lists.</returns>
         </member>
         <member name="M:CoreTweet.Rest.Lists.Memberships``1(``0)">
             <summary>
@@ -7723,6 +7927,87 @@
             <para>- <c>long</c> user_id (optional)</para>
             <para>- <c>long</c> cursor (semi-optional)</para>
             <para>- <c>bool</c> filter_to_owned_lists (optional)</para>
+            </summary>
+            <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
+            <param name="parameters">The parameters.</param>
+            <returns>The lists.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.Ownerships(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>The lists.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.Ownerships(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            <para>Returns the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>The lists.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.Ownerships``1(``0)">
+            <summary>
+            <para>Returns the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <returns>The lists.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.EnumerateOwnerships(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Enumerates the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
+            <param name="parameters">The parameters.</param>
+            <returns>The lists.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.EnumerateOwnerships(CoreTweet.EnumerateMode,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            <para>Enumerates the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
+            </summary>
+            <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
+            <param name="parameters">The parameters.</param>
+            <returns>The lists.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.Lists.EnumerateOwnerships``1(CoreTweet.EnumerateMode,``0)">
+            <summary>
+            <para>Enumerates the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.</para>
+            <para>A user_id or screen_name must be provided.</para>
+            <para>Available parameters: </para>
+            <para>- <c>long</c> user_id (optional)</para>
+            <para>- <c>string</c> sereen_name (optional)</para>
+            <para>- <c>int</c> count (optional)</para>
+            <para>- <c>long</c> cursor (semi-optional)</para>
             </summary>
             <param name="mode">Specify whether enumerating goes to the next page or the previous.</param>
             <param name="parameters">The parameters.</param>
@@ -8048,7 +8333,7 @@
         </member>
         <member name="P:CoreTweet.Rest.Lists.Members">
             <summary>
-            Gets the wrapper of lists/members 
+            Gets the wrapper of lists/members
             </summary>
         </member>
         <member name="P:CoreTweet.Rest.Lists.Subscribers">
@@ -9982,7 +10267,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Statuses.MentionsTimelineAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
-            <para>Returns the 20 most recent mentions (tweets containing a users's @screen_name) for the authenticating user as an asynchronous operation.</para>
+            <para>Returns the 20 most recent mentions (tweets containing a users's &#64;screen_name) for the authenticating user as an asynchronous operation.</para>
             <para>The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.</para>
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
@@ -10001,7 +10286,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Statuses.MentionsTimelineAsync(System.Collections.Generic.IDictionary{System.String,System.Object},System.Threading.CancellationToken)">
             <summary>
-            <para>Returns the 20 most recent mentions (tweets containing a users's @screen_name) for the authenticating user as an asynchronous operation.</para>
+            <para>Returns the 20 most recent mentions (tweets containing a users's &#64;screen_name) for the authenticating user as an asynchronous operation.</para>
             <para>The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.</para>
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
@@ -10021,7 +10306,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Statuses.MentionsTimelineAsync``1(``0,System.Threading.CancellationToken)">
             <summary>
-            <para>Returns the 20 most recent mentions (tweets containing a users's @screen_name) for the authenticating user as an asynchronous operation.</para>
+            <para>Returns the 20 most recent mentions (tweets containing a users's &#64;screen_name) for the authenticating user as an asynchronous operation.</para>
             <para>The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.</para>
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
@@ -10728,7 +11013,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Statuses.MentionsTimeline(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
-            <para>Returns the 20 most recent mentions (tweets containing a users's @screen_name) for the authenticating user.</para>
+            <para>Returns the 20 most recent mentions (tweets containing a users's &#64;screen_name) for the authenticating user.</para>
             <para>The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.</para>
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
@@ -10744,7 +11029,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Statuses.MentionsTimeline(System.Collections.Generic.IDictionary{System.String,System.Object})">
             <summary>
-            <para>Returns the 20 most recent mentions (tweets containing a users's @screen_name) for the authenticating user.</para>
+            <para>Returns the 20 most recent mentions (tweets containing a users's &#64;screen_name) for the authenticating user.</para>
             <para>The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.</para>
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
@@ -10760,7 +11045,7 @@
         </member>
         <member name="M:CoreTweet.Rest.Statuses.MentionsTimeline``1(``0)">
             <summary>
-            <para>Returns the 20 most recent mentions (tweets containing a users's @screen_name) for the authenticating user.</para>
+            <para>Returns the 20 most recent mentions (tweets containing a users's &#64;screen_name) for the authenticating user.</para>
             <para>The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.</para>
             <para>This method can only return up to 800 tweets.</para>
             <para>Available parameters:</para>
@@ -12721,9 +13006,19 @@
             The message indicates that indicated user has had their content withheld.
             </summary>
         </member>
+        <member name="F:CoreTweet.Streaming.MessageType.UserDelete">
+            <summary>
+            The message indicates that the user has been deleted.
+            </summary>
+        </member>
+        <member name="F:CoreTweet.Streaming.MessageType.UserUndelete">
+            <summary>
+            The message indicates that the user has canceled the deletion.
+            </summary>
+        </member>
         <member name="F:CoreTweet.Streaming.MessageType.Disconnect">
             <summary>
-            The message indicates that the streams may be shut down for a variety of reasons. 
+            The message indicates that the streams may be shut down for a variety of reasons.
             </summary>
         </member>
         <member name="F:CoreTweet.Streaming.MessageType.Warning">
@@ -12925,23 +13220,23 @@
             Gets or sets the ID of the status.
             </summary>
         </member>
-        <member name="T:CoreTweet.Streaming.WithheldMessage">
+        <member name="T:CoreTweet.Streaming.UserWithheldMessage">
             <summary>
             Represents a withheld message.
             </summary>
         </member>
-        <member name="M:CoreTweet.Streaming.WithheldMessage.GetMessageType">
+        <member name="M:CoreTweet.Streaming.UserWithheldMessage.GetMessageType">
             <summary>
             Gets the type of the message.
             </summary>
             <returns>The type of the message.</returns>
         </member>
-        <member name="P:CoreTweet.Streaming.WithheldMessage.Id">
+        <member name="P:CoreTweet.Streaming.UserWithheldMessage.Id">
             <summary>
             Gets or sets the ID.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.WithheldMessage.WithheldInCountries">
+        <member name="P:CoreTweet.Streaming.UserWithheldMessage.WithheldInCountries">
             <summary>
             Gets or sets the withhelds in countries.
             </summary>
@@ -12957,7 +13252,33 @@
             </summary>
             <returns>The type of the message.</returns>
         </member>
+        <member name="P:CoreTweet.Streaming.StatusWithheldMessage.Id">
+            <summary>
+            Gets or sets the ID.
+            </summary>
+        </member>
         <member name="P:CoreTweet.Streaming.StatusWithheldMessage.UserId">
+            <summary>
+            Gets or sets the ID of the user.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Streaming.StatusWithheldMessage.WithheldInCountries">
+            <summary>
+            Gets or sets the withhelds in countries.
+            </summary>
+        </member>
+        <member name="T:CoreTweet.Streaming.UserMessage">
+            <summary>
+            Represents a message contains the ID of an user.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.UserMessage.GetMessageType">
+            <summary>
+            Gets the type of the message.
+            </summary>
+            <returns>The type of the message.</returns>
+        </member>
+        <member name="P:CoreTweet.Streaming.UserMessage.Id">
             <summary>
             Gets or sets the ID of the user.
             </summary>
@@ -13193,7 +13514,7 @@
             <para>Available parameters: </para>
             <para>*Note: In filter stream, at least one predicate parameter (follow, locations, or track) must be specified.</para>
             <para><c>bool</c> stall_warnings (optional)"/&gt; : Specifies whether stall warnings should be delivered.</para>
-            <para><c>string / IEnumerable&lt;string&gt;</c> follow (optional*, required in site stream, ignored in user stream)</para>
+            <para><c>string / IEnumerable&lt;long&gt;</c> follow (optional*, required in site stream, ignored in user stream)</para>
             <para><c>string / IEnumerable&lt;string&gt;</c> track (optional*)</para>
             <para><c>string / IEnumerable&lt;string&gt;</c> location (optional*)</para>
             <para><c>string</c> with (optional)</para>
