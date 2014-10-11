@@ -37,7 +37,7 @@ namespace Kbtter5
 
         public UserSprite()
         {
-            Image = CommonObjects.Logo;
+            Image = CommonObjects.ImageLogo;
         }
     }
 
@@ -49,5 +49,11 @@ namespace Kbtter5
     public class PlayerUser : UserSprite
     {
 
+    }
+
+    public struct Point
+    {
+        public double X;
+        public double Y;
     }
 }

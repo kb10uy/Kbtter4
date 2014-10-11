@@ -76,6 +76,10 @@ namespace Kbtter4.Cache
             }
         }
 
+        /// <summary>
+        /// お気に入りを追加
+        /// </summary>
+        /// <param name="data">キャッシュデータの列挙</param>
         public void AddFavorite(IEnumerable<Kbtter4FavoriteCache> data)
         {
             using (var tr = Connection.BeginTransaction())
