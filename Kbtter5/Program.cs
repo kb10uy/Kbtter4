@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using Kbtter4.Models;
 using CoreTweet;
@@ -28,23 +29,24 @@ namespace Kbtter5
 
     public sealed class Kbtter5
     {
+        private Kbtter Kbtter = Kbtter.Instance;
         private Scene curscene;
         public Scene CurrentScene
         {
             get { return curscene; }
             set
             {
-                if (curscene != null)
+                if (value != null)
                 {
                     curscene = value;
-                    DrawCoroutine = curscene.Draw().GetEnumerator();
-                    TickCoroutine = curscene.Tick().GetEnumerator();
+                    DrawCoroutine = curscene.Draw();
+                    TickCoroutine = curscene.Tick();
                 }
                 else
                 {
                     curscene = null;
-                    DrawCoroutine = new Scene().Draw().GetEnumerator();
-                    TickCoroutine = new Scene().Tick().GetEnumerator();
+                    DrawCoroutine = new Scene().Draw();
+                    TickCoroutine = new Scene().Tick();
                 }
             }
         }
@@ -54,9 +56,11 @@ namespace Kbtter5
 
         public void Run()
         {
+            CurrentScene = new SceneTitle();
             while (DX.ProcessMessage() != -1)
             {
                 TickCoroutine.MoveNext();
+                DX.ClearDrawScreen();
                 DrawCoroutine.MoveNext();
                 DX.ScreenFlip();
             }
@@ -65,12 +69,12 @@ namespace Kbtter5
 
     public class Scene
     {
-        public virtual IEnumerable<bool> Draw()
+        public virtual IEnumerator<bool> Draw()
         {
             while (true) yield return true;
         }
 
-        public virtual IEnumerable<bool> Tick()
+        public virtual IEnumerator<bool> Tick()
         {
             while (true) yield return true;
         }
