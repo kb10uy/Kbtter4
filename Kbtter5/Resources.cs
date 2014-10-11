@@ -15,7 +15,7 @@ namespace Kbtter5
         public static int ImageLoadingCircle32 = LoadCommonImage("loading32.png");
         public static int ImageLogo = LoadCommonImage("Kbtter5.png");
 
-        public static int FontSystem = DX.CreateFontToHandle("メイリオ", 16, -1, DX.DX_FONTTYPE_ANTIALIASING);
+        public static int FontSystem = DX.CreateFontToHandle("メイリオ", 16, 1, DX.DX_FONTTYPE_ANTIALIASING);
 
 
         #region ユーティリティ
