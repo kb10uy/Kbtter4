@@ -16,7 +16,7 @@ namespace Kbtter5
         public static int ImageLogo = LoadCommonImage("Kbtter5.png");
 
         public static int FontSystem = DX.CreateFontToHandle("メイリオ", 16, 1, DX.DX_FONTTYPE_ANTIALIASING);
-
+        public static int FontBullet = DX.CreateFontToHandle("メイリオ", 20, 2, DX.DX_FONTTYPE_ANTIALIASING);
 
         #region ユーティリティ
 
@@ -46,14 +46,16 @@ namespace Kbtter5
 
         private static void LoadCachedUser()
         {
-            var di = new DirectoryInfo(Path.Combine(CommonObjects.DataDirectory, "icon_cache"));
+            var path = Path.Combine(CommonObjects.DataDirectory, "icon_cache");
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            var di = new DirectoryInfo(path);
             foreach (var i in di.GetFiles())
             {
                 ImageHandles[Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name))] = DX.LoadGraph(i.FullName);
             }
         }
 
-        private static int GetUserImage(User user)
+        public static int GetUserImage(User user)
         {
             if (user == null || user.Id == null) return 0;
             if (!ImageHandles.ContainsKey((long)user.Id))
@@ -66,7 +68,7 @@ namespace Kbtter5
                             string.Format(
                                 "{0}.{1}",
                                 user.Id,
-                                Path.GetFileNameWithoutExtension(user.ProfileImageUrlHttps.ToString().Split('/').Last())
+                                "png"
                                 )
                             );
                     wc.DownloadFile(user.ProfileImageUrlHttps, target);

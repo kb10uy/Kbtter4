@@ -21,7 +21,7 @@ namespace Kbtter5
             DX.SetDrawScreen(DX.DX_SCREEN_BACK);
             DX.SetWindowText("Kbtter5 Polyvinyl Chroride");
 
-            new Kbtter5().Run();
+            Kbtter5.Instance.Run();
 
             DX.DxLib_End();
         }
@@ -30,6 +30,18 @@ namespace Kbtter5
     public sealed class Kbtter5
     {
         private Kbtter Kbtter = Kbtter.Instance;
+
+        private static Kbtter5 ins = new Kbtter5();
+        public static Kbtter5 Instance
+        {
+            get { return ins; }
+        }
+
+        private Kbtter5()
+        {
+
+        }
+
         private Scene curscene;
         public Scene CurrentScene
         {

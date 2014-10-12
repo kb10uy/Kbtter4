@@ -15,10 +15,14 @@ namespace Kbtter5
         private int backblend = 0;
         private int logoblend = 0;
         private int state = 0;
-        private bool? hasacc;
         private Point logopos = new Point { X = 80, Y = 160 };
         private Kbtter4Account[] accounts;
         private int selac = 0;
+        private Kbtter5 Kbtter5 = Kbtter5.Instance;
+
+        public SceneTitle()
+        {
+        }
 
         public override IEnumerator<bool> Tick()
         {
@@ -117,6 +121,7 @@ namespace Kbtter5
                         DX.DrawStringToHandle(40, 240 + selac * 20, "→", DX.GetColor(0, 0, 0), CommonObjects.FontSystem);
                         break;
                     case 4:
+                        Kbtter5.CurrentScene = new SceneGame(accounts[selac]);
                         break;
 
                 }
