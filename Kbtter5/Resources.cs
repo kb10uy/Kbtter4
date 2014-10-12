@@ -7,6 +7,9 @@ using System.IO;
 using System.Net;
 using DxLibDLL;
 using CoreTweet;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace Kbtter5
 {
@@ -14,6 +17,8 @@ namespace Kbtter5
     {
         public static int ImageLoadingCircle32 = LoadCommonImage("loading32.png");
         public static int ImageLogo = LoadCommonImage("Kbtter5.png");
+
+        public static int ImageShot = LoadCommonImage("shot.png");
 
         public static int FontSystem = DX.CreateFontToHandle("メイリオ", 16, 1, DX.DX_FONTTYPE_ANTIALIASING);
         public static int FontBullet = DX.CreateFontToHandle("メイリオ", 20, 2, DX.DX_FONTTYPE_ANTIALIASING);
@@ -46,6 +51,7 @@ namespace Kbtter5
 
         private static void LoadCachedUser()
         {
+            DX.SetUseASyncLoadFlag(DX.TRUE);
             var path = Path.Combine(CommonObjects.DataDirectory, "icon_cache");
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             var di = new DirectoryInfo(path);
@@ -71,7 +77,13 @@ namespace Kbtter5
                                 "png"
                                 )
                             );
-                    wc.DownloadFile(user.ProfileImageUrlHttps, target);
+                    using (var st = wc.OpenRead(user.ProfileImageUrlHttps))
+                    {
+                        var bm = new Bitmap(st);
+                        var sav = new Bitmap(bm, 32, 32);
+                        sav.Save(target);
+                    }
+                    
                     ImageHandles[(long)user.Id] = DX.LoadGraph(target);
                 }
 

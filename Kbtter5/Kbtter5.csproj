@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BulletPatterns.cs" />
     <Compile Include="DisplayObjects.cs" />
     <Compile Include="Easing.cs" />
     <Compile Include="EnemyPatterns.cs" />

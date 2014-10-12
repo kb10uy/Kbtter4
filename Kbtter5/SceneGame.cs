@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,11 +22,17 @@ namespace Kbtter5
         Kbtter5 Parent = Kbtter5.Instance;
         Tokens tokens;
         List<IDisposable> streams = new List<IDisposable>();
-        HashSet<DisplayObject> drawlist = new HashSet<DisplayObject>();
+        List<DisplayObject> drawlist = new List<DisplayObject>();
+        ConcurrentQueue<DisplayObject> adding = new ConcurrentQueue<DisplayObject>();
+        Random rnd = new Random();
+        object uslock = new object();
+
+        public PlayerUser Player { get; protected set; }
 
         public SceneGame(Kbtter4Account ac)
         {
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
+            Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId));
         }
 
         ~SceneGame()
@@ -39,33 +46,33 @@ namespace Kbtter5
             streams.Add(s.OfType<StatusMessage>().Subscribe(p =>
             {
                 DX.SetWindowText(p.Status.Text);
-                lock (drawlist) drawlist.Add(new EnemyUser(this, p.Status.User, EnemyPatterns.GoDownAndAway) { X = 40, Y = -20 });
+                adding.Enqueue(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]));
             }));
             streams.Add(s.Connect());
         }
 
         public void AddBullet(Bullet b)
         {
-            drawlist.Add(b);
+            adding.Enqueue(b);
         }
 
         public override IEnumerator<bool> Tick()
         {
             StartConnection();
+            drawlist.Add(Player);
             while (true)
             {
-                lock (drawlist)
+                DisplayObject de;
+                while (adding.TryDequeue(out de)) drawlist.Add(de);
+                foreach (var i in drawlist)
                 {
-                    foreach (var i in drawlist)
+                    var s = i.TickCoroutine.MoveNext();
+                    if (!(s && i.TickCoroutine.Current))
                     {
-                        var s = i.TickCoroutine.MoveNext();
-                        if (!s || !i.TickCoroutine.Current)
-                        {
-                            i.IsDead = true;
-                        }
+                        i.IsDead = true;
                     }
                 }
-                drawlist.RemoveWhere(p => p.IsDead);
+                drawlist.RemoveAll(p => p.IsDead);
                 yield return true;
             }
         }
@@ -77,9 +84,9 @@ namespace Kbtter5
                 foreach (var i in drawlist)
                 {
                     var s = i.DrawCoroutine.MoveNext();
-                    if (!s || !i.DrawCoroutine.Current) i.IsDead = true;
+                    if (!(s && i.TickCoroutine.Current)) i.IsDead = true;
                 }
-                drawlist.RemoveWhere(p => p.IsDead);
+                drawlist.RemoveAll(p => p.IsDead);
                 yield return true;
             }
         }

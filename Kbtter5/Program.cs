@@ -20,6 +20,7 @@ namespace Kbtter5
             if (DX.DxLib_Init() == -1) return;
             DX.SetDrawScreen(DX.DX_SCREEN_BACK);
             DX.SetWindowText("Kbtter5 Polyvinyl Chroride");
+            DX.SetUseASyncLoadFlag(DX.TRUE);
 
             Kbtter5.Instance.Run();
 
