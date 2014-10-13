@@ -128,20 +128,43 @@ namespace Kbtter5
         public Status SourceStatus { get; protected set; }
         public IEnumerator<bool> Operation { get; protected set; }
         private SceneGame game;
+        public EnemyUser ParentEnemy { get; protected set; }
+        public bool DieWithParentDeath { get; set; }
         public int Health { get; protected set; }
         public int TotalHealth { get; protected set; }
         private static Random rnd = new Random();
 
-        public EnemyUser(SceneGame sc, Status s, EnemyPattern op)
+        public EnemyUser()
         {
-            game = sc;
-            SourceStatus = s;
-            Operation = op(this);
             MyKind = ObjectKind.Enemy;
             TargetKind = ObjectKind.Player;
             DamageKind = ObjectKind.PlayerBullet;
             CollisonRadius = 10;
             GrazeRadius = 14;
+            DieWithParentDeath = false;
+        }
+
+        public EnemyUser(SceneGame sc, Status s, EnemyPattern op)
+            : this()
+        {
+            game = sc;
+            SourceStatus = s;
+            Operation = op(this);
+            TotalHealth = Health = 1000 + (SourceStatus.User.StatusesCount / 10) + (DateTime.Now - SourceStatus.User.CreatedAt.LocalDateTime).Days * 3;
+            Task.Run(() =>
+            {
+                Image = UserImageManager.GetUserImage(SourceStatus.User);
+                ImageLoaded = true;
+            });
+        }
+
+        public EnemyUser(EnemyUser sc, Status s, EnemyPattern op)
+            : this()
+        {
+            ParentEnemy = sc;
+            game = sc.game;
+            SourceStatus = s;
+            Operation = op(this);
             TotalHealth = Health = 1000 + (SourceStatus.User.StatusesCount / 10) + (DateTime.Now - SourceStatus.User.CreatedAt.LocalDateTime).Days * 3;
             Task.Run(() =>
             {
@@ -168,6 +191,7 @@ namespace Kbtter5
         {
             while (!(IsDead = !(!IsDead && Operation.MoveNext() && Operation.Current)))
             {
+                if (DieWithParentDeath && ParentEnemy.IsDead) IsDead = true;
                 foreach (var i in GameObjects.Where(p => p.MyKind != MyKind && p.DamageKind.HasFlag(MyKind)))
                 {
                     var xd = X - i.X;
@@ -231,6 +255,7 @@ namespace Kbtter5
         private bool visible = true;
         private int ShotStrength { get; set; }
         private int GrazePoint;
+        private bool gameover = false;
 
         public override bool IsDead
         {
@@ -273,12 +298,13 @@ namespace Kbtter5
                 game.AddObject(new CoroutineSprite(SpritePatterns.MissStar(ofs + Math.PI * 2.0 / 5.0 * i, this)) { Image = CommonObjects.ImageStar, X = X, Y = Y, HomeX = 8, HomeY = 8 });
             }
             SpecialOperation = MissOut();
+            gameover = !game.Miss();
         }
 
         private IEnumerator<bool> MissOut()
         {
             visible = false;
-            DamageKind = ObjectKind.None;
+            DisableCollision(1.0);
             for (int i = 0; i < 100; i++)
             {
                 ScaleX += 5.0 / 100.0;
@@ -286,16 +312,64 @@ namespace Kbtter5
                 Alpha -= 0.01;
                 yield return true;
             }
+
+            while (gameover) yield return true;
+
             ScaleX = 1;
             ScaleY = 1;
-
             //無敵
             visible = true;
-            Alpha = 0.5;
+            DisableCollision();
             for (int i = 0; i < 120; i++) yield return true;
 
+            EnableCollision();
+        }
+
+        public void EnableCollision()
+        {
             Alpha = 1;
             DamageKind = ObjectKind.Enemy | ObjectKind.EnemyBullet;
+        }
+
+        public void DisableCollision()
+        {
+            Alpha = 0.5;
+            DamageKind = ObjectKind.None;
+        }
+
+        public void DisableCollision(double al)
+        {
+            Alpha = al;
+            DamageKind = ObjectKind.None;
+        }
+
+        private IEnumerator<bool> UseBomb()
+        {
+            DisableCollision();
+
+            for (int i = 0; i < 16; i++)
+            {
+                var x = rnd.Next(20,620);
+                var y = rnd.Next(20, 460);
+                var xd = x - X;
+                var yd = y - Y;
+
+                var at = Math.Atan2(yd, xd);
+                var sp = Math.Sqrt(xd * xd + yd * yd) / 60.0;
+                game.AddBullet(new PlayerImageBullet(this, CommonObjects.ImageStar, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), SourceUser.StatusesCount)
+                {
+                    ScaleX = 8.0,
+                    ScaleY = 8.0,
+                    CollisonRadius = 56,
+                    HomeX = 8,
+                    HomeY = 8,
+                    X = X,
+                    Y = Y
+                });
+            }
+            for (int i = 0; i < 300; i++) yield return true;
+
+            EnableCollision();
         }
 
         public override IEnumerator<bool> Tick()
@@ -310,8 +384,8 @@ namespace Kbtter5
                     X = x;
                     Y = y;
                 }
-
-                if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) != 0 && count % chain == 0)
+                var msi = DX.GetMouseInput();
+                if ((msi & DX.MOUSE_INPUT_LEFT) != 0 && count % chain == 0)
                 {
                     var dr = (count / chain) % 8;
                     if (DX.CheckHitKey(DX.KEY_INPUT_D) == 1) dr = 0;
@@ -328,15 +402,18 @@ namespace Kbtter5
                         CommonObjects.ImageShot,
                         BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90),
                         ShotStrength)
-                        {
-                            X = X,
-                            Y = Y,
-                            HomeX = 8,
-                            HomeY = 8,
-                            MyKind = ObjectKind.PlayerBullet,
-                            TargetKind = ObjectKind.Enemy
-                        });
+                    {
+                        X = X,
+                        Y = Y,
+                        HomeX = 8,
+                        HomeY = 8,
+                    });
                 }
+                if ((msi & DX.MOUSE_INPUT_RIGHT) != 0 && SpecialOperation == null && game.UseBomb())
+                {
+                    SpecialOperation = UseBomb();
+                }
+
                 if (SpecialOperation != null)
                 {
                     SpecialOperation = (SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
@@ -435,6 +512,8 @@ namespace Kbtter5
             Image = i;
             Strength = s;
             CollisonRadius = 8;
+            MyKind = ObjectKind.PlayerBullet;
+            TargetKind = ObjectKind.Enemy;
         }
 
         public override IEnumerator<bool> Tick()
@@ -548,7 +627,7 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                DX.DrawStringToHandle((int)(X - HomeX), (int)(Y - HomeY), Value, DX.GetColor(255, 255, 255), FontHandle);
+                DX.DrawStringToHandle((int)(X - HomeX), (int)(Y - HomeY), Value, Color, FontHandle);
                 yield return true;
             }
         }

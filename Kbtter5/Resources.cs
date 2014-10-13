@@ -40,6 +40,7 @@ namespace Kbtter5
         public static int[] ImageNumber12Blue { get; private set; }
 
         public static int FontSystem = DX.CreateFontToHandle("Meiryo", 16, 1, DX.DX_FONTTYPE_ANTIALIASING);
+        public static int FontSystemBig = DX.CreateFontToHandle("Meiryo", 48, 1, DX.DX_FONTTYPE_ANTIALIASING);
         public static int FontBullet = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING);
 
         static CommonObjects()
@@ -106,7 +107,14 @@ namespace Kbtter5
                     {
                         var bm = new Bitmap(st);
                         var sav = new Bitmap(bm, 32, 32);
-                        sav.Save(target);
+                        try
+                        {
+                            sav.Save(target);
+                        }
+                        catch
+                        {
+
+                        }
                     }
 
                     ImageHandles[(long)user.Id] = DX.LoadGraph(target);

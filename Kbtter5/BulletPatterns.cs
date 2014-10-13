@@ -10,6 +10,8 @@ namespace Kbtter5
 
     public static class BulletPatterns
     {
+        static Random rnd = new Random();
+
         public static BulletPattern Linear(double angle, double speed, int time)
         {
             return (par, b) => Linear(par, b, angle, speed, time);
@@ -63,6 +65,42 @@ namespace Kbtter5
             {
                 b.X += Math.Cos(ha) * homingSpeed;
                 b.Y += Math.Sin(ha) * homingSpeed;
+                yield return true;
+            }
+        }
+
+        public static BulletPattern LazyHomingToEnemy(PlayerUser u, double startAngle, double startSpeed, int delay, double homingSpeed)
+        {
+            return (par, b) => LazyHomingToEnemy(u, b, startAngle, startSpeed, delay, homingSpeed);
+        }
+
+        private static IEnumerator<bool> LazyHomingToEnemy(PlayerUser par, Bullet b, double startAngle, double startSpeed, int delay, double homingSpeed)
+        {
+            for (int i = 0; i < delay; i++)
+            {
+                b.X += Math.Cos(startAngle) * startSpeed;
+                b.Y += Math.Sin(startAngle) * startSpeed;
+                yield return true;
+            }
+
+            var t = par.GameObjects
+                .Where(p => p.MyKind != b.MyKind && p.DamageKind.HasFlag(b.MyKind))
+                .OrderBy(p => (p.X - b.X) * (p.X - b.X) + (p.Y - b.Y) * (p.Y - b.Y))
+                .FirstOrDefault();
+            var ang = 0.0;
+            if (t == null)
+            {
+                ang = rnd.NextDouble() * Math.PI * 2;
+            }
+            else
+            {
+                ang = Math.Atan2(t.Y - b.Y, t.X - b.X);
+            }
+
+            while (true)
+            {
+                b.X += Math.Cos(ang) * homingSpeed;
+                b.Y += Math.Sin(ang) * homingSpeed;
                 yield return true;
             }
         }

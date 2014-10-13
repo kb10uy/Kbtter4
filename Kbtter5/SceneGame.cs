@@ -46,6 +46,7 @@ namespace Kbtter5
         private NumberSprite NumberFps { get; set; }
         private NumberSprite NumberScore { get; set; }
         private StringSprite StringInfo { get; set; }
+        private InformationBox Information { get; set; }
 
         public SceneGame(Kbtter4Account ac)
         {
@@ -53,6 +54,11 @@ namespace Kbtter5
             Objects = new List<DisplayObject>();
 
             Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId)) { Layer = 5 };
+            Information = new InformationBox(Player.SourceUser)
+            {
+                X = 0,
+                Y = 480
+            };
             NumberFrames = new NumberSprite(CommonObjects.ImageNumber24, 12, 24, 4)
             {
                 X = 572,
@@ -84,14 +90,13 @@ namespace Kbtter5
             streams.ForEach(p => p.Dispose());
         }
 
+
+
+
         private void StartConnection()
         {
             var s = tokens.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true")).Publish();
-            streams.Add(s.OfType<StatusMessage>().Subscribe(p =>
-            {
-                adding.Enqueue(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]));
-                adding.Enqueue(new StatusSprite(p.Status));
-            }));
+            streams.Add(s.OfType<StatusMessage>().Subscribe(ProcessStatus));
             streams.Add(s.Connect());
 
             if (File.Exists(BackgroundImagePath))
@@ -117,6 +122,20 @@ namespace Kbtter5
             }
         }
 
+        private void ProcessStatus(StatusMessage p)
+        {
+            if (p.Status.RetweetedStatus != null)
+            {
+                adding.Enqueue(new EnemyUser(this, p.Status, EnemyPatterns.RetweeterMultiCannon));
+                adding.Enqueue(new StatusSprite(p.Status));
+            }
+            else
+            {
+                adding.Enqueue(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]));
+                adding.Enqueue(new StatusSprite(p.Status));
+            }
+        }
+
         public void AddBullet(Bullet b)
         {
             adding.Enqueue(b);
@@ -132,16 +151,39 @@ namespace Kbtter5
             TotalScore += pts;
         }
 
+        public bool UseBomb()
+        {
+            if (Information.Bombs <= 0) return false;
+            Information.Popup();
+            Information.Bombs--;
+            return true;
+        }
+
+        public bool Miss()
+        {
+            if (Information.Players <= 0)
+            {
+                AddObject(new StringSprite(CommonObjects.FontSystemBig, DX.GetColor(255, 64, 64)) { Value = "ゲームオーバー", X = 164, Y = 100 });
+                return false;
+            }
+            Information.Popup();
+            Information.Players--;
+            Information.ResetBomb();
+            return true;
+        }
+
         public override IEnumerator<bool> Tick()
         {
             StartConnection();
 
             if (hasback) Objects.Add(Background);
             Objects.Add(Player);
+            Objects.Add(Information);
             Objects.Add(StringInfo);
             Objects.Add(NumberFrames);
             Objects.Add(NumberFps);
             Objects.Add(NumberScore);
+            Information.Popup();
             prevtime = DX.GetNowCount();
             while (true)
             {
@@ -232,6 +274,80 @@ namespace Kbtter5
             for (int i = 0; i < 30; i++)
             {
                 Y = Easing.InCubic(i, 30, sy, down);
+                yield return true;
+            }
+        }
+    }
+
+    public class InformationBox : DisplayObject
+    {
+        public int Players { get; set; }
+        public int Bombs { get; set; }
+        public int BackColor { get; private set; }
+        public int FontColor { get; private set; }
+        public IEnumerator<bool> Operation { get; private set; }
+        private int defb;
+
+        public InformationBox(User u)
+        {
+            Players = (int)(Math.Log10(u.FollowersCount) * Math.Log10(u.FriendsCount)) * 4;
+            Bombs = (int)(Math.Log10(u.FavouritesCount) + Math.Log10(u.StatusesCount)) * 2;
+            defb = Bombs;
+            BackColor = DX.GetColor(100, 100, 100);
+            FontColor = DX.GetColor(255, 255, 255);
+        }
+
+        public void Popup()
+        {
+            Operation = PopupOperation();
+        }
+
+        private IEnumerator<bool> PopupOperation()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                Y = Easing.OutCubic(i, 20, 480, -112);
+                yield return true;
+            }
+            for (int i = 0; i < 120; i++) yield return true;
+            for (int i = 0; i < 60; i++)
+            {
+                Y = Easing.OutCubic(i, 60, 480 - 112, 112);
+                yield return true;
+            }
+        }
+
+        public void ResetBomb()
+        {
+            Bombs = defb;
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                Operation = (Operation != null && Operation.MoveNext() && Operation.Current) ? Operation : null;
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, 100);
+                DX.DrawBox((int)X, (int)Y, (int)(X + 400), (int)(Y + 112), BackColor, DX.TRUE);
+
+                DX.DrawStringToHandle((int)(X + 8), (int)(Y + 8), "残り人数", FontColor, CommonObjects.FontSystemBig);
+                var ds = Players.ToString();
+                var dw = DX.GetDrawStringWidthToHandle(ds, ds.Length, CommonObjects.FontSystemBig);
+                DX.DrawStringToHandle((int)(384 - dw), (int)(Y + 8), ds, FontColor, CommonObjects.FontSystemBig);
+
+                DX.DrawStringToHandle((int)(X + 8), (int)(Y + 64), "残りボム", FontColor, CommonObjects.FontSystemBig);
+                ds = Bombs.ToString();
+                dw = DX.GetDrawStringWidthToHandle(ds, ds.Length, CommonObjects.FontSystemBig);
+                DX.DrawStringToHandle((int)(384 - dw), (int)(Y + 64), ds, FontColor, CommonObjects.FontSystemBig);
+
                 yield return true;
             }
         }

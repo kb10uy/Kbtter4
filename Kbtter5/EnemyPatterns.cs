@@ -488,6 +488,62 @@ namespace Kbtter5
                 yield return true;
             }
         }
+
+        public static IEnumerator<bool> RetweeterMultiCannon(EnemyUser sp)
+        {
+            sp.X = rnd.Next(600) + 20;
+            sp.Y = -40;
+            var dw = rnd.Next(100) + 100;
+
+            for (int i = 0; i < 120; i++)
+            {
+                sp.Y = Easing.OutElastic(i, 120, -40, dw);
+                yield return true;
+            }
+
+            var rt = sp.SourceStatus.RetweetedStatus;
+            var cc = (int)(Math.Log10(rt.RetweetCount ?? 0) + 1);
+            var ofs = rnd.NextDouble() * Math.PI * 2;
+            for (int i = 0; i < cc; i++)
+            {
+                sp.AddObject(new EnemyUser(sp, rt, RetweeterCannonCircle(ofs + Math.PI * 2 / cc * i, 5, 0.03, 64)) { X = sp.X, Y = sp.Y, DieWithParentDeath = true });
+            }
+            while (true) yield return true;
+        }
+
+        private static EnemyPattern RetweeterCannonCircle(double startAngle, double startSpeed, double curve, double dist)
+        {
+            return (sp) => RetweeterCannonCircle(sp, startAngle, startSpeed, curve, dist);
+        }
+
+        private static IEnumerator<bool> RetweeterCannonCircle(EnemyUser sp, double startAngle, double startSpeed, double curve, double dist)
+        {
+            
+            var ang = startAngle;
+            var brake = -(startSpeed * startSpeed) / (dist * 2);
+            while (startSpeed > 0)
+            {
+                sp.X += Math.Cos(startAngle) * startSpeed;
+                sp.Y += Math.Sin(startAngle) * startSpeed;
+                startSpeed += brake;
+                yield return true;
+            }
+            var cnt = 0;
+            var intv = 6;
+            var str = sp.SourceStatus.Text;
+            while (true)
+            {
+                sp.X = sp.ParentEnemy.X + Math.Cos(ang += curve) * dist;
+                sp.Y = sp.ParentEnemy.Y + Math.Sin(ang) * dist;
+                if ((cnt++ % intv) == 0)
+                {
+                    sp.AddBullet(new CharacterBullet(sp, str[cnt / intv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 7, 240)) { X = sp.X, Y = sp.Y });
+                }
+                yield return true;
+            }
+        }
+
+
     }
 
 
