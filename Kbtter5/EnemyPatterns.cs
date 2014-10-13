@@ -87,18 +87,18 @@ namespace Kbtter5
                 case 6:
                     for (int i = 0; i < str.Length / 2; i++)
                     {
-                        sp.AddBullet(new CharacterBullet(sp, str[i*2], BulletPatterns.Linear(ta - 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
-                        sp.AddBullet(new CharacterBullet(sp, str[i*2+1], BulletPatterns.Linear(ta + 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
-                        for (int j = 0; j < 6 ; j++) yield return true;
+                        sp.AddBullet(new CharacterBullet(sp, str[i * 2], BulletPatterns.Linear(ta - 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
+                        sp.AddBullet(new CharacterBullet(sp, str[i * 2 + 1], BulletPatterns.Linear(ta + 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
+                        for (int j = 0; j < 6; j++) yield return true;
                     }
                     break;
                 case 7:
                     for (int i = 0; i < str.Length / 3; i++)
                     {
-                        sp.AddBullet(new CharacterBullet(sp, str[i*3+1], BulletPatterns.Linear(ta - 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
-                        sp.AddBullet(new CharacterBullet(sp, str[i*3], BulletPatterns.Linear(ta, 5, 240)) { X = sp.X, Y = sp.Y });
-                        sp.AddBullet(new CharacterBullet(sp, str[i*3+2], BulletPatterns.Linear(ta + 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
-                        for (int j = 0; j < 6 ; j++) yield return true;
+                        sp.AddBullet(new CharacterBullet(sp, str[i * 3 + 1], BulletPatterns.Linear(ta - 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
+                        sp.AddBullet(new CharacterBullet(sp, str[i * 3], BulletPatterns.Linear(ta, 5, 240)) { X = sp.X, Y = sp.Y });
+                        sp.AddBullet(new CharacterBullet(sp, str[i * 3 + 2], BulletPatterns.Linear(ta + 0.15, 5, 240)) { X = sp.X, Y = sp.Y });
+                        for (int j = 0; j < 6; j++) yield return true;
                     }
                     break;
             }
