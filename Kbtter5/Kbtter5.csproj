@@ -92,6 +92,7 @@
     <Compile Include="Resources.cs" />
     <Compile Include="SceneGame.cs" />
     <Compile Include="SceneTitle.cs" />
+    <Compile Include="SortedLinkedSet.cs" />
     <Compile Include="SpritePatterns.cs" />
   </ItemGroup>
   <ItemGroup>
