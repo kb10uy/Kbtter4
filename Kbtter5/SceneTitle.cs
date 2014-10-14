@@ -19,9 +19,11 @@ namespace Kbtter5
         private Kbtter4Account[] accounts;
         private int selac = 0;
         private Kbtter5 Kbtter5 = Kbtter5.Instance;
+        private StringSprite pressz;
 
         public SceneTitle()
         {
+            pressz = new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.Black) { X = 200, Y = 400, Value = "Press Z" };
         }
 
         public override IEnumerator<bool> Tick()
@@ -103,22 +105,24 @@ namespace Kbtter5
                 switch (state)
                 {
                     case 0:
+                        DX.DrawStringToHandle(280, 400, "Press Z", CommonObjects.Colors.Black, CommonObjects.FontBullet);
+                        break;
                     case 3:
                         break;
                     case 1:
                         DX.DrawStringToHandle(
                             20, 240,
                             "アカウントデータがありません！Kbtter4で一回アカウントを登録してください。",
-                            DX.GetColor(255, 0, 0),
+                            CommonObjects.Colors.Red,
                             CommonObjects.FontSystem);
                         break;
                     case 2:
-                        DX.DrawStringToHandle(40, 200, "アカウント選択", DX.GetColor(0, 0, 0), CommonObjects.FontSystem);
+                        DX.DrawStringToHandle(40, 200, "アカウント選択", CommonObjects.Colors.Black, CommonObjects.FontSystem);
                         for (int i = 0; i < accounts.Length; i++)
                         {
-                            DX.DrawStringToHandle(60, 240 + i * 20, accounts[i].ScreenName, DX.GetColor(0, 0, 255), CommonObjects.FontSystem);
+                            DX.DrawStringToHandle(60, 240 + i * 20, accounts[i].ScreenName, CommonObjects.Colors.Blue, CommonObjects.FontSystem);
                         }
-                        DX.DrawStringToHandle(40, 240 + selac * 20, "→", DX.GetColor(0, 0, 0), CommonObjects.FontSystem);
+                        DX.DrawStringToHandle(40, 240 + selac * 20, "→", CommonObjects.Colors.Black, CommonObjects.FontSystem);
                         break;
                     case 4:
                         Kbtter5.CurrentScene = new SceneGame(accounts[selac]);

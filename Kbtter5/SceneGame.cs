@@ -29,7 +29,7 @@ namespace Kbtter5
         private Tokens tokens;
         private List<IDisposable> streams = new List<IDisposable>();
         public List<DisplayObject> Objects { get; set; }
-        private ConcurrentQueue<DisplayObject> adding = new ConcurrentQueue<DisplayObject>();
+        private /*Concurrent*/Queue<DisplayObject> adding = new /*Concurrent*/Queue<DisplayObject>();
         private Random rnd = new Random();
         private object uslock = new object();
         private string BackgroundImagePath = Path.Combine(CommonObjects.DataDirectory, "back.png");
@@ -53,7 +53,7 @@ namespace Kbtter5
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             Objects = new List<DisplayObject>();
 
-            Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId)) { Layer = 5 };
+            Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId), PlayerOperations.KeyboardOperation) { Layer = 5 };
             Information = new InformationBox(Player.SourceUser)
             {
                 X = 0,
@@ -77,11 +77,11 @@ namespace Kbtter5
                 Y = 8,
                 Layer = 12
             };
-            StringInfo = new StringSprite(CommonObjects.FontSystem, DX.GetColor(255, 255, 255))
+            StringInfo = new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.White)
             {
                 X = 566,
                 Y = 436,
-                Value = "Objects"
+                Value = "Loading"
             };
         }
 
@@ -163,7 +163,7 @@ namespace Kbtter5
         {
             if (Information.Players <= 0)
             {
-                AddObject(new StringSprite(CommonObjects.FontSystemBig, DX.GetColor(255, 64, 64)) { Value = "ゲームオーバー", X = 164, Y = 100 });
+                AddObject(new StringSprite(CommonObjects.FontSystemBig, CommonObjects.Colors.Crimson) { Value = "ゲームオーバー", X = 164, Y = 100 });
                 return false;
             }
             Information.Popup();
@@ -174,12 +174,27 @@ namespace Kbtter5
 
         public override IEnumerator<bool> Tick()
         {
+            Objects.Add(StringInfo);
             StartConnection();
+            while (DX.GetASyncLoadNum() != 0)
+            {
+                foreach (var i in Objects)
+                {
+                    var s = i.TickCoroutine.MoveNext();
+                    if (!(s && i.TickCoroutine.Current))
+                    {
+                        i.IsDead = true;
+                    }
+                }
+                Objects.RemoveAll(p => p.IsDead);
+                yield return true;
+            }
 
+            StringInfo.Value = "Objects";
+            
             if (hasback) Objects.Add(Background);
             Objects.Add(Player);
             Objects.Add(Information);
-            Objects.Add(StringInfo);
             Objects.Add(NumberFrames);
             Objects.Add(NumberFps);
             Objects.Add(NumberScore);
@@ -201,14 +216,16 @@ namespace Kbtter5
                 //背景のアレ
                 if (hasback)
                 {
-                    int mx, my;
-                    DX.GetMousePoint(out mx, out my);
-                    Background.X = 320 - (mx - 320) * 0.25;
-                    Background.Y = 240 - (my - 240) * 0.25;
+                    //int mx, my;
+                    //DX.GetMousePoint(out mx, out my);
+                    Background.X = 320 - (Player.X - 320) * 0.25;
+                    Background.Y = 240 - (Player.Y - 240) * 0.25;
                 }
 
-                DisplayObject de;
-                while (adding.TryDequeue(out de)) Objects.Add(de);
+                //DisplayObject de;
+                //while (adding.TryDequeue(out de)) Objects.Add(de);
+                Objects.AddRange(adding);
+                adding.Clear();
                 foreach (var i in Objects)
                 {
                     var s = i.TickCoroutine.MoveNext();
@@ -249,11 +266,11 @@ namespace Kbtter5
         private static int enable = 0;
 
         public StatusSprite(Status st)
-            : base(CommonObjects.FontSystem, DX.GetColor(255, 255, 255))
+            : base(CommonObjects.FontSystem, CommonObjects.Colors.White)
         {
             status = st;
             Value = status.Text;
-            if (status.RetweetedStatus != null) Color = DX.GetColor(200, 255, 200);
+            if (status.RetweetedStatus != null) Color = CommonObjects.Colors.LawnGreen;
             X = 0;
             down = 16 * (enable + 1);
             Y = 480 - down;
@@ -293,8 +310,8 @@ namespace Kbtter5
             Players = (int)(Math.Log10(u.FollowersCount) * Math.Log10(u.FriendsCount)) * 4;
             Bombs = (int)(Math.Log10(u.FavouritesCount) + Math.Log10(u.StatusesCount)) * 2;
             defb = Bombs;
-            BackColor = DX.GetColor(100, 100, 100);
-            FontColor = DX.GetColor(255, 255, 255);
+            BackColor = CommonObjects.Colors.DimGray;
+            FontColor = CommonObjects.Colors.White;
         }
 
         public void Popup()

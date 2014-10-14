@@ -247,15 +247,16 @@ namespace Kbtter5
 
     public class PlayerUser : UserSprite
     {
+        private Random rnd = new Random();
         private SceneGame game;
         public User SourceUser { get; protected set; }
-        private Random rnd = new Random();
-        public int chain = 2;
-        private IEnumerator<bool> SpecialOperation;
-        private bool visible = true;
-        private int ShotStrength { get; set; }
+        public int ShotInterval { get; set; }
+        public IEnumerator<bool> Operation { get; protected set; }
+        public IEnumerator<bool> SpecialOperation { get; protected set; }
+        public bool Operatable { get; protected set; }
+        public int ShotStrength { get; protected set; }
         private int GrazePoint;
-        private bool gameover = false;
+        public bool IsGameOver { get; protected set; }
 
         public override bool IsDead
         {
@@ -265,22 +266,34 @@ namespace Kbtter5
 
         public IReadOnlyList<DisplayObject> GameObjects { get { return game.Objects; } }
 
-        public PlayerUser(SceneGame sc, User u)
+        public PlayerUser(SceneGame sc, User u, PlayerOperation op)
         {
             game = sc;
             SourceUser = u;
+            Operation = op(this);
             MyKind = ObjectKind.Player;
             DamageKind = ObjectKind.Enemy | ObjectKind.EnemyBullet;
             CollisonRadius = 4.0 * (SourceUser.FriendsCount / SourceUser.FollowersCount);
             GrazeRadius = CollisonRadius * 1.5;
             ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
-
+            ShotInterval = 2;
+            Operatable = true;
             GrazePoint = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
             Task.Run(() =>
             {
                 Image = UserImageManager.GetUserImage(SourceUser);
                 ImageLoaded = true;
             });
+        }
+
+        public void AddBullet(Bullet b)
+        {
+            game.AddBullet(b);
+        }
+
+        public void AddObject(DisplayObject obj)
+        {
+            game.AddObject(obj);
         }
 
         public void Graze()
@@ -298,12 +311,12 @@ namespace Kbtter5
                 game.AddObject(new CoroutineSprite(SpritePatterns.MissStar(ofs + Math.PI * 2.0 / 5.0 * i, this)) { Image = CommonObjects.ImageStar, X = X, Y = Y, HomeX = 8, HomeY = 8 });
             }
             SpecialOperation = MissOut();
-            gameover = !game.Miss();
+            IsGameOver = !game.Miss();
         }
 
         private IEnumerator<bool> MissOut()
         {
-            visible = false;
+            Operatable = false;
             DisableCollision(1.0);
             for (int i = 0; i < 100; i++)
             {
@@ -313,12 +326,12 @@ namespace Kbtter5
                 yield return true;
             }
 
-            while (gameover) yield return true;
+            while (IsGameOver) yield return true;
 
             ScaleX = 1;
             ScaleY = 1;
             //無敵
-            visible = true;
+            Operatable = true;
             DisableCollision();
             for (int i = 0; i < 120; i++) yield return true;
 
@@ -343,13 +356,18 @@ namespace Kbtter5
             DamageKind = ObjectKind.None;
         }
 
+        public void TryBomb()
+        {
+            if (SpecialOperation == null && game.UseBomb()) SpecialOperation = UseBomb();
+        }
+
         private IEnumerator<bool> UseBomb()
         {
             DisableCollision();
 
             for (int i = 0; i < 16; i++)
             {
-                var x = rnd.Next(20,620);
+                var x = rnd.Next(20, 620);
                 var y = rnd.Next(20, 460);
                 var xd = x - X;
                 var yd = y - Y;
@@ -374,51 +392,10 @@ namespace Kbtter5
 
         public override IEnumerator<bool> Tick()
         {
-            int count = 0;
             while (true)
             {
-                int x, y;
-                DX.GetMousePoint(out x, out y);
-                if (visible)
-                {
-                    X = x;
-                    Y = y;
-                }
-                var msi = DX.GetMouseInput();
-                if ((msi & DX.MOUSE_INPUT_LEFT) != 0 && count % chain == 0)
-                {
-                    var dr = (count / chain) % 8;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_D) == 1) dr = 0;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_C) == 1) dr = 1;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_X) == 1) dr = 2;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_Z) == 1) dr = 3;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_A) == 1) dr = 4;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_Q) == 1) dr = 5;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_W) == 1) dr = 6;
-                    if (DX.CheckHitKey(DX.KEY_INPUT_E) == 1) dr = 7;
-
-                    game.AddBullet(new PlayerImageBullet(
-                        this,
-                        CommonObjects.ImageShot,
-                        BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90),
-                        ShotStrength)
-                    {
-                        X = X,
-                        Y = Y,
-                        HomeX = 8,
-                        HomeY = 8,
-                    });
-                }
-                if ((msi & DX.MOUSE_INPUT_RIGHT) != 0 && SpecialOperation == null && game.UseBomb())
-                {
-                    SpecialOperation = UseBomb();
-                }
-
-                if (SpecialOperation != null)
-                {
-                    SpecialOperation = (SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
-                }
-                count++;
+                Operation.MoveNext();
+                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
                 yield return true;
             }
         }
@@ -492,7 +469,7 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                DX.DrawStringToHandle((int)(X - HomeX), (int)(Y - HomeY), Character.ToString(), DX.GetColor(255, 255, 255), CommonObjects.FontBullet);
+                DX.DrawStringToHandle((int)(X - HomeX), (int)(Y - HomeY), Character.ToString(), CommonObjects.Colors.White, CommonObjects.FontBullet);
                 yield return true;
             }
         }
