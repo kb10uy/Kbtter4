@@ -25,18 +25,9 @@ namespace Kbtter5
         public ObjectKind DamageKind { get; set; }
         public double CollisonRadius { get; set; }
         public double GrazeRadius { get; set; }
-
-        protected bool _dead;
-        public virtual bool IsDead
-        {
-            get { return _dead; }
-            set
-            {
-                _dead = value;
-            }
-        }
-
+        public ObjectManager ParentManager { get; set; }
         public int Layer { get; set; }
+        public virtual bool IsDead { get; set; }
 
         public IEnumerator<bool> TickCoroutine { get; protected set; }
         public virtual IEnumerator<bool> Tick()
@@ -91,12 +82,17 @@ namespace Kbtter5
     {
         public Bullet()
         {
-            Layer = 1;
         }
     }
 
     public class UserSprite : DisplayObject
     {
+        protected static int EnemyBulletLayer = (int)GameLayer.EnemyBullet;
+        protected static int EnemyLayer = (int)GameLayer.Enemy;
+        protected static int PlayerLayer = (int)GameLayer.Player;
+        protected static int PlayerBulletLayer = (int)GameLayer.PlayerBullet;
+        protected static int EffectLayer = (int)GameLayer.Effect;
+
         public int Image { get; set; }
         public bool ImageLoaded { get; set; }
 
@@ -173,39 +169,29 @@ namespace Kbtter5
             });
         }
 
-        public void AddBullet(Bullet b)
-        {
-            game.AddBullet(b);
-        }
-
-        public void AddObject(DisplayObject obj)
-        {
-            game.AddObject(obj);
-        }
-
         public PlayerUser Player { get { return game.Player; } }
-
-        public IReadOnlyList<DisplayObject> GameObjects { get { return game.Objects; } }
 
         public override IEnumerator<bool> Tick()
         {
             while (!(IsDead = !(!IsDead && Operation.MoveNext() && Operation.Current)))
             {
                 if (DieWithParentDeath && ParentEnemy.IsDead) IsDead = true;
-                foreach (var i in GameObjects.Where(p => p.MyKind != MyKind && p.DamageKind.HasFlag(MyKind)))
+                if (Player.HasCollision)
                 {
-                    var xd = X - i.X;
-                    var yd = Y - i.Y;
-                    var zd = CollisonRadius + i.CollisonRadius;
+                    var xd = X - Player.X;
+                    var yd = Y - Player.Y;
+                    var zd = CollisonRadius + Player.CollisonRadius;
                     if ((xd * xd + yd * yd) < zd * zd)
                     {
-                        i.IsDead = true;
-                        break;
+                        Player.Kill();
                     }
-                    zd = GrazeRadius + i.GrazeRadius;
-                    if ((xd * xd + yd * yd) < zd * zd)
+                    else
                     {
-                        Player.Graze();
+                        zd = GrazeRadius + Player.GrazeRadius;
+                        if ((xd * xd + yd * yd) < zd * zd)
+                        {
+                            Player.Graze();
+                        }
                     }
                 }
                 yield return true;
@@ -230,16 +216,23 @@ namespace Kbtter5
         {
             Health -= point;
             game.Score(point / 100 * 10);
-            game.AddObject(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, point / 100 * 10) { X = X, Y = Y });
+            ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, point / 100 * 10) { X = X, Y = Y }, EffectLayer);
             if (Health <= 0)
             {
-                game.AddObject(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, TotalHealth / 10 * 10) { X = X, Y = Y });
+                ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, TotalHealth / 10 * 10) { X = X, Y = Y }, EffectLayer);
                 game.Score(TotalHealth / 10 * 10);
                 IsDead = true;
                 var ofs = rnd.NextDouble() * Math.PI * 2;
                 for (int i = 0; i < 5; i++)
                 {
-                    game.AddObject(new CoroutineSprite(SpritePatterns.MissStar(ofs + Math.PI * 2.0 / 5.0 * i, this)) { Image = CommonObjects.ImageStar, X = X, Y = Y, HomeX = 8, HomeY = 8 });
+                    ParentManager.Add(new CoroutineSprite(SpritePatterns.MissStar(ofs + Math.PI * 2.0 / 5.0 * i, this))
+                    {
+                        Image = CommonObjects.ImageStar,
+                        X = X,
+                        Y = Y,
+                        HomeX = 8,
+                        HomeY = 8
+                    }, EffectLayer);
                 }
             }
         }
@@ -257,14 +250,7 @@ namespace Kbtter5
         public int ShotStrength { get; protected set; }
         private int GrazePoint;
         public bool IsGameOver { get; protected set; }
-
-        public override bool IsDead
-        {
-            get { return false; }
-            set { if (value) Kill(); }
-        }
-
-        public IReadOnlyList<DisplayObject> GameObjects { get { return game.Objects; } }
+        public bool HasCollision { get; protected set; }
 
         public PlayerUser(SceneGame sc, User u, PlayerOperation op)
         {
@@ -278,6 +264,7 @@ namespace Kbtter5
             ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
             ShotInterval = 2;
             Operatable = true;
+            HasCollision = true;
             GrazePoint = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
             Task.Run(() =>
             {
@@ -286,20 +273,9 @@ namespace Kbtter5
             });
         }
 
-        public void AddBullet(Bullet b)
-        {
-            game.AddBullet(b);
-        }
-
-        public void AddObject(DisplayObject obj)
-        {
-            game.AddObject(obj);
-        }
-
         public void Graze()
         {
-
-            game.AddObject(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, GrazePoint) { X = X, Y = Y });
+            ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, GrazePoint) { X = X, Y = Y }, EffectLayer);
             game.Score(GrazePoint);
         }
 
@@ -308,7 +284,14 @@ namespace Kbtter5
             var ofs = rnd.NextDouble() * Math.PI * 2;
             for (int i = 0; i < 5; i++)
             {
-                game.AddObject(new CoroutineSprite(SpritePatterns.MissStar(ofs + Math.PI * 2.0 / 5.0 * i, this)) { Image = CommonObjects.ImageStar, X = X, Y = Y, HomeX = 8, HomeY = 8 });
+                ParentManager.Add(new CoroutineSprite(SpritePatterns.MissStar(ofs + Math.PI * 2.0 / 5.0 * i, this))
+                {
+                    Image = CommonObjects.ImageStar,
+                    X = X,
+                    Y = Y,
+                    HomeX = 8,
+                    HomeY = 8
+                }, EffectLayer);
             }
             SpecialOperation = MissOut();
             IsGameOver = !game.Miss();
@@ -340,18 +323,21 @@ namespace Kbtter5
 
         public void EnableCollision()
         {
+            HasCollision = true;
             Alpha = 1;
             DamageKind = ObjectKind.Enemy | ObjectKind.EnemyBullet;
         }
 
         public void DisableCollision()
         {
+            HasCollision = false;
             Alpha = 0.5;
             DamageKind = ObjectKind.None;
         }
 
         public void DisableCollision(double al)
         {
+            HasCollision = false;
             Alpha = al;
             DamageKind = ObjectKind.None;
         }
@@ -374,7 +360,7 @@ namespace Kbtter5
 
                 var at = Math.Atan2(yd, xd);
                 var sp = Math.Sqrt(xd * xd + yd * yd) / 60.0;
-                game.AddBullet(new PlayerImageBullet(this, CommonObjects.ImageStar, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), SourceUser.StatusesCount)
+                ParentManager.Add(new PlayerImageBullet(this, CommonObjects.ImageStar, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), SourceUser.StatusesCount)
                 {
                     ScaleX = 8.0,
                     ScaleY = 8.0,
@@ -383,7 +369,7 @@ namespace Kbtter5
                     HomeY = 8,
                     X = X,
                     Y = Y
-                });
+                }, PlayerBulletLayer);
             }
             for (int i = 0; i < 300; i++) yield return true;
 
@@ -399,21 +385,6 @@ namespace Kbtter5
                 yield return true;
             }
         }
-        /*
-        public override IEnumerator<bool> Draw()
-        {
-            while (true)
-            {
-                if (DX.CheckHandleASyncLoad(Image) == DX.FALSE)
-                {
-                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                    DX.DrawRotaGraph3((int)X, (int)Y, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
-                }
-                DX.DrawStringToHandle((int)X, (int)Y, ShotStrength.ToString(), DX.GetColor(255, 0, 0), CommonObjects.FontSystem);
-                yield return true;
-            }
-        }
-        */
     }
 
     public class CharacterBullet : Bullet
@@ -443,21 +414,22 @@ namespace Kbtter5
             {
                 IsDead = !(Operation.MoveNext() && Operation.Current);
                 if (X <= -Size || X >= Size + 640 || Y <= -Size || Y >= Size + 480) IsDead = true;
-                foreach (var i in Parent.GameObjects.Where(p => p.MyKind != MyKind && p.DamageKind.HasFlag(MyKind)))
+                if (Parent.Player.HasCollision)
                 {
-                    var xd = X - i.X;
-                    var yd = Y - i.Y;
-                    var zd = CollisonRadius + i.CollisonRadius;
+                    var xd = X - Parent.Player.X;
+                    var yd = Y - Parent.Player.Y;
+                    var zd = CollisonRadius + Parent.Player.CollisonRadius;
                     if ((xd * xd + yd * yd) < zd * zd)
                     {
-                        i.IsDead = true;
-                        IsDead = true;
-                        break;
+                        Parent.Player.Kill();
                     }
-                    zd = GrazeRadius + i.GrazeRadius;
-                    if ((xd * xd + yd * yd) < zd * zd)
+                    else
                     {
-                        Parent.Player.Graze();
+                        zd = GrazeRadius + Parent.Player.GrazeRadius;
+                        if ((xd * xd + yd * yd) < zd * zd)
+                        {
+                            Parent.Player.Graze();
+                        }
                     }
                 }
                 yield return true;
@@ -499,17 +471,20 @@ namespace Kbtter5
             {
                 IsDead = !(Operation.MoveNext() && Operation.Current);
                 if (X <= -HomeX || X >= HomeX + 640 || Y <= -HomeY || Y >= HomeY + 480) IsDead = true;
-                foreach (var i in Parent.GameObjects.Where(p => p.MyKind != MyKind && p.DamageKind.HasFlag(MyKind)).OfType<EnemyUser>())
+
+                foreach (var i in ParentManager.OfType<EnemyUser>().Where(p =>
                 {
-                    var xd = X - i.X;
-                    var yd = Y - i.Y;
-                    var zd = CollisonRadius + i.CollisonRadius;
-                    if ((xd * xd + yd * yd) < zd * zd)
-                    {
-                        i.Damage(Strength);
-                        IsDead = true;
-                        break;
-                    }
+                    var tg = p.MyKind != MyKind && ((p.DamageKind & MyKind) != 0);
+                    var xd = X - p.X;
+                    var yd = Y - p.Y;
+                    var zd = CollisonRadius + p.CollisonRadius;
+                    var cl = (xd * xd + yd * yd) < zd * zd;
+                    return tg && cl;
+                }))
+                {
+                    i.Damage(Strength);
+                    IsDead = true;
+                    break;
                 }
                 yield return true;
             }

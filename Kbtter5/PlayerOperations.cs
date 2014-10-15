@@ -11,6 +11,7 @@ namespace Kbtter5
 
     public static class PlayerOperations
     {
+        private static int PlayerBulletLayer = (int)GameLayer.PlayerBullet;
         public static IEnumerator<bool> MouseOperaiton(PlayerUser player)
         {
             int count = 0;
@@ -46,7 +47,7 @@ namespace Kbtter5
                     if (pad.Direction == GamepadDirection.Up) dr = 6;
                     if (pad.Direction == (GamepadDirection.Up | GamepadDirection.Right)) dr = 7;
 
-                    player.AddBullet(new PlayerImageBullet(
+                    player.ParentManager.Add(new PlayerImageBullet(
                         player,
                         CommonObjects.ImageShot,
                         BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90),
@@ -56,7 +57,7 @@ namespace Kbtter5
                         Y = player.Y,
                         HomeX = 8,
                         HomeY = 8,
-                    });
+                    }, PlayerBulletLayer);
                 }
                 if ((msi & DX.MOUSE_INPUT_RIGHT) != 0)
                 {
@@ -114,7 +115,7 @@ namespace Kbtter5
                 dr = (drs > 0) ? (dr / drs) % 8 : ((count / player.ShotInterval) % 8);
 
                 if (pad.Buttons[0] && (count % player.ShotInterval) == 0)
-                    player.AddBullet(new PlayerImageBullet(
+                    player.ParentManager.Add(new PlayerImageBullet(
                       player,
                       CommonObjects.ImageShot,
                       BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90),
@@ -124,7 +125,7 @@ namespace Kbtter5
                       Y = player.Y,
                       HomeX = 8,
                       HomeY = 8,
-                  });
+                  }, PlayerBulletLayer);
 
                 if (pad.Buttons[1]) player.TryBomb();
 

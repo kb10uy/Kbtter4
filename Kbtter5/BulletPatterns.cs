@@ -83,7 +83,7 @@ namespace Kbtter5
                 yield return true;
             }
 
-            var t = par.GameObjects
+            var t = par.ParentManager
                 .Where(p => p.MyKind != b.MyKind && p.DamageKind.HasFlag(b.MyKind))
                 .OrderBy(p => (p.X - b.X) * (p.X - b.X) + (p.Y - b.Y) * (p.Y - b.Y))
                 .FirstOrDefault();

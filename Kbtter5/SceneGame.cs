@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -28,17 +29,16 @@ namespace Kbtter5
         private Kbtter5 Parent = Kbtter5.Instance;
         private Tokens tokens;
         private List<IDisposable> streams = new List<IDisposable>();
-        public List<DisplayObject> Objects { get; set; }
-        private /*Concurrent*/Queue<DisplayObject> adding = new /*Concurrent*/Queue<DisplayObject>();
         private Random rnd = new Random();
-        private object uslock = new object();
         private string BackgroundImagePath = Path.Combine(CommonObjects.DataDirectory, "back.png");
         private bool hasback;
+        private Stopwatch sw = new Stopwatch();
 
         public int TotalScore { get; private set; }
         private int frame = 0;
         private int prevtime = 0;
         private Queue<int> fpsq = new Queue<int>();
+        private static bool IsWindowActive = true;
 
         public PlayerUser Player { get; protected set; }
         private Sprite Background { get; set; }
@@ -51,9 +51,7 @@ namespace Kbtter5
         public SceneGame(Kbtter4Account ac)
         {
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
-            Objects = new List<DisplayObject>();
-
-            Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId), PlayerOperations.KeyboardOperation) { Layer = 5 };
+            Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId), PlayerOperations.MouseOperaiton);
             Information = new InformationBox(Player.SourceUser)
             {
                 X = 0,
@@ -63,19 +61,16 @@ namespace Kbtter5
             {
                 X = 572,
                 Y = 456,
-                Layer = 12
             };
             NumberFps = new NumberSprite(CommonObjects.ImageNumber12White, 6, 12, 2)
             {
                 X = 640 - 12,
                 Y = 480 - 12,
-                Layer = 12
             };
             NumberScore = new NumberSprite(CommonObjects.ImageNumber32, 16, 32, 8)
             {
                 X = 8,
                 Y = 8,
-                Layer = 12
             };
             StringInfo = new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.White)
             {
@@ -90,9 +85,6 @@ namespace Kbtter5
             streams.ForEach(p => p.Dispose());
         }
 
-
-
-
         private void StartConnection()
         {
             var s = tokens.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true")).Publish();
@@ -101,7 +93,7 @@ namespace Kbtter5
 
             if (File.Exists(BackgroundImagePath))
             {
-                Background = new Sprite() { Image = DX.LoadGraph(BackgroundImagePath), HomeX = 480, HomeY = 360, X = 320, Y = 240, Alpha = 0.4, Layer = -10 };
+                Background = new Sprite() { Image = DX.LoadGraph(BackgroundImagePath), HomeX = 480, HomeY = 360, X = 320, Y = 240, Alpha = 0.4 };
                 hasback = true;
             }
             else if (Player.SourceUser.IsProfileUseBackgroundImage)
@@ -116,7 +108,7 @@ namespace Kbtter5
                         sav.Save(BackgroundImagePath, ImageFormat.Jpeg);
                     }
                     Background = new Sprite() { Image = DX.LoadGraph(BackgroundImagePath), HomeX = 480, HomeY = 360, X = 320, Y = 240, Alpha = 0.4 };
-                    adding.Enqueue(Background);
+                    Manager.Add(Background, (int)GameLayer.Background);
                     hasback = true;
                 });
             }
@@ -124,26 +116,16 @@ namespace Kbtter5
 
         private void ProcessStatus(StatusMessage p)
         {
+            if (DX.GetActiveFlag() != DX.TRUE) return;
             if (p.Status.RetweetedStatus != null)
             {
-                adding.Enqueue(new EnemyUser(this, p.Status, EnemyPatterns.RetweeterMultiCannon));
-                adding.Enqueue(new StatusSprite(p.Status));
+                Manager.Add(new EnemyUser(this, p.Status, EnemyPatterns.RetweeterMultiCannon), (int)GameLayer.Enemy);
             }
             else
             {
-                adding.Enqueue(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]));
-                adding.Enqueue(new StatusSprite(p.Status));
+                Manager.Add(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]), (int)GameLayer.Enemy);
             }
-        }
-
-        public void AddBullet(Bullet b)
-        {
-            adding.Enqueue(b);
-        }
-
-        public void AddObject(DisplayObject obj)
-        {
-            adding.Enqueue(obj);
+            Manager.Add(new StatusSprite(p.Status), (int)GameLayer.Information);
         }
 
         public void Score(int pts)
@@ -163,7 +145,12 @@ namespace Kbtter5
         {
             if (Information.Players <= 0)
             {
-                AddObject(new StringSprite(CommonObjects.FontSystemBig, CommonObjects.Colors.Crimson) { Value = "ゲームオーバー", X = 164, Y = 100 });
+                Manager.Add(new StringSprite(CommonObjects.FontSystemBig, CommonObjects.Colors.Crimson)
+                {
+                    Value = "ゲームオーバー",
+                    X = 164,
+                    Y = 100
+                }, (int)GameLayer.Information);
                 return false;
             }
             Information.Popup();
@@ -174,34 +161,27 @@ namespace Kbtter5
 
         public override IEnumerator<bool> Tick()
         {
-            Objects.Add(StringInfo);
-            StartConnection();
+            Manager.Add(StringInfo, (int)GameLayer.Information);
             while (DX.GetASyncLoadNum() != 0)
             {
-                foreach (var i in Objects)
-                {
-                    var s = i.TickCoroutine.MoveNext();
-                    if (!(s && i.TickCoroutine.Current))
-                    {
-                        i.IsDead = true;
-                    }
-                }
-                Objects.RemoveAll(p => p.IsDead);
+                Manager.TickAll();
                 yield return true;
             }
-
+            StartConnection();
             StringInfo.Value = "Objects";
-            
-            if (hasback) Objects.Add(Background);
-            Objects.Add(Player);
-            Objects.Add(Information);
-            Objects.Add(NumberFrames);
-            Objects.Add(NumberFps);
-            Objects.Add(NumberScore);
+
+            if (hasback) Manager.Add(Background, (int)GameLayer.Background);
+            Manager.Add(Player, (int)GameLayer.Player);
+            Manager.Add(Information, (int)GameLayer.Information);
+            Manager.Add(NumberFrames, (int)GameLayer.Information);
+            Manager.Add(NumberFps, (int)GameLayer.Information);
+            Manager.Add(NumberScore, (int)GameLayer.Information);
             Information.Popup();
             prevtime = DX.GetNowCount();
             while (true)
             {
+                //sw.Reset();
+                //sw.Start();
                 //FPS計算
                 if (frame % 15 == 0 && frame / 15 > 0)
                 {
@@ -216,27 +196,13 @@ namespace Kbtter5
                 //背景のアレ
                 if (hasback)
                 {
-                    //int mx, my;
-                    //DX.GetMousePoint(out mx, out my);
                     Background.X = 320 - (Player.X - 320) * 0.25;
                     Background.Y = 240 - (Player.Y - 240) * 0.25;
                 }
 
-                //DisplayObject de;
-                //while (adding.TryDequeue(out de)) Objects.Add(de);
-                Objects.AddRange(adding);
-                adding.Clear();
-                foreach (var i in Objects)
-                {
-                    var s = i.TickCoroutine.MoveNext();
-                    if (!(s && i.TickCoroutine.Current))
-                    {
-                        i.IsDead = true;
-                    }
-                }
-                Objects.RemoveAll(p => p.IsDead);
-
-                NumberFrames.Value = Objects.Count;
+                Manager.TickAll();
+                //sw.Stop();
+                NumberFrames.Value = Manager.Count;
                 NumberScore.Value = TotalScore;
                 frame++;
                 yield return true;
@@ -248,12 +214,7 @@ namespace Kbtter5
         {
             while (true)
             {
-                foreach (var i in Objects.OrderBy(p => p.Layer))
-                {
-                    var s = i.DrawCoroutine.MoveNext();
-                    if (!(s && i.TickCoroutine.Current)) i.IsDead = true;
-                }
-                Objects.RemoveAll(p => p.IsDead);
+                Manager.DrawAll();
                 yield return true;
             }
         }
@@ -368,5 +329,16 @@ namespace Kbtter5
                 yield return true;
             }
         }
+    }
+
+    public enum GameLayer
+    {
+        Background = 0,
+        EnemyBullet,
+        Enemy,
+        PlayerBullet,
+        Player,
+        Effect,
+        Information,
     }
 }
