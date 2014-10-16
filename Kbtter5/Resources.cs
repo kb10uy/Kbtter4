@@ -36,6 +36,7 @@ namespace Kbtter5
         public static int[] ImageNumber48 { get; private set; }
         public static int[] ImageNumber24 { get; private set; }
         public static int[] ImageNumber32 { get; private set; }
+        public static int[] ImageNumber16 { get; private set; }
         public static int[] ImageNumber12White { get; private set; }
         public static int[] ImageNumber12Red { get; private set; }
         public static int[] ImageNumber12Blue { get; private set; }
@@ -49,12 +50,14 @@ namespace Kbtter5
             ImageNumber12White = new int[11];
             ImageNumber12Red = new int[11];
             ImageNumber12Blue = new int[11];
+            ImageNumber16 = new int[11];
             ImageNumber24 = new int[11];
             ImageNumber32 = new int[11];
             ImageNumber48 = new int[11];
             DX.LoadDivGraph(GetCommonImagePath("num12.png"), 11, 11, 1, 6, 12, out ImageNumber12White[0]);
             DX.LoadDivGraph(GetCommonImagePath("num12_2.png"), 11, 11, 1, 6, 12, out ImageNumber12Red[0]);
             DX.LoadDivGraph(GetCommonImagePath("num12_3.png"), 11, 11, 1, 6, 12, out ImageNumber12Blue[0]);
+            DX.LoadDivGraph(GetCommonImagePath("num16.png"), 11, 11, 1, 8, 16, out ImageNumber16[0]);
             DX.LoadDivGraph(GetCommonImagePath("num24.png"), 11, 11, 1, 12, 24, out ImageNumber24[0]);
             DX.LoadDivGraph(GetCommonImagePath("num32.png"), 11, 11, 1, 16, 32, out ImageNumber32[0]);
             DX.LoadDivGraph(GetCommonImagePath("num48.png"), 11, 11, 1, 24, 48, out ImageNumber48[0]);

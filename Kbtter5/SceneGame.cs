@@ -35,52 +35,31 @@ namespace Kbtter5
         private Stopwatch sw = new Stopwatch();
 
         public int TotalScore { get; private set; }
+        public double ShowingScore { get; private set; }
         private int frame = 0;
         private int prevtime = 0;
         private Queue<int> fpsq = new Queue<int>();
 
         public PlayerUser Player { get; protected set; }
         private Sprite Background;
-        private NumberSprite NumberFrames;
-        private NumberSprite NumberFps;
-        private NumberSprite NumberScore;
         private StringSprite StringInfo;
         private InformationBox Information;
-        private Sprite ImageScore;
 
         public SceneGame(Kbtter4Account ac)
         {
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId), PlayerOperations.MouseOperaiton);
-            Information = new InformationBox(Player.SourceUser)
+            Information = new InformationBox(Player.SourceUser, Player)
             {
                 X = 0,
                 Y = 480
             };
-            NumberFrames = new NumberSprite(CommonObjects.ImageNumber24, 12, 24, 4)
+            StringInfo = new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White)
             {
-                X = 572,
-                Y = 456,
-            };
-            NumberFps = new NumberSprite(CommonObjects.ImageNumber12White, 6, 12, 2)
-            {
-                X = 640 - 12,
-                Y = 480 - 12,
-            };
-            NumberScore = new NumberSprite(CommonObjects.ImageNumber32, 16, 32, 8)
-            {
-                X = 16 + 128,
-                Y = 8,
-                FillWithZero = true
-            };
-            StringInfo = new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.White)
-            {
-                X = 566,
-                Y = 436,
+                X = 280,
+                Y = 240,
                 Value = "Loading"
             };
-
-            ImageScore = new Sprite() { Image = CommonObjects.ImageScore, X = 8, Y = 8 };
         }
 
         ~SceneGame()
@@ -119,7 +98,7 @@ namespace Kbtter5
 
         private void ProcessStatus(StatusMessage p)
         {
-            if (DX.GetActiveFlag() != DX.TRUE) return;
+            //if (DX.GetActiveFlag() != DX.TRUE) return;
             if (p.Status.RetweetedStatus != null)
             {
                 Manager.Add(new EnemyUser(this, p.Status, EnemyPatterns.RetweeterMultiCannon), (int)GameLayer.Enemy);
@@ -139,9 +118,18 @@ namespace Kbtter5
         public bool UseBomb()
         {
             if (Information.Bombs <= 0) return false;
-            Information.Popup();
             Information.Bombs--;
             return true;
+        }
+
+        public void Graze()
+        {
+            Information.NumberGraze.Value++;
+        }
+
+        public void DestroyEnemy()
+        {
+            Information.NumberDestroy.Value++;
         }
 
         public bool Miss()
@@ -156,7 +144,6 @@ namespace Kbtter5
                 }, (int)GameLayer.Information);
                 return false;
             }
-            Information.Popup();
             Information.Players--;
             Information.ResetBomb();
             return true;
@@ -170,22 +157,18 @@ namespace Kbtter5
                 Manager.TickAll();
                 yield return true;
             }
+            StringInfo.IsDead = true;
             StartConnection();
-            StringInfo.Value = "Objects";
 
             if (hasback) Manager.Add(Background, (int)GameLayer.Background);
             Manager.Add(Player, (int)GameLayer.Player);
             Manager.Add(Information, (int)GameLayer.Information);
-            Manager.Add(NumberFrames, (int)GameLayer.Information);
-            Manager.Add(NumberFps, (int)GameLayer.Information);
-            Manager.Add(NumberScore, (int)GameLayer.Information);
-            Manager.Add(ImageScore, (int)GameLayer.Information);
             Information.Popup();
             prevtime = DX.GetNowCount();
             while (true)
             {
-                sw.Reset();
-                sw.Start();
+                //sw.Reset();
+                //sw.Start();
                 //FPS計算
                 if (frame % 15 == 0 && frame / 15 > 0)
                 {
@@ -194,7 +177,7 @@ namespace Kbtter5
                     var fps = 1000.0 / (dist / 15.0);
                     fpsq.Enqueue((int)Math.Round(fps));
                     if (fpsq.Count > 4) fpsq.Dequeue();
-                    NumberFps.Value = (int)fpsq.Average();
+                    Information.NumberFps.Value = (int)fpsq.Average();
                     prevtime = time;
                 }
                 //背景のアレ
@@ -205,9 +188,13 @@ namespace Kbtter5
                 }
 
                 Manager.TickAll();
-                sw.Stop();
-                NumberFrames.Value = (int)sw.ElapsedMilliseconds;//Manager.Count;
-                NumberScore.Value = TotalScore;
+                //sw.Stop();
+                Information.NumberFrames.Value = Manager.Count;
+                if (ShowingScore < TotalScore)
+                {
+                    ShowingScore = Math.Min(TotalScore, ShowingScore + (((TotalScore - ShowingScore) / 30.0) + 7));
+                }
+                Information.NumberScore.Value = (int)ShowingScore;
                 frame++;
                 yield return true;
             }
@@ -268,15 +255,70 @@ namespace Kbtter5
         public int BackColor { get; private set; }
         public int FontColor { get; private set; }
         public IEnumerator<bool> Operation { get; private set; }
+        public ObjectManager Manager { get; private set; }
         private int defb;
+        public NumberSprite NumberFrames { get; set; }
+        public NumberSprite NumberFps { get; set; }
+        public NumberSprite NumberScore { get; set; }
+        public NumberSprite NumberPlayers { get; set; }
+        public NumberSprite NumberBombs { get; set; }
+        public NumberSprite NumberDestroy { get; set; }
+        public NumberSprite NumberGraze { get; set; }
+        private PlayerUser user;
+        private double pux;
 
-        public InformationBox(User u)
+        public InformationBox(User u, PlayerUser pu)
         {
             Players = (int)(Math.Log10(u.FollowersCount) * Math.Log10(u.FriendsCount)) * 4;
             Bombs = (int)(Math.Log10(u.FavouritesCount) + Math.Log10(u.StatusesCount)) * 2;
             defb = Bombs;
             BackColor = CommonObjects.Colors.DimGray;
             FontColor = CommonObjects.Colors.White;
+            Manager = new ObjectManager(2);
+            user = pu;
+            Y = 432;
+
+            NumberScore = new NumberSprite(CommonObjects.ImageNumber32, 16, 32, 8)
+            {
+                X = 16 + 128,
+                Y = 8,
+                FillWithZero = true
+            };
+            NumberFrames = new NumberSprite(CommonObjects.ImageNumber24, 12, 24, 4)
+            {
+                X = 572,
+                Y = 20,
+            };
+            NumberFps = new NumberSprite(CommonObjects.ImageNumber12White, 6, 12, 2)
+            {
+                X = 640 - 12,
+                Y = 36,
+            };
+
+            NumberPlayers = new NumberSprite(CommonObjects.ImageNumber16, 8, 16, 3)
+            {
+                X = 384,
+                Y = 4,
+                FillWithZero = true
+            };
+            NumberBombs = new NumberSprite(CommonObjects.ImageNumber16, 8, 16, 3)
+            {
+                X = 524,
+                Y = 4,
+                FillWithZero = true
+            };
+            NumberDestroy = new NumberSprite(CommonObjects.ImageNumber16, 8, 16, 4)
+            {
+                X = 376,
+                Y = 28,
+                FillWithZero = true
+            };
+            NumberGraze = new NumberSprite(CommonObjects.ImageNumber16, 8, 16, 5)
+            {
+                X = 508,
+                Y = 28,
+                FillWithZero = true
+            };
         }
 
         public void Popup()
@@ -284,17 +326,27 @@ namespace Kbtter5
             Operation = PopupOperation();
         }
 
+        public void Popdown()
+        {
+            Operation = PopdownOperation();
+        }
+
         private IEnumerator<bool> PopupOperation()
         {
-            for (int i = 0; i < 20; i++)
+            var y = Y;
+            for (int i = 0; i < 30; i++)
             {
-                Y = Easing.OutCubic(i, 20, 480, -112);
+                Y = Easing.OutCubic(i, 30, y, 432 - y);
                 yield return true;
             }
-            for (int i = 0; i < 120; i++) yield return true;
-            for (int i = 0; i < 60; i++)
+        }
+
+        private IEnumerator<bool> PopdownOperation()
+        {
+            var y = Y;
+            for (int i = 0; i < 30; i++)
             {
-                Y = Easing.OutCubic(i, 60, 480 - 112, 112);
+                Y = Easing.OutCubic(i, 30, y, 480 - y);
                 yield return true;
             }
         }
@@ -306,9 +358,32 @@ namespace Kbtter5
 
         public override IEnumerator<bool> Tick()
         {
+            Manager.Add(new Sprite() { Image = CommonObjects.ImageScore, X = 8, Y = 8 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "残り人数", X = 280, Y = 4 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "残りボム", X = 420, Y = 4 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "撃墜数", X = 280, Y = 28 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "グレイズ", X = 420, Y = 28 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.White) { Value = "描画総数", X = 566, Y = 4 }, 1);
+            Manager.Add(NumberScore, 1);
+            Manager.Add(NumberFrames, 1);
+            Manager.Add(NumberFps, 1);
+            Manager.Add(NumberPlayers, 1);
+            Manager.Add(NumberBombs, 1);
+            Manager.Add(NumberDestroy, 1);
+            Manager.Add(NumberGraze, 1);
+
+            pux = user.Y;
             while (true)
             {
+                Manager.OffsetX = X;
+                Manager.OffsetY = Y;
+                NumberPlayers.Value = Players;
+                NumberBombs.Value = Bombs;
+                Manager.TickAll();
+                if (pux < 432 && user.Y >= 432) Popdown();
+                if (pux >= 432 && user.Y < 432) Popup();
                 Operation = (Operation != null && Operation.MoveNext() && Operation.Current) ? Operation : null;
+                pux = user.Y;
                 yield return true;
             }
         }
@@ -318,18 +393,9 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, 100);
-                DX.DrawBox((int)X, (int)Y, (int)(X + 400), (int)(Y + 112), BackColor, DX.TRUE);
+                DX.DrawBox((int)X, (int)Y, (int)(X + 640), (int)(Y + 48), BackColor, DX.TRUE);
 
-                DX.DrawStringToHandle((int)(X + 8), (int)(Y + 8), "残り人数", FontColor, CommonObjects.FontSystemBig);
-                var ds = Players.ToString();
-                var dw = DX.GetDrawStringWidthToHandle(ds, ds.Length, CommonObjects.FontSystemBig);
-                DX.DrawStringToHandle((int)(384 - dw), (int)(Y + 8), ds, FontColor, CommonObjects.FontSystemBig);
-
-                DX.DrawStringToHandle((int)(X + 8), (int)(Y + 64), "残りボム", FontColor, CommonObjects.FontSystemBig);
-                ds = Bombs.ToString();
-                dw = DX.GetDrawStringWidthToHandle(ds, ds.Length, CommonObjects.FontSystemBig);
-                DX.DrawStringToHandle((int)(384 - dw), (int)(Y + 64), ds, FontColor, CommonObjects.FontSystemBig);
-
+                Manager.DrawAll();
                 yield return true;
             }
         }

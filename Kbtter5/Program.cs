@@ -104,6 +104,9 @@ namespace Kbtter5
         private List<List<DisplayObject>> bufferedlayers;
         private bool taken = true;
 
+        public double OffsetX { get; set; }
+        public double OffsetY { get; set; }
+
         public IReadOnlyList<IReadOnlyList<DisplayObject>> Layers
         {
             get { return layers; }

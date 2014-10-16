@@ -14,6 +14,8 @@ namespace Kbtter5
     {
         public double X { get; set; }
         public double Y { get; set; }
+        public double ActualX { get { return X + ParentManager.OffsetX; } }
+        public double ActualY { get { return Y + ParentManager.OffsetY; } }
         public double HomeX { get; set; }
         public double HomeY { get; set; }
         public double ScaleX { get; set; }
@@ -71,7 +73,7 @@ namespace Kbtter5
                 if (IsImageLoaded)
                 {
                     DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                    DX.DrawRotaGraph3((int)X, (int)Y, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
+                    DX.DrawRotaGraph3((int)ActualX, (int)ActualY, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
                 }
                 else
                 {
@@ -180,6 +182,7 @@ namespace Kbtter5
                         if ((xd * xd + yd * yd) < zd * zd)
                         {
                             Player.Graze();
+                            game.Graze();
                         }
                     }
                 }
@@ -196,6 +199,7 @@ namespace Kbtter5
             {
                 ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, TotalHealth / 10 * 10) { X = X, Y = Y }, EffectLayer);
                 game.Score(TotalHealth / 10 * 10);
+                game.DestroyEnemy();
                 IsDead = true;
                 var ofs = rnd.NextDouble() * Math.PI * 2;
                 for (int i = 0; i < 5; i++)
@@ -416,7 +420,7 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                DX.DrawStringToHandle((int)(X - HomeX), (int)(Y - HomeY), Character.ToString(), CommonObjects.Colors.White, CommonObjects.FontBullet);
+                DX.DrawStringToHandle((int)(ActualX - HomeX), (int)(ActualY - HomeY), Character.ToString(), CommonObjects.Colors.White, CommonObjects.FontBullet);
                 yield return true;
             }
         }
@@ -495,7 +499,7 @@ namespace Kbtter5
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
                 for (int i = Digits - 1; i >= 0; i--)
                 {
-                    DX.DrawGraph((int)(X + DigitX * i - HomeX), (int)(Y - HomeY), NumberImage[(Digits - 1 - i < reald) ? v % 10 : FillWithZero ? 0 : 10], DX.TRUE);
+                    DX.DrawGraph((int)(ActualX + DigitX * i - HomeX), (int)(ActualY - HomeY), NumberImage[(Digits - 1 - i < reald) ? v % 10 : FillWithZero ? 0 : 10], DX.TRUE);
                     v /= 10;
                 }
                 yield return true;
@@ -541,7 +545,7 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                DX.DrawStringToHandle((int)(X - HomeX), (int)(Y - HomeY), Value, Color, FontHandle);
+                DX.DrawStringToHandle((int)(ActualX - HomeX), (int)(ActualY - HomeY), Value, Color, FontHandle);
                 yield return true;
             }
         }
