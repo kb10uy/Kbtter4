@@ -38,15 +38,15 @@ namespace Kbtter5
         private int frame = 0;
         private int prevtime = 0;
         private Queue<int> fpsq = new Queue<int>();
-        private static bool IsWindowActive = true;
 
         public PlayerUser Player { get; protected set; }
-        private Sprite Background { get; set; }
-        private NumberSprite NumberFrames { get; set; }
-        private NumberSprite NumberFps { get; set; }
-        private NumberSprite NumberScore { get; set; }
-        private StringSprite StringInfo { get; set; }
-        private InformationBox Information { get; set; }
+        private Sprite Background;
+        private NumberSprite NumberFrames;
+        private NumberSprite NumberFps;
+        private NumberSprite NumberScore;
+        private StringSprite StringInfo;
+        private InformationBox Information;
+        private Sprite ImageScore;
 
         public SceneGame(Kbtter4Account ac)
         {
@@ -69,8 +69,9 @@ namespace Kbtter5
             };
             NumberScore = new NumberSprite(CommonObjects.ImageNumber32, 16, 32, 8)
             {
-                X = 8,
+                X = 16 + 128,
                 Y = 8,
+                FillWithZero = true
             };
             StringInfo = new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.White)
             {
@@ -78,6 +79,8 @@ namespace Kbtter5
                 Y = 436,
                 Value = "Loading"
             };
+
+            ImageScore = new Sprite() { Image = CommonObjects.ImageScore, X = 8, Y = 8 };
         }
 
         ~SceneGame()
@@ -125,7 +128,7 @@ namespace Kbtter5
             {
                 Manager.Add(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]), (int)GameLayer.Enemy);
             }
-            Manager.Add(new StatusSprite(p.Status), (int)GameLayer.Information);
+            //Manager.Add(new StatusSprite(p.Status), (int)GameLayer.Information);
         }
 
         public void Score(int pts)
@@ -176,12 +179,13 @@ namespace Kbtter5
             Manager.Add(NumberFrames, (int)GameLayer.Information);
             Manager.Add(NumberFps, (int)GameLayer.Information);
             Manager.Add(NumberScore, (int)GameLayer.Information);
+            Manager.Add(ImageScore, (int)GameLayer.Information);
             Information.Popup();
             prevtime = DX.GetNowCount();
             while (true)
             {
-                //sw.Reset();
-                //sw.Start();
+                sw.Reset();
+                sw.Start();
                 //FPS計算
                 if (frame % 15 == 0 && frame / 15 > 0)
                 {
@@ -201,8 +205,8 @@ namespace Kbtter5
                 }
 
                 Manager.TickAll();
-                //sw.Stop();
-                NumberFrames.Value = Manager.Count;
+                sw.Stop();
+                NumberFrames.Value = (int)sw.ElapsedMilliseconds;//Manager.Count;
                 NumberScore.Value = TotalScore;
                 frame++;
                 yield return true;

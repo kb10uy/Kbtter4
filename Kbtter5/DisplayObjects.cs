@@ -57,6 +57,7 @@ namespace Kbtter5
     public class Sprite : DisplayObject
     {
         public int Image { get; set; }
+        protected bool IsImageLoaded { get; set; }
 
         public Sprite()
         {
@@ -67,10 +68,14 @@ namespace Kbtter5
         {
             while (true)
             {
-                if (DX.CheckHandleASyncLoad(Image) == DX.FALSE)
+                if (IsImageLoaded)
                 {
                     DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
                     DX.DrawRotaGraph3((int)X, (int)Y, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
+                }
+                else
+                {
+                    IsImageLoaded = DX.CheckHandleASyncLoad(Image) == DX.FALSE;
                 }
                 yield return true;
             }
@@ -78,23 +83,20 @@ namespace Kbtter5
     }
 
 
-    public class Bullet : DisplayObject
+    public class Bullet : Sprite
     {
         public Bullet()
         {
         }
     }
 
-    public class UserSprite : DisplayObject
+    public class UserSprite : Sprite
     {
         protected static int EnemyBulletLayer = (int)GameLayer.EnemyBullet;
         protected static int EnemyLayer = (int)GameLayer.Enemy;
         protected static int PlayerLayer = (int)GameLayer.Player;
         protected static int PlayerBulletLayer = (int)GameLayer.PlayerBullet;
         protected static int EffectLayer = (int)GameLayer.Effect;
-
-        public int Image { get; set; }
-        public bool ImageLoaded { get; set; }
 
         public UserSprite()
         {
@@ -103,19 +105,6 @@ namespace Kbtter5
             HomeY = 16;
             CollisonRadius = 6;
             GrazeRadius = 8;
-        }
-
-        public override IEnumerator<bool> Draw()
-        {
-            while (true)
-            {
-                if (DX.CheckHandleASyncLoad(Image) == DX.FALSE)
-                {
-                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                    DX.DrawRotaGraph3((int)X, (int)Y, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
-                }
-                yield return true;
-            }
         }
     }
 
@@ -150,7 +139,7 @@ namespace Kbtter5
             Task.Run(() =>
             {
                 Image = UserImageManager.GetUserImage(SourceStatus.User);
-                ImageLoaded = true;
+                IsImageLoaded = true;
             });
         }
 
@@ -165,7 +154,7 @@ namespace Kbtter5
             Task.Run(() =>
             {
                 Image = UserImageManager.GetUserImage(SourceStatus.User);
-                ImageLoaded = true;
+                IsImageLoaded = true;
             });
         }
 
@@ -197,21 +186,7 @@ namespace Kbtter5
                 yield return true;
             }
         }
-        /*
-        public override IEnumerator<bool> Draw()
-        {
-            while (true)
-            {
-                if (DX.CheckHandleASyncLoad(Image) == DX.FALSE)
-                {
-                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                    DX.DrawRotaGraph3((int)X, (int)Y, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
-                }
-                DX.DrawStringToHandle((int)X, (int)Y, Health.ToString(), DX.GetColor(255, 0, 0), CommonObjects.FontSystem);
-                yield return true;
-            }
-        }
-        */
+
         public void Damage(int point)
         {
             Health -= point;
@@ -269,7 +244,7 @@ namespace Kbtter5
             Task.Run(() =>
             {
                 Image = UserImageManager.GetUserImage(SourceUser);
-                ImageLoaded = true;
+                IsImageLoaded = true;
             });
         }
 
@@ -449,7 +424,6 @@ namespace Kbtter5
 
     public class PlayerImageBullet : Bullet
     {
-        public int Image { get; protected set; }
         public PlayerUser Parent { get; protected set; }
         public IEnumerator<bool> Operation { get; protected set; }
         public int Strength { get; protected set; }
@@ -459,6 +433,7 @@ namespace Kbtter5
             Parent = pa;
             Operation = op(Parent, this);
             Image = i;
+            IsImageLoaded = true;
             Strength = s;
             CollisonRadius = 8;
             MyKind = ObjectKind.PlayerBullet;
@@ -485,19 +460,6 @@ namespace Kbtter5
                     i.Damage(Strength);
                     IsDead = true;
                     break;
-                }
-                yield return true;
-            }
-        }
-
-        public override IEnumerator<bool> Draw()
-        {
-            while (true)
-            {
-                if (DX.CheckHandleASyncLoad(Image) == DX.FALSE)
-                {
-                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                    DX.DrawRotaGraph3((int)X, (int)Y, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
                 }
                 yield return true;
             }

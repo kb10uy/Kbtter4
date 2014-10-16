@@ -28,6 +28,7 @@ namespace Kbtter5
 
         public static int ImageLoadingCircle32 = DX.LoadGraph(GetCommonImagePath("loading32.png"));
         public static int ImageLogo = DX.LoadGraph(GetCommonImagePath("Kbtter5.png"));
+        public static int ImageScore = DX.LoadGraph(GetCommonImagePath("score.png"));
 
         public static int ImageShot = DX.LoadGraph(GetCommonImagePath("shot.png"));
         public static int ImageStar = DX.LoadGraph(GetCommonImagePath("shot2.png"));
@@ -59,6 +60,7 @@ namespace Kbtter5
             DX.LoadDivGraph(GetCommonImagePath("num48.png"), 11, 11, 1, 24, 48, out ImageNumber48[0]);
         }
 
+        #region Colors内部クラス
         public static class Colors
         {
             public static int AliceBlue = DX.GetColor(0xF0, 0xF8, 0xFF);
@@ -202,6 +204,7 @@ namespace Kbtter5
             public static int Yellow = DX.GetColor(0xFF, 0xFF, 0x00);
             public static int YellowGreen = DX.GetColor(0x9A, 0xCD, 0x32);
         }
+        #endregion
 
     }
 

@@ -84,7 +84,7 @@ namespace Kbtter5
             }
 
             var t = par.ParentManager
-                .Where(p => p.MyKind != b.MyKind && p.DamageKind.HasFlag(b.MyKind))
+                .Where(p => p.MyKind != b.MyKind && ((p.DamageKind & b.MyKind) != 0))
                 .OrderBy(p => (p.X - b.X) * (p.X - b.X) + (p.Y - b.Y) * (p.Y - b.Y))
                 .FirstOrDefault();
             var ang = 0.0;
