@@ -22,7 +22,6 @@ namespace Kbtter5
             DX.SetDrawScreen(DX.DX_SCREEN_BACK);
             DX.SetWindowText("Kbtter5 Polyvinyl Chloride");
             DX.SetUseASyncLoadFlag(DX.TRUE);
-
             Kbtter5.Instance.Run();
 
             DX.DxLib_End();

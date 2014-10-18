@@ -20,8 +20,6 @@ namespace Kbtter5
             GoDownAndAway,
             GoDownAndAway,
             GoDownAndAway,
-            GoDownAndAway,
-            GoDownAndAway,
             GoDownThrough,
             ToorimasuyoUpper,
             ToorimasuyoUpperReverse,
@@ -51,7 +49,7 @@ namespace Kbtter5
             var us = sp.SourceStatus.User;
             var ta = Math.Atan2(sp.Player.Y - sp.Y, sp.Player.X - sp.X);
 
-            switch ((us.Id - sp.SourceStatus.Text.Length * us.StatusesCount) % 8)
+            switch (/*(us.Id - sp.SourceStatus.Text.Length * us.StatusesCount) % 8*/4)
             {
                 case 0:
                     for (int i = 0; i < str.Length; i++)
@@ -80,6 +78,13 @@ namespace Kbtter5
                     }
                     break;
                 case 4:
+                    sp.ParentManager.Add(new LinearLaser(sp, CommonObjects.ImageLaser16, 16, LinearLaserPatterns.Normal(200, 5))
+                    {
+                        X = sp.X,
+                        Y = sp.Y,
+                        Angle = Math.Atan2(sp.Player.Y - sp.Y, sp.Player.X - sp.X)
+                    }, EnemyBulletLayer);
+                    break;
                 case 5:
                     for (int i = 0; i < str.Length; i++)
                     {

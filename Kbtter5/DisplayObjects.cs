@@ -73,7 +73,7 @@ namespace Kbtter5
                 if (IsImageLoaded)
                 {
                     DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                    DX.DrawRotaGraph3((int)ActualX, (int)ActualY, (int)HomeX, (int)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
+                    DX.DrawRotaGraph3F((float)ActualX, (float)ActualY, (float)HomeX, (float)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
                 }
                 else
                 {
@@ -87,6 +87,7 @@ namespace Kbtter5
 
     public class Bullet : Sprite
     {
+        public IEnumerator<bool> Operation { get; protected set; }
         public Bullet()
         {
         }
@@ -182,7 +183,6 @@ namespace Kbtter5
                         if ((xd * xd + yd * yd) < zd * zd)
                         {
                             Player.Graze();
-                            game.Graze();
                         }
                     }
                 }
@@ -256,6 +256,7 @@ namespace Kbtter5
         {
             ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, GrazePoint) { X = X, Y = Y }, EffectLayer);
             game.Score(GrazePoint);
+            game.Graze();
         }
 
         public void Kill()
@@ -368,10 +369,13 @@ namespace Kbtter5
 
     public class CharacterBullet : Bullet
     {
-        public char Character { get; protected set; }
+        private LetterInformation buffered;
+        public char Character
+        {
+            set { CommonObjects.TextureFontBullet.Letters.TryGetValue(value, out buffered); }
+        }
         public EnemyUser Parent { get; protected set; }
         public double Size { get; protected set; }
-        public IEnumerator<bool> Operation { get; protected set; }
 
         public CharacterBullet(EnemyUser parent, char c, BulletPattern op)
         {
@@ -380,7 +384,7 @@ namespace Kbtter5
             TargetKind = ObjectKind.Player;
             Operation = op(Parent, this);
             Character = c;
-            Size = 20;
+            Size = 32;
             HomeX = Size / 2;
             HomeY = Size / 2;
             CollisonRadius = 4;
@@ -420,7 +424,102 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                DX.DrawStringToHandle((int)(ActualX - HomeX), (int)(ActualY - HomeY), Character.ToString(), CommonObjects.Colors.White, CommonObjects.FontBullet);
+                //DX.DrawStringFToHandle((float)(ActualX - HomeX), (float)(ActualY - HomeY), buffered, CommonObjects.Colors.White, CommonObjects.FontBullet);
+                DX.DrawGraphF((float)(ActualX - HomeX + buffered.OffsetX), (float)(ActualY - HomeY + buffered.OffsetY), buffered.Handle, DX.TRUE);
+                yield return true;
+            }
+        }
+    }
+
+    public class LinearLaser : Bullet
+    {
+        public EnemyUser Parent { get; protected set; }
+        public double Length { get; set; }
+        public double Thickness { get; set; }
+
+        public LinearLaser(EnemyUser par, int img, double thickness, LinearLaserPattern op)
+        {
+            Parent = par;
+            Image = img;
+            CollisonRadius = thickness;
+            Thickness = thickness;
+            Operation = op(par, this);
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (!IsDead)
+            {
+                IsDead = !(Operation.MoveNext() && Operation.Current);
+
+                var ex = X + Math.Cos(Angle) * Length;
+                var ey = Y + Math.Sin(Angle) * Length;
+                if ((X <= 0 || X >= 640 || Y <= 0 || Y >= 480) && (ex <= 0 || ex >= 640 || ey <= 0 || ey >= 480)) IsDead = true;
+                if (Parent.Player.HasCollision)
+                {
+                    var vax = ex - X;
+                    var vay = ey - Y;
+                    var vbx = Parent.Player.X - X;
+                    var vby = Parent.Player.Y - Y;
+                    var r = (vax * vbx + vay * vby) / (vax * vax + vay * vay);
+                    double xd = 0, yd = 0;
+                    if (r <= 0)
+                    {
+                        xd = X - Parent.Player.X;
+                        yd = Y - Parent.Player.Y;
+                    }
+                    else if (r >= 1)
+                    {
+                        xd = ex - Parent.Player.X;
+                        yd = ey - Parent.Player.Y;
+                    }
+                    else
+                    {
+                        xd = (X + vax * r) - Parent.Player.X;
+                        yd = (Y + vay * r) - Parent.Player.Y;
+                    }
+
+                    var zd = CollisonRadius + Parent.Player.CollisonRadius;
+                    if ((xd * xd + yd * yd) < zd * zd)
+                    {
+                        Parent.Player.Kill();
+                    }
+                    else
+                    {
+                        zd = GrazeRadius + Parent.Player.GrazeRadius;
+                        if ((xd * xd + yd * yd) < zd * zd)
+                        {
+                            Parent.Player.Graze();
+                        }
+                    }
+                }
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                var su = new Point { X = ActualX + Math.Cos(Angle - Math.PI / 2) * Thickness / 2, Y = ActualY + Math.Sin(Angle - Math.PI / 2) * Thickness / 2 };
+                var sd = new Point { X = ActualX + Math.Cos(Angle + Math.PI / 2) * Thickness / 2, Y = ActualY + Math.Sin(Angle + Math.PI / 2) * Thickness / 2 };
+                var eu = new Point
+                {
+                    X = ActualX + Math.Cos(Angle) * Length + Math.Cos(Angle - Math.PI / 2) * Thickness / 2,
+                    Y = ActualY + Math.Sin(Angle) * Length + Math.Sin(Angle - Math.PI / 2) * Thickness / 2
+                };
+                var ed = new Point
+                {
+                    X = ActualX + Math.Cos(Angle) * Length + Math.Cos(Angle + Math.PI / 2) * Thickness / 2,
+                    Y = ActualY + Math.Sin(Angle) * Length + Math.Sin(Angle + Math.PI / 2) * Thickness / 2
+                };
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.DrawModiGraphF(
+                    (float)su.X, (float)su.Y,
+                    (float)eu.X, (float)eu.Y,
+                    (float)ed.X, (float)ed.Y,
+                    (float)sd.X, (float)sd.Y,
+                    Image, DX.TRUE);
                 yield return true;
             }
         }
@@ -429,7 +528,6 @@ namespace Kbtter5
     public class PlayerImageBullet : Bullet
     {
         public PlayerUser Parent { get; protected set; }
-        public IEnumerator<bool> Operation { get; protected set; }
         public int Strength { get; protected set; }
 
         public PlayerImageBullet(PlayerUser pa, int i, BulletPattern op, int s)
@@ -499,7 +597,7 @@ namespace Kbtter5
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
                 for (int i = Digits - 1; i >= 0; i--)
                 {
-                    DX.DrawGraph((int)(ActualX + DigitX * i - HomeX), (int)(ActualY - HomeY), NumberImage[(Digits - 1 - i < reald) ? v % 10 : FillWithZero ? 0 : 10], DX.TRUE);
+                    DX.DrawGraphF((float)(ActualX + DigitX * i - HomeX), (float)(ActualY - HomeY), NumberImage[(Digits - 1 - i < reald) ? v % 10 : FillWithZero ? 0 : 10], DX.TRUE);
                     v /= 10;
                 }
                 yield return true;
@@ -545,7 +643,7 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                DX.DrawStringToHandle((int)(ActualX - HomeX), (int)(ActualY - HomeY), Value, Color, FontHandle);
+                DX.DrawStringFToHandle((float)(ActualX - HomeX), (float)(ActualY - HomeY), Value, Color, FontHandle);
                 yield return true;
             }
         }
@@ -563,6 +661,51 @@ namespace Kbtter5
         public override IEnumerator<bool> Tick()
         {
             while (!(IsDead = !(Operation.MoveNext() && Operation.Current))) yield return true;
+        }
+    }
+
+    public class CircleObject : DisplayObject
+    {
+        public double Radius { get; set; }
+        public int Color { get; set; }
+        public bool AllowFill { get; set; }
+
+        public CircleObject()
+        {
+            Radius = 0;
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.DrawOval((int)(ActualX - HomeX), (int)(ActualY - HomeY), (int)Radius, (int)Radius, Color, AllowFill ? DX.TRUE : DX.FALSE);
+                yield return true;
+            }
+        }
+    }
+
+    public class LineObject : DisplayObject
+    {
+        public double Length { get; set; }
+        public int Color { get; set; }
+
+        public LineObject()
+        {
+            Length = 0;
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                var dx = Math.Cos(Angle) * Length;
+                var dy = Math.Sin(Angle) * Length;
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.DrawLine((int)(ActualX - HomeX), (int)(ActualY - HomeY), (int)(ActualX - HomeX + dx), (int)(ActualY - HomeY + dy), Color);
+                yield return true;
+            }
         }
     }
 

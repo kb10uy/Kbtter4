@@ -105,4 +105,31 @@ namespace Kbtter5
             }
         }
     }
+
+    public delegate IEnumerator<bool> LinearLaserPattern(UserSprite parent, LinearLaser laser);
+
+    public static class LinearLaserPatterns
+    {
+        static Random rnd = new Random();
+
+        public static LinearLaserPattern Normal(double length, double speed)
+        {
+            return (par, l) => Normal(par, l, length, speed);
+        }
+
+        private static IEnumerator<bool> Normal(UserSprite parent, LinearLaser laser, double length, double speed)
+        {
+            while (laser.Length < length)
+            {
+                laser.Length += speed;
+                yield return true;
+            }
+            while (true)
+            {
+                laser.X += Math.Cos(laser.Angle) * speed;
+                laser.Y += Math.Sin(laser.Angle) * speed;
+                yield return true;
+            }
+        }
+    }
 }

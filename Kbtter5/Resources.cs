@@ -33,6 +33,8 @@ namespace Kbtter5
         public static int ImageShot = DX.LoadGraph(GetCommonImagePath("shot.png"));
         public static int ImageStar = DX.LoadGraph(GetCommonImagePath("shot2.png"));
 
+        public static int ImageLaser16 = DX.LoadGraph(GetCommonImagePath("laser1.png"));
+
         public static int[] ImageNumber48 { get; private set; }
         public static int[] ImageNumber24 { get; private set; }
         public static int[] ImageNumber32 { get; private set; }
@@ -41,9 +43,11 @@ namespace Kbtter5
         public static int[] ImageNumber12Red { get; private set; }
         public static int[] ImageNumber12Blue { get; private set; }
 
-        public static int FontSystem = DX.CreateFontToHandle("Meiryo", 16, 1, DX.DX_FONTTYPE_ANTIALIASING);
-        public static int FontSystemBig = DX.CreateFontToHandle("Meiryo", 48, 1, DX.DX_FONTTYPE_ANTIALIASING);
-        public static int FontBullet = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING);
+        public static int FontSystem = DX.CreateFontToHandle("Meiryo", 16, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
+        public static int FontSystemBig = DX.CreateFontToHandle("Meiryo", 48, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
+        public static int FontBullet = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
+
+        public static TextureFont TextureFontBullet = new TextureFont("Meiryo");
 
         static CommonObjects()
         {
@@ -227,7 +231,6 @@ namespace Kbtter5
 
         private static void LoadCachedUser()
         {
-            DX.SetUseASyncLoadFlag(DX.TRUE);
             var path = Path.Combine(CommonObjects.DataDirectory, "icon_cache");
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             var di = new DirectoryInfo(path);
@@ -235,6 +238,7 @@ namespace Kbtter5
             {
                 ImageHandles[Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name))] = DX.LoadGraph(i.FullName);
             }
+            //DX.SetUseASyncLoadFlag(DX.TRUE);
         }
 
         public static int GetUserImage(User user)
@@ -290,5 +294,45 @@ namespace Kbtter5
             }
             return ImageHandles[(long)user.Id];
         }
+    }
+
+    public class TextureFont
+    {
+        private int[] imgs;
+        private Dictionary<int, LetterInformation> letters;
+        public IReadOnlyDictionary<int, LetterInformation> Letters { get { return letters; } }
+
+        public TextureFont(string fontfile)
+        {
+            DX.SetUseASyncLoadFlag(DX.FALSE);
+            letters = new Dictionary<int, LetterInformation>();
+
+            var ls = File.ReadAllLines(CommonObjects.GetCommonImagePath(fontfile + ".fnt"))
+                     .Select(p => p.Split(',').Select(q => Convert.ToInt32(q)).ToArray());
+            imgs = new int[ls.Max(p => p[7]) + 1];
+            for (int i = 0; i < imgs.Length; i++)
+            {
+                var path = CommonObjects.GetCommonImagePath(string.Format("{0}_{1}.png", fontfile, i));
+                imgs[i] = DX.LoadGraph(path);
+            }
+
+            foreach (var i in ls)
+            {
+                letters.Add(i[0], new LetterInformation
+                {
+                    OffsetX = (short)i[5],
+                    OffsetY = (short)i[6],
+                    Handle = DX.DerivationGraph(i[1], i[2], i[3], i[4], imgs[i[7]])
+                });
+            }
+            DX.SetUseASyncLoadFlag(DX.TRUE);
+        }
+    }
+
+    public struct LetterInformation
+    {
+        public short OffsetX;
+        public short OffsetY;
+        public int Handle;
     }
 }
