@@ -47,11 +47,7 @@ namespace Kbtter5
                     if (pad.Direction == GamepadDirection.Up) dr = 6;
                     if (pad.Direction == (GamepadDirection.Up | GamepadDirection.Right)) dr = 7;
 
-                    player.ParentManager.Add(new PlayerImageBullet(
-                        player,
-                        CommonObjects.ImageShot,
-                        BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90),
-                        player.ShotStrength)
+                    player.ParentManager.Add(new PlayerImageBullet(player, BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90), CommonObjects.ImageShot, player.ShotStrength)
                     {
                         X = player.X,
                         Y = player.Y,
@@ -115,11 +111,7 @@ namespace Kbtter5
                 dr = (drs > 0) ? (dr / drs) % 8 : ((count / player.ShotInterval) % 8);
 
                 if (pad.Buttons[0] && (count % player.ShotInterval) == 0)
-                    player.ParentManager.Add(new PlayerImageBullet(
-                      player,
-                      CommonObjects.ImageShot,
-                      BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90),
-                      player.ShotStrength)
+                    player.ParentManager.Add(new PlayerImageBullet(player, BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90), CommonObjects.ImageShot, player.ShotStrength)
                   {
                       X = player.X,
                       Y = player.Y,

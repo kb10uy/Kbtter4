@@ -13,23 +13,35 @@ namespace Kbtter5
     {
         static int EnemyLayer = (int)GameLayer.Enemy;
         static int EnemyBulletLayer = (int)GameLayer.EnemyBullet;
-        static Random rnd = new Random();
+        static Xorshift128Random rnd = new Xorshift128Random();
 
-        public static EnemyPattern[] Patterns = new EnemyPattern[] 
+        public static Dictionary<EnemyPattern, int> Patterns = new Dictionary<EnemyPattern, int>
         {
-            GoDownAndAway,
-            GoDownAndAway,
-            GoDownAndAway,
-            GoDownThrough,
-            ToorimasuyoUpper,
-            ToorimasuyoUpperReverse,
-            ToorimasuyoLower,
-            ToorimasuyoLowerReverse,
-            ToorimasuyoLefter,
-            ToorimasuyoLefterReverse,
-            ToorimasuyoRighter,
-            ToorimasuyoRighterReverse,
+            { GoDownAndAway, 120 },
+            { ToorimasuyoUpper, 2 },
+            { ToorimasuyoUpperReverse, 2 },
+            { ToorimasuyoLower, 2 },
+            { ToorimasuyoLowerReverse, 2 },
+            { ToorimasuyoLefter, 2 },
+            { ToorimasuyoLefterReverse, 2 },
+            { ToorimasuyoRighter, 2},
+            { ToorimasuyoRighterReverse, 2 },
         };
+
+        public static EnemyPattern GetRandomPattern()
+        {
+            var all = Patterns.Values.Sum();
+            var sel = rnd.Next(all);
+            foreach (var i in Patterns)
+            {
+                if (sel < i.Value)
+                {
+                    return i.Key;
+                }
+                sel -= i.Value;
+            }
+            return Patterns.First().Key;
+        }
 
         public static IEnumerator<bool> GoDownAndAway(EnemyUser sp)
         {
@@ -49,65 +61,107 @@ namespace Kbtter5
             var us = sp.SourceStatus.User;
             var ta = Math.Atan2(sp.Player.Y - sp.Y, sp.Player.X - sp.X);
 
-            switch (/*(us.Id - sp.SourceStatus.Text.Length * us.StatusesCount) % 8*/4)
+            switch ((us.Id - sp.SourceStatus.Text.Length * us.StatusesCount) % 11)
             {
                 case 0:
                     for (int i = 0; i < str.Length; i++)
                     {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI * 2 / str.Length * i, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI * 2 / str.Length * i, 5, 240), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                     }
                     break;
                 case 1:
                     for (int i = 0; i < str.Length; i++)
                     {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.LinearCurve(Math.PI * 2 / str.Length * i, -0.02 + (us.FollowersCount % 100) / 2500.0, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LinearCurve(Math.PI * 2 / str.Length * i, -0.02 + (us.FollowersCount % 100) / 2500.0, 5, 240), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                     }
                     break;
                 case 2:
                     for (int i = 0; i < str.Length; i++)
                     {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI * 2 / str.Length * i, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI * 2 / str.Length * i, 5, 240), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         for (int j = 0; j < 420 / str.Length; j++) yield return true;
                     }
                     break;
                 case 3:
                     for (int i = 0; i < str.Length; i++)
                     {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.LinearCurve(Math.PI * 2 / str.Length * i, -0.02 + (us.FollowersCount % 100) / 2500.0, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LinearCurve(Math.PI * 2 / str.Length * i, -0.02 + (us.FollowersCount % 100) / 2500.0, 5, 240), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         for (int j = 0; j < 420 / str.Length; j++) yield return true;
                     }
                     break;
                 case 4:
-                    sp.ParentManager.Add(new LinearLaser(sp, CommonObjects.ImageLaser16, 16, LinearLaserPatterns.Normal(200, 5))
+                    sp.ParentManager.Add(new LinearLaser(sp, LinearLaserPatterns.Normal(200, 5), 16, CommonObjects.ImageLaser16)
+                    {
+                        X = sp.X,
+                        Y = sp.Y,
+                        Angle = ta
+                    }, EnemyBulletLayer);
+                    break;
+                case 5:
+                    sp.ParentManager.Add(new LinearLaser(sp, LinearLaserPatterns.Worm(200, 5), 16, CommonObjects.ImageLaser16)
                     {
                         X = sp.X,
                         Y = sp.Y,
                         Angle = Math.Atan2(sp.Player.Y - sp.Y, sp.Player.X - sp.X)
                     }, EnemyBulletLayer);
                     break;
-                case 5:
-                    for (int i = 0; i < str.Length; i++)
-                    {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
-                    }
-                    break;
                 case 6:
-                    for (int i = 0; i < str.Length / 2; i++)
-                    {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i * 2], BulletPatterns.Linear(ta - 0.15, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i * 2 + 1], BulletPatterns.Linear(ta + 0.15, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
-                        for (int j = 0; j < 6; j++) yield return true;
-                    }
+                    var cd = rnd.Next(100);
+                    sp.ParentManager.Add(
+                        new CurveLaser(sp,
+                            new BezierCurve(
+                                64,
+                                new Point { X = sp.X, Y = sp.Y },
+                                new Point
+                                {
+                                    X = (sp.Player.X - sp.X) + Math.Cos(ta + Math.PI / 2.0) * cd,
+                                    Y = (sp.Player.Y - sp.Y) + Math.Sin(ta + Math.PI / 2.0) * cd
+                                },
+                                new Point { X = sp.Player.X, Y = sp.Player.Y }),
+                            CurveLaserPatterns.Normal(1),
+                            16,
+                            CommonObjects.ImageBezierLaser),
+                        EnemyBulletLayer);
                     break;
                 case 7:
-                    for (int i = 0; i < str.Length / 3; i++)
+                    sp.ParentManager.Add(
+                        new CurveLaser(
+                            sp,
+                            new TargettingDummyCurve(
+                                new Point { X = sp.X, Y = sp.Y },
+                                new Point { X = sp.Player.X, Y = sp.Player.Y },
+                                6,
+                                32),
+                            CurveLaserPatterns.Homing(sp.Player, 240, 6, 0.08),
+                            16,
+                            CommonObjects.ImageBezierLaser),
+                        EnemyBulletLayer);
+                    break;
+                case 8:
+                    for (int i = 0; i < str.Length / 2; i++)
                     {
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i * 3 + 1], BulletPatterns.Linear(ta - 0.15, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i * 3], BulletPatterns.Linear(ta, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i * 3 + 2], BulletPatterns.Linear(ta + 0.15, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(ta - 0.15, 5, 240), str[i * 2]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(ta + 0.15, 5, 240), str[i * 2 + 1]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         for (int j = 0; j < 6; j++) yield return true;
                     }
                     break;
+                case 9:
+                    for (int i = 0; i < str.Length / 3; i++)
+                    {
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(ta - 0.15, 5, 240), str[i * 3 + 1]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(ta, 5, 240), str[i * 3]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(ta + 0.15, 5, 240), str[i * 3 + 2]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        for (int j = 0; j < 6; j++) yield return true;
+                    }
+                    break;
+                case 10:
+
+                    for (int i = 0; i < str.Length; i++)
+                    {
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                    }
+                    break;
+
             }
 
 
@@ -134,14 +188,14 @@ namespace Kbtter5
                 switch ((us.Id - sp.SourceStatus.Text.Length * us.StatusesCount) % 4)
                 {
                     case 0:
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.Linear(Math.PI * 2 / str.Length * i, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI * 2 / str.Length * i, 5, 240), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         break;
                     case 1:
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.LinearCurve(Math.PI * 2 / str.Length * i, -0.02 + (us.FollowersCount % 100) / 2500.0, 5, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LinearCurve(Math.PI * 2 / str.Length * i, -0.02 + (us.FollowersCount % 100) / 2500.0, 5, 240), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         break;
                     case 2:
                     case 3:
-                        sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                        sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         break;
                 }
                 yield return true;
@@ -169,14 +223,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI / 2, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI / 2, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -205,14 +259,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI * 1.5, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI * 1.5, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -241,14 +295,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI / 2, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI / 2, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -277,14 +331,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI * 1.5, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI * 1.5, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -313,14 +367,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(0, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(0, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                     case 2:
@@ -328,14 +382,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 3:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -364,14 +418,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(0, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(0, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                     case 2:
@@ -379,14 +433,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 3:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -415,14 +469,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                     case 2:
@@ -430,14 +484,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 3:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -466,14 +520,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i], BulletPatterns.Linear(Math.PI, (i / 3.0) + 2, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(Math.PI, (i / 3.0) + 2, 600), str[i]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 1:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 4, 600), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                     case 2:
@@ -481,14 +535,14 @@ namespace Kbtter5
                         {
                             for (int i = 0; i < str.Length; i++)
                             {
-                                sp.ParentManager.Add(new CharacterBullet(sp, str[i % str.Length], BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                                sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(Math.PI * 2 / str.Length * i, 3, 60, sp.Player, 6), str[i % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                             }
                         }
                         break;
                     case 3:
                         if ((cnt++ % iv2) == 0)
                         {
-                            sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / iv % str.Length], BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                            sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.LazyHoming(rnd.NextDouble() * Math.PI * 2, 3, 60, sp.Player, 6), str[cnt / iv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                         }
                         break;
                 }
@@ -513,7 +567,7 @@ namespace Kbtter5
             var ofs = rnd.NextDouble() * Math.PI * 2;
             for (int i = 0; i < cc; i++)
             {
-                sp.ParentManager.Add(new EnemyUser(sp, rt, RetweeterCannonCircle(ofs + Math.PI * 2 / cc * i, 5, 0.03, 64)) { X = sp.X, Y = sp.Y, DieWithParentDeath = true }, EnemyLayer);
+                sp.ParentManager.Add(new EnemyUser(sp, RetweeterCannonCircle(ofs + Math.PI * 2 / cc * i, 5, 0.03, 64), rt) { X = sp.X, Y = sp.Y, DieWithParentDeath = true }, EnemyLayer);
             }
             while (true) yield return true;
         }
@@ -544,7 +598,7 @@ namespace Kbtter5
                 sp.Y = sp.ParentEnemy.Y + Math.Sin(ang) * dist;
                 if ((cnt++ % intv) == 0)
                 {
-                    sp.ParentManager.Add(new CharacterBullet(sp, str[cnt / intv % str.Length], BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 7, 240)) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
+                    sp.ParentManager.Add(new CharacterBullet(sp, BulletPatterns.Linear(rnd.NextDouble() * Math.PI * 2, 7, 240), str[cnt / intv % str.Length]) { X = sp.X, Y = sp.Y }, EnemyBulletLayer);
                 }
                 yield return true;
             }

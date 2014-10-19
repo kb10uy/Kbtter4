@@ -35,6 +35,8 @@ namespace Kbtter5
 
         public static int ImageLaser16 = DX.LoadGraph(GetCommonImagePath("laser1.png"));
 
+        public static CurveLaserImage ImageBezierLaser = new CurveLaserImage(GetCommonImagePath("laserb1.png"), 4);
+
         public static int[] ImageNumber48 { get; private set; }
         public static int[] ImageNumber24 { get; private set; }
         public static int[] ImageNumber32 { get; private set; }
@@ -47,7 +49,7 @@ namespace Kbtter5
         public static int FontSystemBig = DX.CreateFontToHandle("Meiryo", 48, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
         public static int FontBullet = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
 
-        public static TextureFont TextureFontBullet = new TextureFont("Meiryo");
+        public static TextureFont TextureFontBullet = new TextureFont("Meiryo20");
 
         static CommonObjects()
         {
@@ -322,7 +324,10 @@ namespace Kbtter5
                 {
                     OffsetX = (short)i[5],
                     OffsetY = (short)i[6],
-                    Handle = DX.DerivationGraph(i[1], i[2], i[3], i[4], imgs[i[7]])
+                    Width = (short)i[3],
+                    Height = (short)i[4],
+                    ActualWidth = (short)i[7],
+                    Handle = DX.DerivationGraph(i[1], i[2], i[3], i[4], imgs[i[8]])
                 });
             }
             DX.SetUseASyncLoadFlag(DX.TRUE);
@@ -331,8 +336,39 @@ namespace Kbtter5
 
     public struct LetterInformation
     {
+        public short ActualWidth;
+        public short Width;
+        public short Height;
         public short OffsetX;
         public short OffsetY;
         public int Handle;
+    }
+
+    public class CurveLaserImage
+    {
+        public int SourceImage { get; private set; }
+        public int Length { get; private set; }
+        public int AllWidth { get; private set; }
+        public int PartWidth { get; private set; }
+        public int Height { get; private set; }
+        private int[] img;
+        public IReadOnlyList<int> Images { get { return img; } }
+
+        public CurveLaserImage(string file, int partX)
+        {
+            DX.SetUseASyncLoadFlag(DX.FALSE);
+            SourceImage = DX.LoadGraph(file);
+            int x, y;
+            DX.GetGraphSize(SourceImage, out x, out y);
+            AllWidth = x;
+            Height = y;
+            Length = AllWidth / partX;
+            img = new int[Length];
+            for (int i = 0; i < Length; i++)
+            {
+                img[i] = DX.DerivationGraph(i * partX, 0, partX, Height, SourceImage);
+            }
+            DX.SetUseASyncLoadFlag(DX.TRUE);
+        }
     }
 }

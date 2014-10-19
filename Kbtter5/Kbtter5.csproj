@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CA5EF1E4-C46F-4CC8-92F1-2821585386F0}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Kbtter5</RootNamespace>
     <AssemblyName>Kbtter5</AssemblyName>
@@ -38,6 +38,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Kbtter5_icon32.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CoreTweet">
@@ -85,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BulletPatterns.cs" />
+    <Compile Include="Curve.cs" />
     <Compile Include="DisplayObjects.cs" />
     <Compile Include="Easing.cs" />
     <Compile Include="EnemyPatterns.cs" />
@@ -92,6 +96,7 @@
     <Compile Include="PlayerOperations.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Random.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="SceneGame.cs" />
     <Compile Include="SceneTitle.cs" />

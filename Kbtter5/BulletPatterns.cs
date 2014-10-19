@@ -10,7 +10,7 @@ namespace Kbtter5
 
     public static class BulletPatterns
     {
-        static Random rnd = new Random();
+        static Xorshift128Random rnd = new Xorshift128Random();
 
         public static BulletPattern Linear(double angle, double speed, int time)
         {
@@ -110,7 +110,7 @@ namespace Kbtter5
 
     public static class LinearLaserPatterns
     {
-        static Random rnd = new Random();
+        static Xorshift128Random rnd = new Xorshift128Random();
 
         public static LinearLaserPattern Normal(double length, double speed)
         {
@@ -119,6 +119,10 @@ namespace Kbtter5
 
         private static IEnumerator<bool> Normal(UserSprite parent, LinearLaser laser, double length, double speed)
         {
+            laser.BrightR = (byte)((long)parent.SourceUser.Id & 0xFF);
+            laser.BrightG = (byte)((long)(parent.SourceUser.Id >> 8) & 0xFF);
+            laser.BrightB = (byte)((long)(parent.SourceUser.Id >> 16) & 0xFF);
+
             while (laser.Length < length)
             {
                 laser.Length += speed;
@@ -128,6 +132,134 @@ namespace Kbtter5
             {
                 laser.X += Math.Cos(laser.Angle) * speed;
                 laser.Y += Math.Sin(laser.Angle) * speed;
+                yield return true;
+            }
+        }
+
+        public static LinearLaserPattern Worm(double length, double speed)
+        {
+            return (par, l) => Worm(par, l, length, speed);
+        }
+
+        private static IEnumerator<bool> Worm(UserSprite parent, LinearLaser laser, double length, double speed)
+        {
+            laser.BrightR = (byte)((long)parent.SourceUser.Id & 0xFF);
+            laser.BrightG = (byte)((long)(parent.SourceUser.Id >> 8) & 0xFF);
+            laser.BrightB = (byte)((long)(parent.SourceUser.Id >> 16) & 0xFF);
+            while (true)
+            {
+                while (laser.Length < length)
+                {
+                    laser.Length += speed;
+                    yield return true;
+                }
+                while (laser.Length > 0.1)
+                {
+                    laser.X += Math.Cos(laser.Angle) * speed;
+                    laser.Y += Math.Sin(laser.Angle) * speed;
+                    laser.Length -= speed;
+                    yield return true;
+                }
+            }
+        }
+    }
+
+    public delegate IEnumerator<bool> CurveLaserPattern(UserSprite parent, CurveLaser laser);
+
+    public static class CurveLaserPatterns
+    {
+        public static CurveLaserPattern Normal(int speed)
+        {
+            return (par, l) => Normal(par, l);
+        }
+
+        public static IEnumerator<bool> Normal(UserSprite parent, CurveLaser laser)
+        {
+            laser.BrightR = (byte)((long)parent.SourceUser.Id & 0xFF);
+            laser.BrightG = (byte)((long)(parent.SourceUser.Id >> 8) & 0xFF);
+            laser.BrightB = (byte)((long)(parent.SourceUser.Id >> 16) & 0xFF);
+            var curve = laser.Curve;
+            while (laser.DrawLength < laser.LaserImage.Length)
+            {
+                laser.DrawLength++;
+                yield return true;
+            }
+            while (true)
+            {
+                laser.Index++;
+                if (laser.Curve.Count - laser.Index < laser.LaserImage.Length)
+                {
+                    curve.Add(new Point
+                        {
+                            X = curve[curve.Count - 1].X * 2 - curve[curve.Count - 2].X,
+                            Y = curve[curve.Count - 1].Y * 2 - curve[curve.Count - 2].Y
+                        });
+                }
+                yield return true;
+            }
+        }
+
+        public static CurveLaserPattern Homing(UserSprite target, int homingFrame, double homingSpeed, double homingCurveMax)
+        {
+            return (sp, laser) => Homing(sp, laser, target, homingFrame, homingSpeed, homingCurveMax);
+        }
+
+        public static IEnumerator<bool> Homing(UserSprite parent, CurveLaser laser, UserSprite target, int homingFrame, double homingSpeed, double homingCurveMax)
+        {
+            laser.BrightR = (byte)((long)parent.SourceUser.Id & 0xFF);
+            laser.BrightG = (byte)((long)(parent.SourceUser.Id >> 8) & 0xFF);
+            laser.BrightB = (byte)((long)(parent.SourceUser.Id >> 16) & 0xFF);
+            var curve = laser.Curve;
+            while (laser.DrawLength < laser.LaserImage.Length)
+            {
+                laser.DrawLength++;
+                yield return true;
+            }
+            while (true)
+            {
+                laser.Index++;
+                if (laser.Curve.Count - laser.Index < laser.LaserImage.Length)
+                {
+                    var px = curve[curve.Count - 2].X;
+                    var py = curve[curve.Count - 2].Y;
+                    var lx = curve[curve.Count - 1].X;
+                    var ly = curve[curve.Count - 1].Y;
+                    var ma = Math.Atan2(ly - py, lx - px);
+                    var ta = Math.Atan2(ly - target.Y, lx - target.X);
+
+                    if (homingFrame > 0)
+                    {
+                        var su = ((ta - ma) + Math.PI * 2) % (Math.PI * 2);
+                        var ca = Math.Min(Math.Abs(ta - ma), homingCurveMax);
+                        if (su <= Math.PI)
+                        {
+                            //右サイド
+                            curve.Add(new Point
+                            {
+                                X = lx + Math.Cos(ma - ca) * homingSpeed,
+                                Y = ly + Math.Sin(ma - ca) * homingSpeed
+                            });
+                        }
+                        else
+                        {
+                            //左サイド
+                            curve.Add(new Point
+                            {
+                                X = lx + Math.Cos(ma + ca) * homingSpeed,
+                                Y = ly + Math.Sin(ma + ca) * homingSpeed
+                            });
+                        }
+                        homingFrame--;
+                    }
+                    else
+                    {
+                        curve.Add(new Point
+                        {
+                            X = lx + Math.Cos(ma) * homingSpeed,
+                            Y = ly + Math.Sin(ma) * homingSpeed
+                        });
+                    }
+                }
                 yield return true;
             }
         }

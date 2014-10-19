@@ -100,6 +100,8 @@ namespace Kbtter5
         protected static int PlayerLayer = (int)GameLayer.Player;
         protected static int PlayerBulletLayer = (int)GameLayer.PlayerBullet;
         protected static int EffectLayer = (int)GameLayer.Effect;
+        public User SourceUser { get; protected set; }
+
 
         public UserSprite()
         {
@@ -120,7 +122,7 @@ namespace Kbtter5
         public bool DieWithParentDeath { get; set; }
         public int Health { get; protected set; }
         public int TotalHealth { get; protected set; }
-        private static Random rnd = new Random();
+        private static Xorshift128Random rnd = new Xorshift128Random();
 
         public EnemyUser()
         {
@@ -132,11 +134,12 @@ namespace Kbtter5
             DieWithParentDeath = false;
         }
 
-        public EnemyUser(SceneGame sc, Status s, EnemyPattern op)
+        public EnemyUser(SceneGame sc, EnemyPattern op, Status s)
             : this()
         {
             game = sc;
             SourceStatus = s;
+            SourceUser = s.User;
             Operation = op(this);
             TotalHealth = Health = 1000 + (SourceStatus.User.StatusesCount / 10) + (DateTime.Now - SourceStatus.User.CreatedAt.LocalDateTime).Days * 3;
             Task.Run(() =>
@@ -146,12 +149,13 @@ namespace Kbtter5
             });
         }
 
-        public EnemyUser(EnemyUser sc, Status s, EnemyPattern op)
+        public EnemyUser(EnemyUser sc, EnemyPattern op, Status s)
             : this()
         {
             ParentEnemy = sc;
             game = sc.game;
             SourceStatus = s;
+            SourceUser = s.User;
             Operation = op(this);
             TotalHealth = Health = 1000 + (SourceStatus.User.StatusesCount / 10) + (DateTime.Now - SourceStatus.User.CreatedAt.LocalDateTime).Days * 3;
             Task.Run(() =>
@@ -219,9 +223,8 @@ namespace Kbtter5
 
     public class PlayerUser : UserSprite
     {
-        private Random rnd = new Random();
+        private Xorshift128Random rnd = new Xorshift128Random();
         private SceneGame game;
-        public User SourceUser { get; protected set; }
         public int ShotInterval { get; set; }
         public IEnumerator<bool> Operation { get; protected set; }
         public IEnumerator<bool> SpecialOperation { get; protected set; }
@@ -231,7 +234,7 @@ namespace Kbtter5
         public bool IsGameOver { get; protected set; }
         public bool HasCollision { get; protected set; }
 
-        public PlayerUser(SceneGame sc, User u, PlayerOperation op)
+        public PlayerUser(SceneGame sc, PlayerOperation op, User u)
         {
             game = sc;
             SourceUser = u;
@@ -340,7 +343,7 @@ namespace Kbtter5
 
                 var at = Math.Atan2(yd, xd);
                 var sp = Math.Sqrt(xd * xd + yd * yd) / 60.0;
-                ParentManager.Add(new PlayerImageBullet(this, CommonObjects.ImageStar, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), SourceUser.StatusesCount)
+                ParentManager.Add(new PlayerImageBullet(this, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), CommonObjects.ImageStar, SourceUser.StatusesCount)
                 {
                     ScaleX = 8.0,
                     ScaleY = 8.0,
@@ -377,18 +380,18 @@ namespace Kbtter5
         public EnemyUser Parent { get; protected set; }
         public double Size { get; protected set; }
 
-        public CharacterBullet(EnemyUser parent, char c, BulletPattern op)
+        public CharacterBullet(EnemyUser parent, BulletPattern op, char c)
         {
             Parent = parent;
             MyKind = ObjectKind.EnemyBullet;
             TargetKind = ObjectKind.Player;
             Operation = op(Parent, this);
             Character = c;
-            Size = 32;
-            HomeX = Size / 2;
-            HomeY = Size / 2;
+            Size = 20;
+            HomeX = buffered.Width / 2.0;
+            HomeY = buffered.Height / 2.0;
             CollisonRadius = 4;
-            GrazeRadius = 6;
+            GrazeRadius = 8;
         }
 
         public override IEnumerator<bool> Tick()
@@ -424,8 +427,7 @@ namespace Kbtter5
             while (true)
             {
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
-                //DX.DrawStringFToHandle((float)(ActualX - HomeX), (float)(ActualY - HomeY), buffered, CommonObjects.Colors.White, CommonObjects.FontBullet);
-                DX.DrawGraphF((float)(ActualX - HomeX + buffered.OffsetX), (float)(ActualY - HomeY + buffered.OffsetY), buffered.Handle, DX.TRUE);
+                DX.DrawGraphF((float)(ActualX - HomeX), (float)(ActualY - HomeY), buffered.Handle, DX.TRUE);
                 yield return true;
             }
         }
@@ -436,8 +438,11 @@ namespace Kbtter5
         public EnemyUser Parent { get; protected set; }
         public double Length { get; set; }
         public double Thickness { get; set; }
+        public byte BrightR { get; set; }
+        public byte BrightG { get; set; }
+        public byte BrightB { get; set; }
 
-        public LinearLaser(EnemyUser par, int img, double thickness, LinearLaserPattern op)
+        public LinearLaser(EnemyUser par, LinearLaserPattern op, double thickness, int img)
         {
             Parent = par;
             Image = img;
@@ -514,12 +519,135 @@ namespace Kbtter5
                     Y = ActualY + Math.Sin(Angle) * Length + Math.Sin(Angle + Math.PI / 2) * Thickness / 2
                 };
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBright(BrightR, BrightG, BrightB);
                 DX.DrawModiGraphF(
                     (float)su.X, (float)su.Y,
                     (float)eu.X, (float)eu.Y,
                     (float)ed.X, (float)ed.Y,
                     (float)sd.X, (float)sd.Y,
                     Image, DX.TRUE);
+                DX.SetDrawBright(255, 255, 255);
+                yield return true;
+            }
+        }
+    }
+
+    public class CurveLaser : Bullet
+    {
+        public EnemyUser Parent { get; protected set; }
+        public double Thickness { get; set; }
+        public byte BrightR { get; set; }
+        public byte BrightG { get; set; }
+        public byte BrightB { get; set; }
+        public CurveLaserImage LaserImage { get; set; }
+        public IList<Point> Curve { get; set; }
+        public int Index { get; set; }
+        public int DrawLength { get; set; }
+
+        public CurveLaser(EnemyUser par, ICurve curve, CurveLaserPattern op, double col, CurveLaserImage img)
+        {
+            Parent = par;
+            LaserImage = img;
+            CollisonRadius = col;
+            Thickness = col;
+            Operation = op(par, this);
+            Curve = curve.Points.ToList();
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                IsDead = !(Operation.MoveNext() && Operation.Current);
+                if (!IsDead && Parent.Player.HasCollision)
+                {
+                    IsDead = true;
+                    for (int i = 0; i < DrawLength && i + Index + 1 < Curve.Count - 1; i++)
+                    {
+                        var ex = Curve[i + Index + 1].X;
+                        var ey = Curve[i + Index + 1].Y;
+                        if ((X > 0 && X < 640 && Y > 0 && Y < 480) || (ex > 0 && ex < 640 && ey > 0 && ey < 480)) IsDead = false;
+
+                        var vax = ex - Curve[i + Index].X;
+                        var vay = ey - Curve[i + Index].Y;
+                        var vbx = Parent.Player.X - Curve[i + Index].X;
+                        var vby = Parent.Player.Y - Curve[i + Index].Y;
+                        var r = (vax * vbx + vay * vby) / (vax * vax + vay * vay);
+                        double xd = 0, yd = 0;
+                        if (r <= 0)
+                        {
+                            xd = X - Parent.Player.X;
+                            yd = Y - Parent.Player.Y;
+                        }
+                        else if (r >= 1)
+                        {
+                            xd = ex - Parent.Player.X;
+                            yd = ey - Parent.Player.Y;
+                        }
+                        else
+                        {
+                            xd = (Curve[i].X + vax * r) - Parent.Player.X;
+                            yd = (Curve[i].Y + vay * r) - Parent.Player.Y;
+                        }
+
+                        var zd = CollisonRadius + Parent.Player.CollisonRadius;
+                        if ((xd * xd + yd * yd) < zd * zd)
+                        {
+                            Parent.Player.Kill();
+                        }
+                        else
+                        {
+                            zd = GrazeRadius + Parent.Player.GrazeRadius;
+                            if ((xd * xd + yd * yd) < zd * zd)
+                            {
+                                Parent.Player.Graze();
+                            }
+                        }
+                    }
+                }
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBright(BrightR, BrightG, BrightB);
+                Point? pu = null, pd = null;
+                for (int i = 0; i < DrawLength && i + Index + 1 < Curve.Count - 1; i++)
+                {
+                    var ax = Curve[i + Index].X + ParentManager.OffsetX;
+                    var ay = Curve[i + Index].Y + ParentManager.OffsetY;
+                    var eax = Curve[i + Index + 1].X + ParentManager.OffsetX;
+                    var eay = Curve[i + Index + 1].Y + ParentManager.OffsetY;
+                    var ang = Math.Atan2(eay - ay, eax - ax);
+
+                    var su = pu ?? new Point { X = ax + Math.Cos(ang - Math.PI / 2) * Thickness / 2, Y = ay + Math.Sin(ang - Math.PI / 2) * Thickness / 2 };
+                    var sd = pd ?? new Point { X = ax + Math.Cos(ang + Math.PI / 2) * Thickness / 2, Y = ay + Math.Sin(ang + Math.PI / 2) * Thickness / 2 };
+                    var eu = new Point
+                    {
+                        X = eax + Math.Cos(ang - Math.PI / 2) * Thickness / 2,
+                        Y = eay + Math.Sin(ang - Math.PI / 2) * Thickness / 2
+                    };
+                    var ed = new Point
+                    {
+                        X = eax + Math.Cos(ang + Math.PI / 2) * Thickness / 2,
+                        Y = eay + Math.Sin(ang + Math.PI / 2) * Thickness / 2
+                    };
+
+                    pu = eu;
+                    pd = ed;
+
+                    DX.DrawModiGraphF(
+                        (float)su.X, (float)su.Y,
+                        (float)eu.X, (float)eu.Y,
+                        (float)ed.X, (float)ed.Y,
+                        (float)sd.X, (float)sd.Y,
+                        LaserImage.Images[i], DX.TRUE);
+                }
+                DX.SetDrawBright(255, 255, 255);
                 yield return true;
             }
         }
@@ -530,7 +658,7 @@ namespace Kbtter5
         public PlayerUser Parent { get; protected set; }
         public int Strength { get; protected set; }
 
-        public PlayerImageBullet(PlayerUser pa, int i, BulletPattern op, int s)
+        public PlayerImageBullet(PlayerUser pa, BulletPattern op, int i, int s)
         {
             Parent = pa;
             Operation = op(Parent, this);

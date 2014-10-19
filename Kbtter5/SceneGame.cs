@@ -29,7 +29,7 @@ namespace Kbtter5
         private Kbtter5 Parent = Kbtter5.Instance;
         private Tokens tokens;
         private List<IDisposable> streams = new List<IDisposable>();
-        private Random rnd = new Random();
+        private Xorshift128Random rnd = new Xorshift128Random();
         private string BackgroundImagePath = Path.Combine(CommonObjects.DataDirectory, "back.png");
         private bool hasback;
         private Stopwatch sw = new Stopwatch();
@@ -48,7 +48,7 @@ namespace Kbtter5
         public SceneGame(Kbtter4Account ac)
         {
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
-            Player = new PlayerUser(this, tokens.Users.Show(user_id => ac.UserId), PlayerOperations.MouseOperaiton);
+            Player = new PlayerUser(this, PlayerOperations.MouseOperaiton, tokens.Users.Show(user_id => ac.UserId));
             Information = new InformationBox(Player.SourceUser, Player)
             {
                 X = 0,
@@ -101,11 +101,11 @@ namespace Kbtter5
             //if (DX.GetActiveFlag() != DX.TRUE) return;
             if (p.Status.RetweetedStatus != null)
             {
-                Manager.Add(new EnemyUser(this, p.Status, EnemyPatterns.RetweeterMultiCannon), (int)GameLayer.Enemy);
+                Manager.Add(new EnemyUser(this, EnemyPatterns.RetweeterMultiCannon, p.Status), (int)GameLayer.Enemy);
             }
             else
             {
-                Manager.Add(new EnemyUser(this, p.Status, EnemyPatterns.Patterns[rnd.Next(EnemyPatterns.Patterns.Length)]), (int)GameLayer.Enemy);
+                Manager.Add(new EnemyUser(this, EnemyPatterns.GetRandomPattern(), p.Status), (int)GameLayer.Enemy);
             }
             //Manager.Add(new StatusSprite(p.Status), (int)GameLayer.Information);
         }
