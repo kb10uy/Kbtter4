@@ -8,6 +8,8 @@ namespace Kbtter5
 {
     public delegate IEnumerator<bool> BulletPattern(UserSprite par, Bullet b);
 
+    #region 通常弾
+
     public static class BulletPatterns
     {
         static Xorshift128Random rnd = new Xorshift128Random();
@@ -105,7 +107,9 @@ namespace Kbtter5
             }
         }
     }
+    #endregion
 
+    #region レーザー用
     public delegate IEnumerator<bool> LinearLaserPattern(UserSprite parent, LinearLaser laser);
 
     public static class LinearLaserPatterns
@@ -187,7 +191,7 @@ namespace Kbtter5
             while (true)
             {
                 laser.Index++;
-                if (laser.Curve.Count - laser.Index < laser.LaserImage.Length)
+                if (laser.Curve.Count - laser.Index <= laser.LaserImage.Length)
                 {
                     curve.Add(new Point
                         {
@@ -218,7 +222,7 @@ namespace Kbtter5
             while (true)
             {
                 laser.Index++;
-                if (laser.Curve.Count - laser.Index < laser.LaserImage.Length)
+                if (laser.Curve.Count - laser.Index <= laser.LaserImage.Length)
                 {
                     var px = curve[curve.Count - 2].X;
                     var py = curve[curve.Count - 2].Y;
@@ -264,4 +268,5 @@ namespace Kbtter5
             }
         }
     }
+    #endregion
 }

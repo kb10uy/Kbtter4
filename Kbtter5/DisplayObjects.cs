@@ -616,7 +616,7 @@ namespace Kbtter5
                 DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
                 DX.SetDrawBright(BrightR, BrightG, BrightB);
                 Point? pu = null, pd = null;
-                for (int i = 0; i < DrawLength && i + Index + 1 < Curve.Count - 1; i++)
+                for (int i = 0; i < DrawLength && i + Index + 1 < Curve.Count; i++)
                 {
                     var ax = Curve[i + Index].X + ParentManager.OffsetX;
                     var ay = Curve[i + Index].Y + ParentManager.OffsetY;

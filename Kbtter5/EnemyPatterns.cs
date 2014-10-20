@@ -17,7 +17,9 @@ namespace Kbtter5
 
         public static Dictionary<EnemyPattern, int> Patterns = new Dictionary<EnemyPattern, int>
         {
-            { GoDownAndAway, 120 },
+            { GoDownAndAway, 20 },
+            { SuicideTo, 5 },
+            { HomingTo, 5 },
             { ToorimasuyoUpper, 2 },
             { ToorimasuyoUpperReverse, 2 },
             { ToorimasuyoLower, 2 },
@@ -131,7 +133,7 @@ namespace Kbtter5
                                 new Point { X = sp.X, Y = sp.Y },
                                 new Point { X = sp.Player.X, Y = sp.Player.Y },
                                 6,
-                                32),
+                                36),
                             CurveLaserPatterns.Homing(sp.Player, 240, 6, 0.08),
                             16,
                             CommonObjects.ImageBezierLaser),
@@ -550,6 +552,56 @@ namespace Kbtter5
             }
         }
 
+        public static IEnumerator<bool> SuicideTo(EnemyUser parent)
+        {
+            var width = rnd.Next(100) + 60;
+            var targetY = parent.Player.Y;
+            var frame = 30;
+            var vx = (double)width / frame;
+            parent.X = parent.Player.X - width;
+            parent.Y = -40;
+
+            for (int i = 0; i < frame; i++)
+            {
+                parent.X += vx;
+                parent.Y = Easing.OutCubic(i, frame, -40, targetY);
+                yield return true;
+            }
+            for (int i = 0; i < frame; i++)
+            {
+                parent.X += vx;
+                parent.Y = Easing.InCubic(i, frame, targetY, -(targetY + 40));
+                yield return true;
+            }
+        }
+
+        public static IEnumerator<bool> HomingTo(EnemyUser parent)
+        {
+            while (true)
+            {
+                var lx = parent.X;
+                var ly = parent.Y;
+                var ta = Math.Atan2(ly - parent.Player.Y, lx - parent.Player.X);
+
+                var su = (ta + Math.PI * 2) % (Math.PI * 2);
+                var ca = Math.Min(Math.Abs(ta), 0.1);
+                if (su <= Math.PI)
+                {
+                    parent.X = lx + Math.Cos(ta - ca) * 4;
+                    parent.Y = ly + Math.Sin(ta - ca) * 4;
+                }
+                else
+                {
+                    parent.X = lx + Math.Cos(ta + ca) * 4;
+                    parent.Y = ly + Math.Sin(ta + ca) * 4;
+                }
+                yield return true;
+            }
+        }
+
+        #region リツイート用
+
+
         public static IEnumerator<bool> RetweeterMultiCannon(EnemyUser sp)
         {
             sp.X = rnd.Next(600) + 20;
@@ -603,7 +655,7 @@ namespace Kbtter5
                 yield return true;
             }
         }
-
+        #endregion
 
     }
 
