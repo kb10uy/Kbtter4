@@ -87,17 +87,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bullet.cs" />
     <Compile Include="BulletPatterns.cs" />
     <Compile Include="Curve.cs" />
     <Compile Include="DisplayObjects.cs" />
     <Compile Include="Easing.cs" />
     <Compile Include="EnemyPatterns.cs" />
+    <Compile Include="EnemyUser.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="PlayerOperations.cs" />
+    <Compile Include="PlayerUser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Random.cs" />
     <Compile Include="Resources.cs" />
+    <Compile Include="Scene.cs" />
     <Compile Include="SceneGame.cs" />
     <Compile Include="SceneTitle.cs" />
     <Compile Include="SortedLinkedSet.cs" />
