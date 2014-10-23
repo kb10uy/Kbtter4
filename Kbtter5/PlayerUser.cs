@@ -22,6 +22,7 @@ namespace Kbtter5
         private int GrazePoint;
         public bool IsGameOver { get; protected set; }
         public bool HasCollision { get; protected set; }
+        public int Frames { get; protected set; }
 
         public PlayerUser(SceneGame sc, PlayerOperation op, User u)
         {
@@ -148,12 +149,27 @@ namespace Kbtter5
             EnableCollision();
         }
 
+        public void TryShot(double angle, double speed)
+        {
+            if (Frames % ShotInterval != 0) return;
+            ParentManager.Add(new PlayerImageBullet(this, BulletPatterns.Linear(angle, speed, 90), CommonObjects.ImageShot, ShotStrength)
+            {
+                X = X,
+                Y = Y,
+                HomeX = 8,
+                HomeY = 8,
+            }, PlayerBulletLayer);
+        }
+
         public override IEnumerator<bool> Tick()
         {
             while (true)
             {
                 Operation.MoveNext();
                 SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
+                Frames++;
+                X = Math.Min(Math.Max(X, 0), CommonObjects.StageWidth);
+                Y = Math.Min(Math.Max(Y, 0), CommonObjects.StageHeight);
                 yield return true;
             }
         }
@@ -181,7 +197,7 @@ namespace Kbtter5
             while (!IsDead)
             {
                 IsDead = !(Operation.MoveNext() && Operation.Current);
-                if (X <= -HomeX || X >= HomeX + 640 || Y <= -HomeY || Y >= HomeY + 480) IsDead = true;
+                if (X <= -HomeX || X >= HomeX + CommonObjects.StageWidth || Y <= -HomeY || Y >= HomeY + CommonObjects.StageHeight) IsDead = true;
 
                 foreach (var i in ParentManager.OfType<EnemyUser>().Where(p =>
                 {

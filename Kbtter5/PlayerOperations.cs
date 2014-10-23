@@ -47,13 +47,7 @@ namespace Kbtter5
                     if (pad.Direction == GamepadDirection.Up) dr = 6;
                     if (pad.Direction == (GamepadDirection.Up | GamepadDirection.Right)) dr = 7;
 
-                    player.ParentManager.Add(new PlayerImageBullet(player, BulletPatterns.Linear(Math.PI / 4 * dr, 8, 90), CommonObjects.ImageShot, player.ShotStrength)
-                    {
-                        X = player.X,
-                        Y = player.Y,
-                        HomeX = 8,
-                        HomeY = 8,
-                    }, PlayerBulletLayer);
+                    player.TryShot(Math.PI / 4 * dr, 8);
                 }
                 if ((msi & DX.MOUSE_INPUT_RIGHT) != 0)
                 {

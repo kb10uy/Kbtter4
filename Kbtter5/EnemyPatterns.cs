@@ -252,7 +252,7 @@ namespace Kbtter5
             while (sp.X <= 672)
             {
                 sp.X += speed;
-                cnt = ToorimasuyoSelector(sp, type, iv, iv2, cnt, str, Math.PI / 2);
+                cnt = ToorimasuyoSelector(sp, type, iv, iv2, cnt, str, -Math.PI / 2);
                 yield return true;
             }
         }
@@ -271,7 +271,7 @@ namespace Kbtter5
             while (sp.X >= -32)
             {
                 sp.X -= speed;
-                cnt = ToorimasuyoSelector(sp, type, iv, iv2, cnt, str, -Math.PI / 2);
+                cnt = ToorimasuyoSelector(sp, type, iv, iv2, cnt, str, Math.PI / 2);
                 yield return true;
             }
         }
@@ -398,11 +398,15 @@ namespace Kbtter5
 
         public static IEnumerator<bool> HomingTo(EnemyUser parent)
         {
+            parent.X = rnd.Next(640);
+            parent.Y = -20;
+            var hs = Math.Log10(parent.SourceUser.StatusesCount) / 2.0;
+            var ha = 0.05;
             while (true)
             {
                 var lx = parent.X;
                 var ly = parent.Y;
-                var ta = Math.Atan2(ly - parent.Player.Y, lx - parent.Player.X);
+                var ta = Math.Atan2(parent.Player.Y - ly, parent.Player.X - lx);
 
                 var su = (ta + Math.PI * 2) % (Math.PI * 2);
                 var ca = Math.Min(Math.Abs(ta), 0.1);

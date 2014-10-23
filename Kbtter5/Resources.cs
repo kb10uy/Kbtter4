@@ -35,6 +35,9 @@ namespace Kbtter5
 
         public static int ImageLaser16 = DX.LoadGraph(GetCommonImagePath("laser1.png"));
 
+        public static int StageWidth = 640;
+        public static int StageHeight = 480;
+
         public static CurveLaserImage ImageBezierLaser = new CurveLaserImage(GetCommonImagePath("laserb1.png"), 4);
 
         public static int[] ImageNumber48 { get; private set; }

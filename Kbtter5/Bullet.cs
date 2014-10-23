@@ -48,7 +48,7 @@ namespace Kbtter5
             while (!IsDead)
             {
                 IsDead = !(Operation.MoveNext() && Operation.Current);
-                if (X <= -Size || X >= Size + 640 || Y <= -Size || Y >= Size + 480) IsDead = true;
+                if (X <= -Size || X >= Size + CommonObjects.StageWidth || Y <= -Size || Y >= Size + CommonObjects.StageHeight) IsDead = true;
                 if (Parent.Player.HasCollision)
                 {
                     var xd = X - Parent.Player.X;
@@ -108,7 +108,9 @@ namespace Kbtter5
 
                 var ex = X + Math.Cos(Angle) * Length;
                 var ey = Y + Math.Sin(Angle) * Length;
-                if ((X <= 0 || X >= 640 || Y <= 0 || Y >= 480) && (ex <= 0 || ex >= 640 || ey <= 0 || ey >= 480)) IsDead = true;
+                if ((X <= 0 || X >= CommonObjects.StageWidth || Y <= 0 || Y >= CommonObjects.StageHeight) &&
+                    (ex <= 0 || ex >= CommonObjects.StageWidth || ey <= 0 || ey >= CommonObjects.StageHeight))
+                    IsDead = true;
                 if (Parent.Player.HasCollision)
                 {
                     var vax = ex - X;
@@ -215,7 +217,7 @@ namespace Kbtter5
                     {
                         var ex = Curve[i + Index + 1].X;
                         var ey = Curve[i + Index + 1].Y;
-                        if ((X > 0 && X < 640 && Y > 0 && Y < 480) || (ex > 0 && ex < 640 && ey > 0 && ey < 480)) IsDead = false;
+                        if ((X > 0 && X < CommonObjects.StageWidth && Y > 0 && Y < CommonObjects.StageHeight) || (ex > 0 && ex < CommonObjects.StageWidth && ey > 0 && ey < CommonObjects.StageHeight)) IsDead = false;
 
                         var vax = ex - Curve[i + Index].X;
                         var vay = ey - Curve[i + Index].Y;
