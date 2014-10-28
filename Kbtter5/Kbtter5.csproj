@@ -87,11 +87,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BossPatterns.cs" />
     <Compile Include="Bullet.cs" />
     <Compile Include="BulletPatterns.cs" />
     <Compile Include="Curve.cs" />
     <Compile Include="DisplayObjects.cs" />
     <Compile Include="Easing.cs" />
+    <Compile Include="EnemyBoss.cs" />
     <Compile Include="EnemyPatterns.cs" />
     <Compile Include="EnemyUser.cs" />
     <Compile Include="Input.cs" />

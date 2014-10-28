@@ -14,12 +14,12 @@ namespace Kbtter5
     {
         public Status SourceStatus { get; protected set; }
         public IEnumerator<bool> Operation { get; protected set; }
-        private SceneGame game;
+        protected SceneGame Game { get; set; }
         public EnemyUser ParentEnemy { get; protected set; }
         public bool DieWithParentDeath { get; set; }
         public int Health { get; protected set; }
         public int TotalHealth { get; protected set; }
-        private static Xorshift128Random rnd = new Xorshift128Random();
+        protected static Xorshift128Random rnd = new Xorshift128Random();
 
         public EnemyUser()
         {
@@ -34,7 +34,7 @@ namespace Kbtter5
         public EnemyUser(SceneGame sc, EnemyPattern op, Status s)
             : this()
         {
-            game = sc;
+            Game = sc;
             SourceStatus = s;
             SourceUser = s.User;
             Operation = op(this);
@@ -50,7 +50,7 @@ namespace Kbtter5
             : this()
         {
             ParentEnemy = sc;
-            game = sc.game;
+            Game = sc.Game;
             SourceStatus = s;
             SourceUser = s.User;
             Operation = op(this);
@@ -62,7 +62,7 @@ namespace Kbtter5
             });
         }
 
-        public PlayerUser Player { get { return game.Player; } }
+        public PlayerUser Player { get { return Game.Player; } }
 
         public override IEnumerator<bool> Tick()
         {
@@ -91,16 +91,16 @@ namespace Kbtter5
             }
         }
 
-        public void Damage(int point)
+        public virtual void Damage(int point)
         {
             Health -= point;
-            game.Score(point / 100 * 10);
+            Game.Score(point / 100 * 10);
             ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, point / 100 * 10) { X = X, Y = Y }, EffectLayer);
             if (Health <= 0)
             {
                 ParentManager.Add(new ScoreSprite(CommonObjects.ImageNumber12Red, 6, 12, TotalHealth / 10 * 10) { X = X, Y = Y }, EffectLayer);
-                game.Score(TotalHealth / 10 * 10);
-                game.DestroyEnemy();
+                Game.Score(TotalHealth / 10 * 10);
+                Game.DestroyEnemy();
                 IsDead = true;
                 var ofs = rnd.NextDouble() * Math.PI * 2;
                 for (int i = 0; i < 5; i++)
