@@ -9,6 +9,7 @@ using CoreTweet;
 using CoreTweet.Streaming;
 using Newtonsoft.Json;
 using DxLibDLL;
+using Kbtter5.Scenes;
 
 namespace Kbtter5
 {

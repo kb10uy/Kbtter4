@@ -28,12 +28,18 @@ namespace Kbtter5
 
         public static int ImageLoadingCircle32 = DX.LoadGraph(GetCommonImagePath("loading32.png"));
         public static int ImageLogo = DX.LoadGraph(GetCommonImagePath("Kbtter5.png"));
+        public static int ImageKbtterProject = DX.LoadGraph(GetCommonImagePath("KbtterProject.png"));
         public static int ImageScore = DX.LoadGraph(GetCommonImagePath("score.png"));
 
         public static int ImageShot = DX.LoadGraph(GetCommonImagePath("shot.png"));
         public static int ImageStar = DX.LoadGraph(GetCommonImagePath("shot2.png"));
 
         public static int ImageLaser16 = DX.LoadGraph(GetCommonImagePath("laser1.png"));
+
+        public static int ImageTitleMenuStart = DX.LoadGraph(GetCommonImagePath("title_menu_start.png"));
+        public static int ImageTitleMenuQuick = DX.LoadGraph(GetCommonImagePath("title_menu_quick.png"));
+        public static int ImageTitleMenuRanking = DX.LoadGraph(GetCommonImagePath("title_menu_ranking.png"));
+        public static int ImageTitleMenuOption = DX.LoadGraph(GetCommonImagePath("title_menu_option.png"));
 
         public static int StageWidth = 640;
         public static int StageHeight = 480;

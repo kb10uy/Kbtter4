@@ -21,7 +21,7 @@ using DxLibDLL;
 using EasingSharp;
 using Kbtter4.Models;
 
-namespace Kbtter5
+namespace Kbtter5.Scenes
 {
     public class SceneGame : Scene
     {
@@ -399,16 +399,5 @@ namespace Kbtter5
                 yield return true;
             }
         }
-    }
-
-    public enum GameLayer
-    {
-        Background = 0,
-        EnemyBullet,
-        Enemy,
-        PlayerBullet,
-        Player,
-        Effect,
-        Information,
     }
 }

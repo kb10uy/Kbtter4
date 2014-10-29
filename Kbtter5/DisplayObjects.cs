@@ -8,6 +8,7 @@ using System.Net;
 using DxLibDLL;
 using CoreTweet;
 
+
 namespace Kbtter5
 {
     public class DisplayObject
@@ -200,11 +201,36 @@ namespace Kbtter5
         }
     }
 
-    public class CircleObject : DisplayObject
+    public delegate IEnumerator<bool> AdditionalCoroutineSpritePattern(AdditionalCoroutineSprite sp);
+
+    public class AdditionalCoroutineSprite : Sprite
     {
-        public double Radius { get; set; }
+        public IEnumerator<bool> SpecialOperation { get; protected set; }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
+                yield return true;
+            }
+        }
+
+        public void ApplyOperation(AdditionalCoroutineSpritePattern pat)
+        {
+            SpecialOperation = pat(this);
+        }
+    }
+
+    public class GraphicalObject : DisplayObject
+    {
         public int Color { get; set; }
         public bool AllowFill { get; set; }
+    }
+
+    public class CircleObject : GraphicalObject
+    {
+        public double Radius { get; set; }
 
         public CircleObject()
         {
@@ -222,10 +248,30 @@ namespace Kbtter5
         }
     }
 
-    public class LineObject : DisplayObject
+    public class RectangleObject : GraphicalObject
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+
+        public RectangleObject()
+        {
+
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.DrawBox((int)(ActualX - HomeX), (int)(ActualY - HomeY), (int)(ActualX - HomeX + Width), (int)(ActualY - HomeY + Height), Color, AllowFill ? DX.TRUE : DX.FALSE);
+                yield return true;
+            }
+        }
+    }
+
+    public class LineObject : GraphicalObject
     {
         public double Length { get; set; }
-        public int Color { get; set; }
 
         public LineObject()
         {
@@ -259,5 +305,16 @@ namespace Kbtter5
         Enemy = 4,
         PlayerBullet = 8,
         EnemyBullet = 16,
+    }
+
+    public enum GameLayer
+    {
+        Background = 0,
+        EnemyBullet,
+        Enemy,
+        PlayerBullet,
+        Player,
+        Effect,
+        Information,
     }
 }

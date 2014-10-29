@@ -98,14 +98,15 @@
     <Compile Include="EnemyUser.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="PlayerOperations.cs" />
+    <Compile Include="PlayerOption.cs" />
     <Compile Include="PlayerUser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Random.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Scene.cs" />
-    <Compile Include="SceneGame.cs" />
-    <Compile Include="SceneTitle.cs" />
+    <Compile Include="Scenes\SceneGame.cs" />
+    <Compile Include="Scenes\SceneTitle.cs" />
     <Compile Include="SortedLinkedSet.cs" />
     <Compile Include="SpritePatterns.cs" />
   </ItemGroup>
