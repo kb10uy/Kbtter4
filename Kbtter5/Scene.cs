@@ -11,10 +11,12 @@ namespace Kbtter5
         public ObjectManager Manager { get; protected set; }
         public IEnumerator<bool> DrawCoroutine { get; private set; }
         public IEnumerator<bool> TickCoroutine { get; private set; }
+        public ChildSceneManager Children { get; private set; }
 
         public Scene()
         {
             Manager = new ObjectManager(16);
+            Children = new ChildSceneManager(this);
             TickCoroutine = Tick();
             DrawCoroutine = Draw();
         }
@@ -27,6 +29,72 @@ namespace Kbtter5
         public virtual IEnumerator<bool> Tick()
         {
             while (true) yield return true;
+        }
+    }
+
+    public class ChildScene : Scene
+    {
+        public IEnumerator<bool> ExecuteCoroutine { get; private set; }
+        public bool IsDead { get; protected set; }
+        public Scene Parent { get; set; }
+
+        public ChildScene()
+        {
+            ExecuteCoroutine = Execute();
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                IsDead = !(ExecuteCoroutine.MoveNext() && ExecuteCoroutine.Current);
+                Manager.TickAll();
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                Manager.DrawAll();
+                yield return true;
+            }
+        }
+
+        public virtual IEnumerator<bool> Execute()
+        {
+            while (true) yield return true;
+        }
+    }
+
+    public class ChildSceneManager
+    {
+        private List<ChildScene> scenes;
+        public IReadOnlyList<ChildScene> Scenes { get { return scenes; } }
+        public Scene Parent { get; private set; }
+
+        public ChildSceneManager(Scene par)
+        {
+            Parent = par;
+            scenes = new List<ChildScene>();
+        }
+
+        public void AddChildScene(ChildScene cs)
+        {
+            cs.Parent = Parent;
+            scenes.Add(cs);
+        }
+
+        public void TickAll()
+        {
+            foreach (var i in scenes) i.TickCoroutine.MoveNext();
+            scenes.RemoveAll(i => i.IsDead);
+        }
+
+        public void DrawAll()
+        {
+            foreach (var i in scenes) i.DrawCoroutine.MoveNext();
         }
     }
 

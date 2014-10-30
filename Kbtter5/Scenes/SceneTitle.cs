@@ -230,4 +230,12 @@ namespace Kbtter5.Scenes
 
         }
     }
+
+    public class TitleChildSceneAccountSelect : ChildScene
+    {
+        public override IEnumerator<bool> Execute()
+        {
+            return base.Execute();
+        }
+    }
 }
