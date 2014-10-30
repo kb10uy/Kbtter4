@@ -15,7 +15,9 @@ namespace Kbtter5.Scenes
         private Kbtter4Account[] accounts;
         private Kbtter5 Kbtter5 = Kbtter5.Instance;
         private IEnumerator<bool> Operation;
-
+        private GamepadState state, tstate, prevstate;
+        private AdditionalCoroutineSprite[] menu;
+        private int selmenu = 0;
 
         public SceneTitle()
         {
@@ -24,16 +26,21 @@ namespace Kbtter5.Scenes
 
         public override IEnumerator<bool> Tick()
         {
+            prevstate = Gamepad.GetState();
             while (true)
             {
+                state = Gamepad.GetState();
+                tstate = state.GetTriggerStateWith(prevstate);
                 Operation.MoveNext();
                 Manager.TickAll();
+                prevstate = Gamepad.GetState();
                 yield return true;
             }
         }
 
         public IEnumerator<bool> Execute()
         {
+            //The Kbtter Project
             var kbp = new Sprite() { Image = CommonObjects.ImageKbtterProject, HomeX = 256, HomeY = 32, X = 320, Y = 240 };
             Manager.Add(kbp, 0);
             for (int i = 0; i < 120; i++)
@@ -52,6 +59,7 @@ namespace Kbtter5.Scenes
             }
             kbp.IsDead = true;
 
+            //タイトル画面
             var back = new RectangleObject() { Width = 640, Height = 480, Color = CommonObjects.Colors.White, AllowFill = true };
             Manager.Add(back, 0);
             for (int i = 0; i < 60; i++)
@@ -69,17 +77,148 @@ namespace Kbtter5.Scenes
                 yield return true;
             }
 
-            var selm = 0;
-            var menu = new[] 
+            //Press Z
+            var pz = new StringSprite(CommonObjects.FontSystemBig, CommonObjects.Colors.Black) { Value = "Press Button", X = 320, Y = 400, HomeX = 160 };
+            var pzdx = DX.GetDrawStringWidthToHandle("Press Button", 12, CommonObjects.FontSystemBig);
+            pz.HomeX = pzdx / 2;
+            Manager.Add(pz, 1);
+            do
             {
-                new AdditionalCoroutineSprite(){HomeX=160,HomeY=128,Image=CommonObjects.ImageTitleMenuStart},
-                new AdditionalCoroutineSprite(){HomeX=160,HomeY=128,Image=CommonObjects.ImageTitleMenuQuick},
-                new AdditionalCoroutineSprite(){HomeX=160,HomeY=128,Image=CommonObjects.ImageTitleMenuOption},
-                new AdditionalCoroutineSprite(){HomeX=160,HomeY=128,Image=CommonObjects.ImageTitleMenuRanking},
-            };
+                for (int i = 0; i < 30 && !tstate.Buttons.Any(p => p); i++)
+                {
+                    pz.Alpha = Easing.Linear(i, 30, 0, 1);
+                    yield return true;
+                }
+                for (int i = 0; i < 30 && !tstate.Buttons.Any(p => p); i++)
+                {
+                    pz.Alpha = Easing.Linear(i, 30, 1, -1);
+                    yield return true;
+                }
+            } while (!tstate.Buttons.Any(p => p));
+            var st = pz.Alpha;
+            for (int i = 0; i < 30; i++)
+            {
+                pz.Alpha = Easing.Linear(i, 30, st, -st);
+                yield return true;
+            }
+            pz.IsDead = true;
 
-            while (true) yield return true;
+
+            //menu
+            menu = new[] 
+            {
+                new AdditionalCoroutineSprite(){HomeX=160,HomeY=64,Image=CommonObjects.ImageTitleMenuStart,Y=720},
+                new AdditionalCoroutineSprite(){HomeX=160,HomeY=64,Image=CommonObjects.ImageTitleMenuQuick,Y=720},
+                new AdditionalCoroutineSprite(){HomeX=160,HomeY=64,Image=CommonObjects.ImageTitleMenuOption,Y=720},
+                new AdditionalCoroutineSprite(){HomeX=160,HomeY=64,Image=CommonObjects.ImageTitleMenuRanking,Y=720},
+            };
+            Manager.AddRangeTo(menu, 1);
+            for (int i = 0; i < menu.Length; i++)
+            {
+                menu[i].X = 320 + 256 * i;
+                if (i != selmenu)
+                {
+                    menu[i].Alpha = 0.5;
+                    menu[i].ScaleX = menu[i].ScaleY = 0.8;
+                }
+                menu[i].ApplyOperation(MenuIntro(i * 15, 60, 400));
+            }
+            for (int i = 0; i < 60; i++) yield return true;
+            //メニュー選択
+            while (true)
+            {
+                if ((tstate.Direction & GamepadDirection.Left) != 0)
+                {
+                    selmenu = (selmenu + menu.Length - 1) % menu.Length;
+                    RefreshMenuPosition();
+                }
+                if ((tstate.Direction & GamepadDirection.Right) != 0)
+                {
+                    selmenu = (selmenu + 1) % menu.Length;
+                    RefreshMenuPosition();
+                }
+                yield return true;
+            }
         }
+
+        #region メニュー用AdditionalCoroutineSpritePatternとか
+        public static AdditionalCoroutineSpritePattern MenuIntro(int delay, int time, double ty)
+        {
+            return sp => MenuIntroFunction(sp, delay, time, ty);
+        }
+
+        public static IEnumerator<bool> MenuIntroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
+        {
+            for (int i = 0; i < delay; i++) yield return true;
+            var sy = sp.Y;
+            for (int i = 0; i < time; i++)
+            {
+                sp.Y = Easing.OutBack(i, time, sy, ty - sy);
+                yield return true;
+            }
+            sp.Y = ty;
+        }
+
+        public static AdditionalCoroutineSpritePattern MenuEnable()
+        {
+            return sp => MenuEnableFunction(sp);
+        }
+
+        public static IEnumerator<bool> MenuEnableFunction(AdditionalCoroutineSprite sp)
+        {
+            var sx = sp.X;
+            for (int i = 0; i < 30; i++)
+            {
+                sp.X = Easing.OutQuad(i, 30, sx, 320 - sx);
+                sp.Alpha = Easing.OutQuad(i, 30, 0.5, 0.5);
+                sp.ScaleX = sp.ScaleY = Easing.OutQuad(i, 30, 0.8, 0.2);
+                yield return true;
+            }
+            sp.X = 320;
+            sp.Alpha = 1;
+            sp.ScaleX = sp.ScaleY = 1;
+            yield return true;
+        }
+
+        public static AdditionalCoroutineSpritePattern MenuDisable(double tx)
+        {
+            return sp => MenuDisableFunction(sp, tx);
+        }
+
+        public static IEnumerator<bool> MenuDisableFunction(AdditionalCoroutineSprite sp, double tx)
+        {
+            var sx = sp.X;
+            var sa = sp.Alpha;
+            var ss = sp.ScaleX;
+            for (int i = 0; i < 30; i++)
+            {
+                sp.X = Easing.OutQuad(i, 30, sx, tx - sx);
+                sp.Alpha = Easing.OutQuad(i, 30, sa, 0.5 - sa);
+                sp.ScaleX = sp.ScaleY = Easing.OutQuad(i, 30, ss, 0.8 - ss);
+                yield return true;
+            }
+            sp.X = tx;
+            sp.Alpha = 0.5;
+            sp.ScaleX = sp.ScaleY = 0.8;
+            yield return true;
+        }
+
+        public void RefreshMenuPosition()
+        {
+            for (int i = 0; i < menu.Length; i++)
+            {
+                if (i == selmenu)
+                {
+                    menu[i].ApplyOperation(MenuEnable());
+                }
+                else
+                {
+                    menu[i].ApplyOperation(MenuDisable(320 + 256 * (i - selmenu)));
+                }
+            }
+        }
+        #endregion
+
 
         public override IEnumerator<bool> Draw()
         {

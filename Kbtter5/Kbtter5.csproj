@@ -87,6 +87,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdditionalCoroutineSpritePatterns.cs" />
     <Compile Include="BossPatterns.cs" />
     <Compile Include="Bullet.cs" />
     <Compile Include="BulletPatterns.cs" />
