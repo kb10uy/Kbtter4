@@ -11,31 +11,16 @@ namespace Kbtter5.Scenes
 {
     class SceneTitle : Scene
     {
-        private Kbtter Kbtter = Kbtter.Instance;
-        private Kbtter4Account[] accounts;
         private Kbtter5 Kbtter5 = Kbtter5.Instance;
         private IEnumerator<bool> Operation;
         private GamepadState state, tstate, prevstate;
         private AdditionalCoroutineSprite[] menu;
         private int selmenu = 0;
+        private int modestate = 0;
 
         public SceneTitle()
         {
             Operation = Execute();
-        }
-
-        public override IEnumerator<bool> Tick()
-        {
-            prevstate = Gamepad.GetState();
-            while (true)
-            {
-                state = Gamepad.GetState();
-                tstate = state.GetTriggerStateWith(prevstate);
-                Operation.MoveNext();
-                Manager.TickAll();
-                prevstate = Gamepad.GetState();
-                yield return true;
-            }
         }
 
         public IEnumerator<bool> Execute()
@@ -123,21 +108,74 @@ namespace Kbtter5.Scenes
                 }
                 menu[i].ApplyOperation(MenuIntro(i * 15, 60, 400));
             }
-            for (int i = 0; i < 60; i++) yield return true;
-            //メニュー選択
             while (true)
             {
-                if ((tstate.Direction & GamepadDirection.Left) != 0)
+                switch (modestate)
                 {
-                    selmenu = (selmenu + menu.Length - 1) % menu.Length;
-                    RefreshMenuPosition();
+                    case 0:
+                        //メニュー選択
+                        while (!menu.All(p => p.SpecialOperation == null)) yield return true;
+                        while (true)
+                        {
+                            if ((tstate.Direction & GamepadDirection.Left) != 0)
+                            {
+                                selmenu = (selmenu + menu.Length - 1) % menu.Length;
+                                RefreshMenuPosition();
+                            }
+                            if ((tstate.Direction & GamepadDirection.Right) != 0)
+                            {
+                                selmenu = (selmenu + 1) % menu.Length;
+                                RefreshMenuPosition();
+                            }
+                            if (tstate.Buttons[0])
+                            {
+                                for (int i = 0; i < menu.Length; i++)
+                                {
+                                    menu[i].ApplyOperation(MenuIntro(0, 60, 600));
+                                }
+                                break;
+                            }
+                            yield return true;
+                        }
+                        switch (selmenu)
+                        {
+                            case 0:
+                                //Start
+                                Children.AddChildScene(new TitleChildSceneAccountSelect());
+                                break;
+                            case 1:
+                                //Quick
+                                break;
+                            case 2:
+                                //Option
+                                break;
+                            case 3:
+                                //Ranking
+                                break;
+                        }
+                        modestate = 1;
+                        break;
+                    case 1:
+                        //サブタスク動作
+                        yield return true;
+                        break;
                 }
-                if ((tstate.Direction & GamepadDirection.Right) != 0)
-                {
-                    selmenu = (selmenu + 1) % menu.Length;
-                    RefreshMenuPosition();
-                }
-                yield return true;
+            }
+
+            while (true) yield return true;
+        }
+
+        public override void SendChildMessage(string mes)
+        {
+            switch (mes)
+            {
+                case "ReturnToMenuSelect":
+                    modestate = 0;
+                    for (int i = 0; i < menu.Length; i++)
+                    {
+                        menu[i].ApplyOperation(MenuIntro(i * 15, 60, 400));
+                    }
+                    break;
             }
         }
 
@@ -154,6 +192,23 @@ namespace Kbtter5.Scenes
             for (int i = 0; i < time; i++)
             {
                 sp.Y = Easing.OutBack(i, time, sy, ty - sy);
+                yield return true;
+            }
+            sp.Y = ty;
+        }
+
+        public static AdditionalCoroutineSpritePattern MenuOutro(int delay, int time, double ty)
+        {
+            return sp => MenuOutroFunction(sp, delay, time, ty);
+        }
+
+        public static IEnumerator<bool> MenuOutroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
+        {
+            for (int i = 0; i < delay; i++) yield return true;
+            var sy = sp.Y;
+            for (int i = 0; i < time; i++)
+            {
+                sp.Y = Easing.OutSine(i, time, sy, ty - sy);
                 yield return true;
             }
             sp.Y = ty;
@@ -219,23 +274,71 @@ namespace Kbtter5.Scenes
         }
         #endregion
 
+        public override IEnumerator<bool> Tick()
+        {
+            prevstate = Gamepad.GetState();
+            while (true)
+            {
+                state = Gamepad.GetState();
+                tstate = state.GetTriggerStateWith(prevstate);
+                Operation.MoveNext();
+                Manager.TickAll();
+                Children.TickAll();
+                prevstate = Gamepad.GetState();
+                yield return true;
+            }
+        }
 
         public override IEnumerator<bool> Draw()
         {
             while (true)
             {
                 Manager.DrawAll();
+                Children.DrawAll();
                 yield return true;
             }
-
         }
     }
 
     public class TitleChildSceneAccountSelect : ChildScene
     {
+        private Kbtter Kbtter = Kbtter.Instance;
+        private Kbtter4Account[] accounts;
+        private GamepadState state, tstate, prevstate;
+
         public override IEnumerator<bool> Execute()
         {
-            return base.Execute();
+            Manager.OffsetX = 640;
+            Manager.OffsetY = 240;
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.Black) { Value = "アカウント選択", X = 8, Y = 8 }, 0);
+
+            for (int i = 0; i < 40; i++)
+            {
+                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                yield return true;
+            }
+            Manager.OffsetX = 0;
+
+            prevstate = Gamepad.GetState();
+            while (true)
+            {
+                state = Gamepad.GetState();
+                tstate = state.GetTriggerStateWith(prevstate);
+                if (tstate.Buttons[1])
+                {
+                    Parent.SendChildMessage("ReturnToMenuSelect");
+                    for (int i = 0; i < 40; i++)
+                    {
+                        Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                        yield return true;
+                    }
+                    break;
+                }
+
+                prevstate = Gamepad.GetState();
+                yield return true;
+            }
         }
     }
 }

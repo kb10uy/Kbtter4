@@ -30,6 +30,11 @@ namespace Kbtter5
         {
             while (true) yield return true;
         }
+
+        public virtual void SendChildMessage(string mes)
+        {
+
+        }
     }
 
     public class ChildScene : Scene
