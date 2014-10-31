@@ -17,6 +17,7 @@ namespace Kbtter5.Scenes
         private AdditionalCoroutineSprite[] menu;
         private int selmenu = 0;
         private int modestate = 0;
+        private MultiAdditionalCoroutineSprite[] lrc, udc;
 
         public SceneTitle()
         {
@@ -25,6 +26,7 @@ namespace Kbtter5.Scenes
 
         public IEnumerator<bool> Execute()
         {
+            DX.SetDrawMode(DX.DX_DRAWMODE_BILINEAR);
             //The Kbtter Project
             var kbp = new Sprite() { Image = CommonObjects.ImageKbtterProject, HomeX = 256, HomeY = 32, X = 320, Y = 240 };
             Manager.Add(kbp, 0);
@@ -108,6 +110,15 @@ namespace Kbtter5.Scenes
                 }
                 menu[i].ApplyOperation(MenuIntro(i * 15, 60, 400));
             }
+
+            lrc = new[] 
+            {
+                new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.5,ScaleY=0.8,Image=CommonObjects.ImageCursor128[0],X=120,Y=400},
+                new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.5,ScaleY=0.8,Image=CommonObjects.ImageCursor128[1],X=520,Y=400},
+            };
+            Manager.AddRangeTo(lrc, 2);
+            foreach (var i in lrc) i.AddOperation(Blink(30, 0.8, Easing.Linear));
+
             while (true)
             {
                 switch (modestate)
@@ -129,11 +140,15 @@ namespace Kbtter5.Scenes
                             }
                             if (tstate.Buttons[0])
                             {
-                                for (int i = 0; i < menu.Length; i++)
+                                //救済措置
+                                if (selmenu == 0)
                                 {
-                                    menu[i].ApplyOperation(MenuIntro(0, 60, 600));
+                                    for (int i = 0; i < menu.Length; i++)
+                                    {
+                                        menu[i].ApplyOperation(MenuIntro(0, 60, 600));
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                             yield return true;
                         }
@@ -180,12 +195,29 @@ namespace Kbtter5.Scenes
         }
 
         #region メニュー用AdditionalCoroutineSpritePatternとか
-        public static AdditionalCoroutineSpritePattern MenuIntro(int delay, int time, double ty)
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> Blink(int time, double duraiton, EasingFunction easing)
+        {
+            return sp => BlinkFunction(sp, time, duraiton, easing);
+        }
+
+        public static IEnumerator<bool> BlinkFunction(MultiAdditionalCoroutineSprite sp, int time, double duraiton, EasingFunction easing)
+        {
+            while (true)
+            {
+                for (int i = 0; i < time; i++)
+                {
+                    sp.Alpha = easing(i, time, 1, -duraiton);
+                    yield return true;
+                }
+            }
+        }
+
+        private static CoroutineFunction<AdditionalCoroutineSprite> MenuIntro(int delay, int time, double ty)
         {
             return sp => MenuIntroFunction(sp, delay, time, ty);
         }
 
-        public static IEnumerator<bool> MenuIntroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
+        private static IEnumerator<bool> MenuIntroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
         {
             for (int i = 0; i < delay; i++) yield return true;
             var sy = sp.Y;
@@ -197,12 +229,12 @@ namespace Kbtter5.Scenes
             sp.Y = ty;
         }
 
-        public static AdditionalCoroutineSpritePattern MenuOutro(int delay, int time, double ty)
+        private static CoroutineFunction<AdditionalCoroutineSprite> MenuOutro(int delay, int time, double ty)
         {
             return sp => MenuOutroFunction(sp, delay, time, ty);
         }
 
-        public static IEnumerator<bool> MenuOutroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
+        private static IEnumerator<bool> MenuOutroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
         {
             for (int i = 0; i < delay; i++) yield return true;
             var sy = sp.Y;
@@ -214,12 +246,12 @@ namespace Kbtter5.Scenes
             sp.Y = ty;
         }
 
-        public static AdditionalCoroutineSpritePattern MenuEnable()
+        private static CoroutineFunction<AdditionalCoroutineSprite> MenuEnable()
         {
             return sp => MenuEnableFunction(sp);
         }
 
-        public static IEnumerator<bool> MenuEnableFunction(AdditionalCoroutineSprite sp)
+        private static IEnumerator<bool> MenuEnableFunction(AdditionalCoroutineSprite sp)
         {
             var sx = sp.X;
             for (int i = 0; i < 30; i++)
@@ -235,12 +267,12 @@ namespace Kbtter5.Scenes
             yield return true;
         }
 
-        public static AdditionalCoroutineSpritePattern MenuDisable(double tx)
+        private static CoroutineFunction<AdditionalCoroutineSprite> MenuDisable(double tx)
         {
             return sp => MenuDisableFunction(sp, tx);
         }
 
-        public static IEnumerator<bool> MenuDisableFunction(AdditionalCoroutineSprite sp, double tx)
+        private static IEnumerator<bool> MenuDisableFunction(AdditionalCoroutineSprite sp, double tx)
         {
             var sx = sp.X;
             var sa = sp.Alpha;

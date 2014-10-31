@@ -32,7 +32,7 @@ namespace Kbtter5
             DieWithParentDeath = false;
         }
 
-        public EnemyUser(SceneGame sc, EnemyPattern op, Status s)
+        public EnemyUser(SceneGame sc, CoroutineFunction<EnemyUser> op, Status s)
             : this()
         {
             Game = sc;
@@ -47,7 +47,7 @@ namespace Kbtter5
             });
         }
 
-        public EnemyUser(EnemyUser sc, EnemyPattern op, Status s)
+        public EnemyUser(EnemyUser sc, CoroutineFunction<EnemyUser> op, Status s)
             : this()
         {
             ParentEnemy = sc;

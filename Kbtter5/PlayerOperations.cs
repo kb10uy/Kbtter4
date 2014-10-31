@@ -7,7 +7,6 @@ using DxLibDLL;
 
 namespace Kbtter5
 {
-    public delegate IEnumerator<bool> PlayerOperation(PlayerUser player);
 
     public static class PlayerOperations
     {

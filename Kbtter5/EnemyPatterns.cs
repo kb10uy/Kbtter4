@@ -7,7 +7,6 @@ using EasingSharp;
 
 namespace Kbtter5
 {
-    public delegate IEnumerator<bool> EnemyPattern(EnemyUser sp);
 
     public static class EnemyPatterns
     {
@@ -15,7 +14,7 @@ namespace Kbtter5
         static int EnemyBulletLayer = (int)GameLayer.EnemyBullet;
         static Xorshift128Random rnd = new Xorshift128Random();
 
-        public static Dictionary<EnemyPattern, int> Patterns = new Dictionary<EnemyPattern, int>
+        public static Dictionary<CoroutineFunction<EnemyUser>, int> Patterns = new Dictionary<CoroutineFunction<EnemyUser>, int>
         {
             { GoDownAndAway, 20 },
             { SuicideTo, 5 },
@@ -30,7 +29,7 @@ namespace Kbtter5
             { ToorimasuyoRighterReverse, 2 },
         };
 
-        public static EnemyPattern GetRandomPattern()
+        public static CoroutineFunction<EnemyUser> GetRandomPattern()
         {
             var all = Patterns.Values.Sum();
             var sel = rnd.Next(all);
@@ -450,7 +449,7 @@ namespace Kbtter5
             while (true) yield return true;
         }
 
-        private static EnemyPattern RetweeterCannonCircle(double startAngle, double startSpeed, double curve, double dist)
+        private static CoroutineFunction<EnemyUser> RetweeterCannonCircle(double startAngle, double startSpeed, double curve, double dist)
         {
             return (sp) => RetweeterCannonCircle(sp, startAngle, startSpeed, curve, dist);
         }

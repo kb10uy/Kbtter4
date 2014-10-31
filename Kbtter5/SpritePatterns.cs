@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Kbtter5
 {
-    public delegate IEnumerator<bool> SpritePattern(CoroutineSprite sp);
 
     public static class SpritePatterns
     {
-        public static SpritePattern MissStar(double angle, UserSprite p)
+        public static CoroutineFunction<CoroutineSprite> MissStar(double angle, UserSprite p)
         {
             return (sp) => MissStarOperation(sp, angle, p);
         }

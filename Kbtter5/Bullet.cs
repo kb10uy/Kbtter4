@@ -29,7 +29,7 @@ namespace Kbtter5
         public EnemyUser Parent { get; protected set; }
         public double Size { get; protected set; }
 
-        public CharacterBullet(EnemyUser parent, BulletPattern op, char c)
+        public CharacterBullet(EnemyUser parent, CoroutineFunction<UserSprite, Bullet> op, char c)
         {
             Parent = parent;
             MyKind = ObjectKind.EnemyBullet;
@@ -91,7 +91,7 @@ namespace Kbtter5
         public byte BrightG { get; set; }
         public byte BrightB { get; set; }
 
-        public LinearLaser(EnemyUser par, LinearLaserPattern op, double thickness, int img)
+        public LinearLaser(EnemyUser par, CoroutineFunction<UserSprite, LinearLaser> op, double thickness, int img)
         {
             Parent = par;
             Image = img;
@@ -195,7 +195,7 @@ namespace Kbtter5
         public int Index { get; set; }
         public int DrawLength { get; set; }
 
-        public CurveLaser(EnemyUser par, ICurve curve, CurveLaserPattern op, double col, CurveLaserImage img)
+        public CurveLaser(EnemyUser par, ICurve curve, CoroutineFunction<UserSprite, CurveLaser> op, double col, CurveLaserImage img)
         {
             Parent = par;
             LaserImage = img;
@@ -309,7 +309,7 @@ namespace Kbtter5
         public Status SourceStatus { get; private set; }
         private LetterInformation[] Letters;
 
-        public CurveCharacterLaser(EnemyUser par, ICurve curve, CurveLaserPattern op, Status st)
+        public CurveCharacterLaser(EnemyUser par, ICurve curve, CoroutineFunction<UserSprite, CurveLaser> op, Status st)
             : base(par, curve, op, 0, null)
         {
             CollisonRadius = 4;

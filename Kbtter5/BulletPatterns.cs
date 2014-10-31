@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Kbtter5
 {
-    public delegate IEnumerator<bool> BulletPattern(UserSprite par, Bullet b);
 
     #region 通常弾
 
@@ -14,7 +13,7 @@ namespace Kbtter5
     {
         static Xorshift128Random rnd = new Xorshift128Random();
 
-        public static BulletPattern Linear(double angle, double speed, int time)
+        public static CoroutineFunction<UserSprite, Bullet> Linear(double angle, double speed, int time)
         {
             return (par, b) => Linear(par, b, angle, speed, time);
         }
@@ -31,7 +30,7 @@ namespace Kbtter5
             yield break;
         }
 
-        public static BulletPattern LinearCurve(double angle, double curve, double speed, int time)
+        public static CoroutineFunction<UserSprite, Bullet> LinearCurve(double angle, double curve, double speed, int time)
         {
             return (par, b) => LinearCurve(par, b, angle, curve, speed, time);
         }
@@ -49,7 +48,7 @@ namespace Kbtter5
             yield break;
         }
 
-        public static BulletPattern LazyHoming(double startAngle, double startSpeed, int delay, UserSprite target, double homingSpeed)
+        public static CoroutineFunction<UserSprite, Bullet> LazyHoming(double startAngle, double startSpeed, int delay, UserSprite target, double homingSpeed)
         {
             return (par, b) => LazyHoming(par, b, startAngle, startSpeed, delay, target, homingSpeed);
         }
@@ -71,7 +70,7 @@ namespace Kbtter5
             }
         }
 
-        public static BulletPattern LazyHomingToEnemy(PlayerUser u, double startAngle, double startSpeed, int delay, double homingSpeed)
+        public static CoroutineFunction<UserSprite, Bullet> LazyHomingToEnemy(PlayerUser u, double startAngle, double startSpeed, int delay, double homingSpeed)
         {
             return (par, b) => LazyHomingToEnemy(u, b, startAngle, startSpeed, delay, homingSpeed);
         }
@@ -110,13 +109,12 @@ namespace Kbtter5
     #endregion
 
     #region レーザー用
-    public delegate IEnumerator<bool> LinearLaserPattern(UserSprite parent, LinearLaser laser);
 
     public static class LinearLaserPatterns
     {
         static Xorshift128Random rnd = new Xorshift128Random();
 
-        public static LinearLaserPattern Normal(double length, double speed)
+        public static CoroutineFunction<UserSprite, LinearLaser> Normal(double length, double speed)
         {
             return (par, l) => Normal(par, l, length, speed);
         }
@@ -140,7 +138,7 @@ namespace Kbtter5
             }
         }
 
-        public static LinearLaserPattern Worm(double length, double speed)
+        public static CoroutineFunction<UserSprite, LinearLaser> Worm(double length, double speed)
         {
             return (par, l) => Worm(par, l, length, speed);
         }
@@ -168,11 +166,9 @@ namespace Kbtter5
         }
     }
 
-    public delegate IEnumerator<bool> CurveLaserPattern(UserSprite parent, CurveLaser laser);
-
     public static class CurveLaserPatterns
     {
-        public static CurveLaserPattern Normal(int speed)
+        public static CoroutineFunction<UserSprite, CurveLaser> Normal(int speed)
         {
             return (par, l) => Normal(par, l);
         }
@@ -203,7 +199,7 @@ namespace Kbtter5
             }
         }
 
-        public static CurveLaserPattern Homing(UserSprite target, int homingFrame, double homingSpeed, double homingCurveMax)
+        public static CoroutineFunction<UserSprite, CurveLaser> Homing(UserSprite target, int homingFrame, double homingSpeed, double homingCurveMax)
         {
             return (sp, laser) => Homing(sp, laser, target, homingFrame, homingSpeed, homingCurveMax);
         }

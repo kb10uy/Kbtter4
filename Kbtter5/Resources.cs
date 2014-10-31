@@ -54,6 +54,8 @@ namespace Kbtter5
         public static int[] ImageNumber12Red { get; private set; }
         public static int[] ImageNumber12Blue { get; private set; }
 
+        public static int[] ImageCursor128 { get; private set; }
+
         public static int FontSystem = DX.CreateFontToHandle("Meiryo", 16, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
         public static int FontSystemBig = DX.CreateFontToHandle("Meiryo", 48, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
         public static int FontBullet = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
@@ -76,6 +78,9 @@ namespace Kbtter5
             DX.LoadDivGraph(GetCommonImagePath("num24.png"), 11, 11, 1, 12, 24, out ImageNumber24[0]);
             DX.LoadDivGraph(GetCommonImagePath("num32.png"), 11, 11, 1, 16, 32, out ImageNumber32[0]);
             DX.LoadDivGraph(GetCommonImagePath("num48.png"), 11, 11, 1, 24, 48, out ImageNumber48[0]);
+
+            ImageCursor128 = new int[4];
+            DX.LoadDivGraph(GetCommonImagePath("cursor.png"), 4, 4, 1, 128, 128, out ImageCursor128[0]);
         }
 
         #region Colors内部クラス

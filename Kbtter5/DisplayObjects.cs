@@ -85,6 +85,25 @@ namespace Kbtter5
         }
     }
 
+    public class CoroutineSprite : Sprite
+    {
+        public IEnumerator<bool> Operation { get; protected set; }
+
+        public CoroutineSprite(CoroutineFunction<CoroutineSprite> op)
+        {
+            Operation = op(this);
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (!(IsDead = !(Operation.MoveNext() && Operation.Current))) yield return true;
+        }
+    }
+
+    //今までのデリゲートをひとまとめ
+    public delegate IEnumerator<bool> CoroutineFunction<TValue>(TValue value);
+    public delegate IEnumerator<bool> CoroutineFunction<TValue1, TValue2>(TValue1 value1, TValue2 value2);
+
     public class UserSprite : Sprite
     {
         protected static int EnemyBulletLayer = (int)GameLayer.EnemyBullet;
@@ -186,23 +205,6 @@ namespace Kbtter5
         }
     }
 
-    public class CoroutineSprite : Sprite
-    {
-        public IEnumerator<bool> Operation { get; protected set; }
-
-        public CoroutineSprite(SpritePattern op)
-        {
-            Operation = op(this);
-        }
-
-        public override IEnumerator<bool> Tick()
-        {
-            while (!(IsDead = !(Operation.MoveNext() && Operation.Current))) yield return true;
-        }
-    }
-
-    public delegate IEnumerator<bool> AdditionalCoroutineSpritePattern(AdditionalCoroutineSprite sp);
-
     public class AdditionalCoroutineSprite : Sprite
     {
         public IEnumerator<bool> SpecialOperation { get; protected set; }
@@ -216,9 +218,41 @@ namespace Kbtter5
             }
         }
 
-        public void ApplyOperation(AdditionalCoroutineSpritePattern pat)
+        public void ApplyOperation(CoroutineFunction<AdditionalCoroutineSprite> pat)
         {
             SpecialOperation = pat(this);
+        }
+    }
+
+    public class MultiAdditionalCoroutineSprite : Sprite
+    {
+        private List<IEnumerator<bool>> operations = new List<IEnumerator<bool>>(), bufop = new List<IEnumerator<bool>>();
+        public IReadOnlyList<IEnumerator<bool>> AvailableOperations { get { return operations; } }
+        private bool taken;
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                taken = true;
+                operations.RemoveAll(p => !(p.MoveNext() && p.Current));
+                taken = false;
+                operations.AddRange(bufop);
+                bufop.Clear();
+                yield return true;
+            }
+        }
+
+        public void AddOperation(CoroutineFunction<MultiAdditionalCoroutineSprite> pat)
+        {
+            if (taken)
+            {
+                operations.Add(pat(this));
+            }
+            else
+            {
+                bufop.Add(pat(this));
+            }
         }
     }
 

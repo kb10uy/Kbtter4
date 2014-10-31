@@ -25,7 +25,7 @@ namespace Kbtter5
         public bool HasCollision { get; protected set; }
         public int Frames { get; protected set; }
 
-        public PlayerUser(SceneGame sc, PlayerOperation op, User u)
+        public PlayerUser(SceneGame sc, CoroutineFunction<PlayerUser> op, User u)
         {
             game = sc;
             SourceUser = u;
@@ -181,7 +181,7 @@ namespace Kbtter5
         public PlayerUser Parent { get; protected set; }
         public int Strength { get; protected set; }
 
-        public PlayerImageBullet(PlayerUser pa, BulletPattern op, int i, int s)
+        public PlayerImageBullet(PlayerUser pa, CoroutineFunction<UserSprite, Bullet> op, int i, int s)
         {
             Parent = pa;
             Operation = op(Parent, this);
