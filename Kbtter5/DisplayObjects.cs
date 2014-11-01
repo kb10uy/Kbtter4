@@ -23,6 +23,7 @@ namespace Kbtter5
         public double ScaleY { get; set; }
         public double Angle { get; set; }
         public double Alpha { get; set; }
+        public double ActualAlpha { get { return Alpha * ParentManager.Alpha; } }
         public ObjectKind MyKind { get; set; }
         public ObjectKind TargetKind { get; set; }
         public ObjectKind DamageKind { get; set; }
@@ -57,6 +58,44 @@ namespace Kbtter5
         }
     }
 
+    public class ExpandableDisplayObject : DisplayObject
+    {
+        public ObjectManager Manager { get; protected set; }
+        public IEnumerator<bool> ExecuteCoroutine { get; protected set; }
+
+        public ExpandableDisplayObject()
+        {
+            Manager = new ObjectManager(4);
+        }
+
+        public virtual IEnumerator<bool> Execute()
+        {
+            while (true) yield return true;
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                IsDead = !(ExecuteCoroutine.MoveNext() && ExecuteCoroutine.Current);
+                Manager.TickAll();
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                Manager.OffsetX = ActualX;
+                Manager.OffsetY = ActualY;
+                Manager.Alpha = ActualAlpha;
+                Manager.DrawAll();
+                yield return true;
+            }
+        }
+    }
+
     public class Sprite : DisplayObject
     {
         public int Image { get; set; }
@@ -73,7 +112,7 @@ namespace Kbtter5
             {
                 if (IsImageLoaded)
                 {
-                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                     DX.DrawRotaGraph3F((float)ActualX, (float)ActualY, (float)HomeX, (float)HomeY, ScaleX, ScaleY, Angle, Image, DX.TRUE);
                 }
                 else
@@ -150,7 +189,7 @@ namespace Kbtter5
                 var v = Value;
                 var reald = (int)(Math.Log10(Value) + 1);
                 int[] ls = new int[Digits];
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 for (int i = Digits - 1; i >= 0; i--)
                 {
                     DX.DrawGraphF((float)(ActualX + DigitX * i - HomeX), (float)(ActualY - HomeY), NumberImage[(Digits - 1 - i < reald) ? v % 10 : FillWithZero ? 0 : 10], DX.TRUE);
@@ -198,7 +237,7 @@ namespace Kbtter5
         {
             while (true)
             {
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.DrawStringFToHandle((float)(ActualX - HomeX), (float)(ActualY - HomeY), Value, Color, FontHandle);
                 yield return true;
             }
@@ -275,7 +314,7 @@ namespace Kbtter5
         {
             while (true)
             {
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.DrawOval((int)(ActualX - HomeX), (int)(ActualY - HomeY), (int)Radius, (int)Radius, Color, AllowFill ? DX.TRUE : DX.FALSE);
                 yield return true;
             }
@@ -296,7 +335,7 @@ namespace Kbtter5
         {
             while (true)
             {
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.DrawBox((int)(ActualX - HomeX), (int)(ActualY - HomeY), (int)(ActualX - HomeX + Width), (int)(ActualY - HomeY + Height), Color, AllowFill ? DX.TRUE : DX.FALSE);
                 yield return true;
             }
@@ -318,7 +357,7 @@ namespace Kbtter5
             {
                 var dx = Math.Cos(Angle) * Length;
                 var dy = Math.Sin(Angle) * Length;
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.DrawLine((int)(ActualX - HomeX), (int)(ActualY - HomeY), (int)(ActualX - HomeX + dx), (int)(ActualY - HomeY + dy), Color);
                 yield return true;
             }

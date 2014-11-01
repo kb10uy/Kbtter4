@@ -23,6 +23,7 @@ namespace Kbtter5.Scenes
         private AdditionalCoroutineSprite[] menu;
         private int selmenu = 0;
         private int modestate = 0;
+        private int selac = 0;
         private MultiAdditionalCoroutineSprite[] lrc;
 
         private AccountInformation info;
@@ -186,10 +187,18 @@ namespace Kbtter5.Scenes
                         //サブタスク動作
                         yield return true;
                         break;
+                    case 2:
+                        for (int i = 0; i < 60; i++)
+                        {
+                            Manager.Alpha -= 1.0 / 60.0;
+                            yield return true;
+                        }
+                        Manager.Alpha = 0;
+                        goto EXIT;
                 }
             }
-
-            while (true) yield return true;
+            EXIT:
+            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]));
         }
 
         public override void SendChildMessage(string mes)
@@ -203,7 +212,17 @@ namespace Kbtter5.Scenes
                         menu[i].ApplyOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
                     }
                     foreach (var i in lrc) i.AddOperation(SpritePatterns.MenuOutro(0, 60, 400));
-                    break;
+                    return;
+            }
+
+            var l = mes.Split(':');
+            var args = l[1].Split(',');
+            switch (l[0])
+            {
+                case "StartGame":
+                    modestate = 2;
+                    selac = Convert.ToInt32(args[0]);
+                    return;
             }
         }
 
@@ -318,6 +337,16 @@ namespace Kbtter5.Scenes
                     }
                     break;
                 }
+                if (tstate.Buttons[0] && uinfo[sel] != null)
+                {
+                    for (int i = 0; i < 40; i++)
+                    {
+                        Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                        yield return true;
+                    }
+                    Parent.SendChildMessage("StartGame:" + sel.ToString());
+                    break;
+                }
 
                 prevstate = Gamepad.GetState();
                 yield return true;
@@ -375,7 +404,7 @@ namespace Kbtter5.Scenes
             SourceUser = user;
             ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
             GrazePoints = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
-            CollisionRadius = 4.0 * (SourceUser.FriendsCount / SourceUser.FollowersCount);
+            CollisionRadius = 4.0 * SourceUser.FriendsCount / SourceUser.FollowersCount;
             DefaultPlayers = (int)(Math.Log10(SourceUser.FollowersCount) * Math.Log10(SourceUser.FriendsCount)) * 4;
             DefaultBombs = (int)(Math.Log10(SourceUser.FavouritesCount) + Math.Log10(SourceUser.StatusesCount)) * 2;
             BombStrength = SourceUser.StatusesCount;
@@ -480,7 +509,6 @@ namespace Kbtter5.Scenes
 
             while (true)
             {
-
                 Manager.TickAll();
                 yield return true;
             }
@@ -492,6 +520,7 @@ namespace Kbtter5.Scenes
             {
                 Manager.OffsetX = ActualX;
                 Manager.OffsetY = ActualY;
+                Manager.Alpha = ActualAlpha;
                 Manager.DrawAll();
                 yield return true;
             }

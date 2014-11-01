@@ -28,6 +28,7 @@ namespace Kbtter5.Scenes
         private Kbtter Kbtter = Kbtter.Instance;
         private Kbtter5 Parent = Kbtter5.Instance;
         private Tokens tokens;
+        private UserInformation info;
         private List<IDisposable> streams = new List<IDisposable>();
         private Xorshift128Random rnd = new Xorshift128Random();
         private string BackgroundImagePath = Path.Combine(CommonObjects.DataDirectory, "back.png");
@@ -45,11 +46,12 @@ namespace Kbtter5.Scenes
         private StringSprite StringInfo;
         private InformationBox Information;
 
-        public SceneGame(Kbtter4Account ac)
+        public SceneGame(Kbtter4Account ac,UserInformation ui)
         {
+            info = ui;
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
-            Player = new PlayerUser(this, PlayerOperations.MouseOperaiton, tokens.Users.Show(user_id => ac.UserId));
-            Information = new InformationBox(Player.SourceUser, Player)
+            Player = new PlayerUser(this, PlayerOperations.MouseOperaiton, ui);
+            Information = new InformationBox(info, Player)
             {
                 X = 0,
                 Y = 480
@@ -267,10 +269,10 @@ namespace Kbtter5.Scenes
         private PlayerUser user;
         private double pux;
 
-        public InformationBox(User u, PlayerUser pu)
+        public InformationBox(UserInformation u, PlayerUser pu)
         {
-            Players = (int)(Math.Log10(u.FollowersCount) * Math.Log10(u.FriendsCount)) * 4;
-            Bombs = (int)(Math.Log10(u.FavouritesCount) + Math.Log10(u.StatusesCount)) * 2;
+            Players = u.DefaultPlayers;
+            Bombs = u.DefaultBombs;
             defb = Bombs;
             BackColor = CommonObjects.Colors.DimGray;
             FontColor = CommonObjects.Colors.White;

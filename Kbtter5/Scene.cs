@@ -111,6 +111,7 @@ namespace Kbtter5
 
         public double OffsetX { get; set; }
         public double OffsetY { get; set; }
+        public double Alpha { get; set; }
 
         public IReadOnlyList<IReadOnlyList<DisplayObject>> Layers
         {
@@ -119,6 +120,7 @@ namespace Kbtter5
 
         public ObjectManager(int layerCount)
         {
+            Alpha = 1.0;
             layers = new List<List<DisplayObject>>(layerCount);
             for (int i = 0; i < layerCount; i++) layers.Add(new List<DisplayObject>(1024));
             bufferedlayers = new List<List<DisplayObject>>(layerCount);

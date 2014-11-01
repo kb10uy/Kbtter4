@@ -75,7 +75,7 @@ namespace Kbtter5
         {
             while (true)
             {
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.DrawGraphF((float)(ActualX - HomeX), (float)(ActualY - HomeY), buffered.Handle, DX.TRUE);
                 yield return true;
             }
@@ -169,7 +169,7 @@ namespace Kbtter5
                     X = ActualX + Math.Cos(Angle) * Length + Math.Cos(Angle + Math.PI / 2) * Thickness / 2,
                     Y = ActualY + Math.Sin(Angle) * Length + Math.Sin(Angle + Math.PI / 2) * Thickness / 2
                 };
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.SetDrawBright(BrightR, BrightG, BrightB);
                 DX.DrawModiGraphF(
                     (float)su.X, (float)su.Y,
@@ -264,7 +264,7 @@ namespace Kbtter5
         {
             while (true)
             {
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.SetDrawBright(BrightR, BrightG, BrightB);
                 Point? pu = null, pd = null;
                 for (int i = 0; i < DrawLength && i + Index + 1 < Curve.Count; i++)
@@ -327,11 +327,11 @@ namespace Kbtter5
         {
             while (true)
             {
-                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                 DX.SetDrawBright(BrightR, BrightG, BrightB);
                 for (int i = 0; i < DrawLength && i + Index < Curve.Count; i++)
                 {
-                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                    DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(ActualAlpha * 255));
                     DX.DrawGraphF((float)(ActualX - HomeX), (float)(ActualY - HomeY), Letters[i % Letters.Length].Handle, DX.TRUE);
                 }
                 DX.SetDrawBright(255, 255, 255);

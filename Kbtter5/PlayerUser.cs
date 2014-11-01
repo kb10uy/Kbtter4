@@ -24,21 +24,23 @@ namespace Kbtter5
         public bool IsGameOver { get; protected set; }
         public bool HasCollision { get; protected set; }
         public int Frames { get; protected set; }
+        private UserInformation info;
 
-        public PlayerUser(SceneGame sc, CoroutineFunction<PlayerUser> op, User u)
+        public PlayerUser(SceneGame sc, CoroutineFunction<PlayerUser> op, UserInformation u)
         {
+            info = u;
             game = sc;
-            SourceUser = u;
+            SourceUser = u.SourceUser;
             Operation = op(this);
             MyKind = ObjectKind.Player;
             DamageKind = ObjectKind.Enemy | ObjectKind.EnemyBullet;
-            CollisionRadius = 4.0 * (SourceUser.FriendsCount / SourceUser.FollowersCount);
+            CollisionRadius = u.CollisionRadius;
             GrazeRadius = CollisionRadius * 1.5;
-            ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
+            ShotStrength = u.ShotStrength;
             ShotInterval = 2;
             Operatable = true;
             HasCollision = true;
-            GrazePoint = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
+            GrazePoint = u.GrazePoints;
             Task.Run(() =>
             {
                 Image = UserImageManager.GetUserImage(SourceUser);
@@ -134,7 +136,7 @@ namespace Kbtter5
 
                 var at = Math.Atan2(yd, xd);
                 var sp = Math.Sqrt(xd * xd + yd * yd) / 60.0;
-                ParentManager.Add(new PlayerImageBullet(this, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), CommonObjects.ImageStar, SourceUser.StatusesCount)
+                ParentManager.Add(new PlayerImageBullet(this, BulletPatterns.LazyHomingToEnemy(this, at, sp, 60, 10), CommonObjects.ImageStar, info.BombStrength)
                 {
                     ScaleX = 8.0,
                     ScaleY = 8.0,
