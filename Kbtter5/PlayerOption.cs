@@ -13,6 +13,7 @@ namespace Kbtter5
     public class PlayerOption : UserSprite
     {
         public PlayerUser Parent { get; protected set; }
+        public UserInformation Information { get; protected set; }
 
         public PlayerOption()
         {
@@ -23,10 +24,11 @@ namespace Kbtter5
             MyKind = ObjectKind.Player;
         }
 
-        public PlayerOption(User user)
+        public PlayerOption(PlayerUser p,UserInformation user)
             : this()
         {
-            SourceUser = user;
+            Information = user;
+            SourceUser = Information.SourceUser;
         }
     }
 }

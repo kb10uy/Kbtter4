@@ -75,7 +75,8 @@ namespace Kbtter5
 
     public class ChildSceneManager
     {
-        private List<ChildScene> scenes;
+        private List<ChildScene> scenes, buf;
+        private bool taken;
         public IReadOnlyList<ChildScene> Scenes { get { return scenes; } }
         public Scene Parent { get; private set; }
 
@@ -83,17 +84,22 @@ namespace Kbtter5
         {
             Parent = par;
             scenes = new List<ChildScene>();
+            buf = new List<ChildScene>();
         }
 
         public void AddChildScene(ChildScene cs)
         {
             cs.Parent = Parent;
-            scenes.Add(cs);
+            (taken ? buf : scenes).Add(cs);
         }
 
         public void TickAll()
         {
+            taken = true;
             foreach (var i in scenes) i.TickCoroutine.MoveNext();
+            taken = false;
+            scenes.AddRange(buf);
+            buf.Clear();
             scenes.RemoveAll(i => i.IsDead);
         }
 

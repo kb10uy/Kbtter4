@@ -197,7 +197,7 @@ namespace Kbtter5.Scenes
                         goto EXIT;
                 }
             }
-            EXIT:
+        EXIT:
             Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]));
         }
 
@@ -213,15 +213,20 @@ namespace Kbtter5.Scenes
                     }
                     foreach (var i in lrc) i.AddOperation(SpritePatterns.MenuOutro(0, 60, 400));
                     return;
+                case "ReturnToAccountSelect":
+                    modestate = 1;
+                    Children.AddChildScene(new TitleChildSceneAccountSelect(info, true));
+                    return;
             }
 
             var l = mes.Split(':');
             var args = l[1].Split(',');
             switch (l[0])
             {
-                case "StartGame":
-                    modestate = 2;
+                case "GoToOptionEdit":
+                    modestate = 1;
                     selac = Convert.ToInt32(args[0]);
+                    Children.AddChildScene(new TitleChildSceneOptionSelect(new UserInformation(info.Users[selac])));
                     return;
             }
         }
@@ -275,15 +280,22 @@ namespace Kbtter5.Scenes
         private AccountInformation ainfo;
         private UserInformation[] uinfo;
         private UserInformationPanel[] uips;
+        private bool backing;
 
         public TitleChildSceneAccountSelect(AccountInformation ai)
         {
             ainfo = ai;
         }
 
+        public TitleChildSceneAccountSelect(AccountInformation ai, bool back)
+        {
+            ainfo = ai;
+            backing = back;
+        }
+
         public override IEnumerator<bool> Execute()
         {
-            Manager.OffsetX = 640;
+            Manager.OffsetX = backing ? -640 : 640;
             Manager.OffsetY = 240;
 
             if (ainfo.Accounts.Length == 0)
@@ -306,7 +318,7 @@ namespace Kbtter5.Scenes
                 uips[i].X = 640 * i;
             }
 
-            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Black) { Value = "アカウント選択", X = 8, Y = 8 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "アカウント選択", X = 250, Y = 8 }, 0);
             udc = new[] 
             {
                 new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[2],X=64,Y=48},
@@ -317,7 +329,7 @@ namespace Kbtter5.Scenes
 
             for (int i = 0; i < 40; i++)
             {
-                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                Manager.OffsetX = Easing.OutQuad(i, 40, backing ? -640 : 640, backing ? 640 : -640);
                 yield return true;
             }
             Manager.OffsetX = 0;
@@ -339,12 +351,12 @@ namespace Kbtter5.Scenes
                 }
                 if (tstate.Buttons[0] && uinfo[sel] != null)
                 {
+                    Parent.SendChildMessage("GoToOptionEdit:" + sel.ToString());
                     for (int i = 0; i < 40; i++)
                     {
-                        Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                        Manager.OffsetX = Easing.OutQuad(i, 40, 0, -640);
                         yield return true;
                     }
-                    Parent.SendChildMessage("StartGame:" + sel.ToString());
                     break;
                 }
 
@@ -389,25 +401,48 @@ namespace Kbtter5.Scenes
         }
     }
 
-    public class UserInformation
+    public class TitleChildSceneOptionSelect : ChildScene
     {
-        public User SourceUser { get; private set; }
-        public int ShotStrength { get; private set; }
-        public int BombStrength { get; private set; }
-        public int DefaultPlayers { get; private set; }
-        public int DefaultBombs { get; private set; }
-        public int GrazePoints { get; private set; }
-        public double CollisionRadius { get; private set; }
+        private UserInformation info;
+        private GamepadState state, tstate, prevstate;
 
-        public UserInformation(User user)
+        public TitleChildSceneOptionSelect(UserInformation i)
         {
-            SourceUser = user;
-            ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
-            GrazePoints = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
-            CollisionRadius = 4.0 * SourceUser.FriendsCount / SourceUser.FollowersCount;
-            DefaultPlayers = (int)(Math.Log10(SourceUser.FollowersCount) * Math.Log10(SourceUser.FriendsCount)) * 4;
-            DefaultBombs = (int)(Math.Log10(SourceUser.FavouritesCount) + Math.Log10(SourceUser.StatusesCount)) * 2;
-            BombStrength = SourceUser.StatusesCount;
+            info = i;
+        }
+
+        public override IEnumerator<bool> Execute()
+        {
+            Manager.OffsetX = 640;
+            Manager.OffsetY = 240;
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション編集", X = 250, Y = 8 }, 0);
+
+            for (int i = 0; i < 40; i++)
+            {
+                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                yield return true;
+            }
+            Manager.OffsetX = 0;
+
+            prevstate = Gamepad.GetState();
+            while (true)
+            {
+                state = Gamepad.GetState();
+                tstate = state.GetTriggerStateWith(prevstate);
+                if (tstate.Buttons[1])
+                {
+                    Parent.SendChildMessage("ReturnToAccountSelect");
+                    for (int i = 0; i < 40; i++)
+                    {
+                        Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                        yield return true;
+                    }
+                    break;
+                }
+                prevstate = Gamepad.GetState();
+                yield return true;
+            }
         }
     }
 

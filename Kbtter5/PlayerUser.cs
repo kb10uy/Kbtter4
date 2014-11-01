@@ -221,4 +221,26 @@ namespace Kbtter5
         }
     }
 
+    public class UserInformation
+    {
+        public User SourceUser { get; private set; }
+        public int ShotStrength { get; private set; }
+        public int BombStrength { get; private set; }
+        public int DefaultPlayers { get; private set; }
+        public int DefaultBombs { get; private set; }
+        public int GrazePoints { get; private set; }
+        public double CollisionRadius { get; private set; }
+
+        public UserInformation(User user)
+        {
+            SourceUser = user;
+            ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
+            GrazePoints = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
+            CollisionRadius = 4.0 * SourceUser.FriendsCount / SourceUser.FollowersCount;
+            DefaultPlayers = (int)(Math.Log10(SourceUser.FollowersCount) * Math.Log10(SourceUser.FriendsCount)) * 4;
+            DefaultBombs = (int)(Math.Log10(SourceUser.FavouritesCount) + Math.Log10(SourceUser.StatusesCount)) * 2;
+            BombStrength = SourceUser.StatusesCount;
+        }
+    }
+
 }
