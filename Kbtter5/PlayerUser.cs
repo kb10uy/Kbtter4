@@ -32,8 +32,8 @@ namespace Kbtter5
             Operation = op(this);
             MyKind = ObjectKind.Player;
             DamageKind = ObjectKind.Enemy | ObjectKind.EnemyBullet;
-            CollisonRadius = 4.0 * (SourceUser.FriendsCount / SourceUser.FollowersCount);
-            GrazeRadius = CollisonRadius * 1.5;
+            CollisionRadius = 4.0 * (SourceUser.FriendsCount / SourceUser.FollowersCount);
+            GrazeRadius = CollisionRadius * 1.5;
             ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
             ShotInterval = 2;
             Operatable = true;
@@ -138,7 +138,7 @@ namespace Kbtter5
                 {
                     ScaleX = 8.0,
                     ScaleY = 8.0,
-                    CollisonRadius = 56,
+                    CollisionRadius = 56,
                     HomeX = 8,
                     HomeY = 8,
                     X = X,
@@ -188,7 +188,7 @@ namespace Kbtter5
             Image = i;
             IsImageLoaded = true;
             Strength = s;
-            CollisonRadius = 8;
+            CollisionRadius = 8;
             MyKind = ObjectKind.PlayerBullet;
             TargetKind = ObjectKind.Enemy;
         }
@@ -205,7 +205,7 @@ namespace Kbtter5
                     var tg = p.MyKind != MyKind && ((p.DamageKind & MyKind) != 0);
                     var xd = X - p.X;
                     var yd = Y - p.Y;
-                    var zd = CollisonRadius + p.CollisonRadius;
+                    var zd = CollisionRadius + p.CollisionRadius;
                     var cl = (xd * xd + yd * yd) < zd * zd;
                     return tg && cl;
                 }))

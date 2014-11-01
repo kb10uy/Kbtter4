@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 using DxLibDLL;
 using EasingSharp;
 using Kbtter4.Models;
+using CoreTweet;
+using System.IO;
+using System.Net;
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using System.Drawing;
 
 namespace Kbtter5.Scenes
 {
@@ -17,16 +23,21 @@ namespace Kbtter5.Scenes
         private AdditionalCoroutineSprite[] menu;
         private int selmenu = 0;
         private int modestate = 0;
-        private MultiAdditionalCoroutineSprite[] lrc, udc;
+        private MultiAdditionalCoroutineSprite[] lrc;
+
+        private AccountInformation info;
 
         public SceneTitle()
         {
             Operation = Execute();
+            var path = Path.Combine(CommonObjects.DataDirectory, "user");
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
 
         public IEnumerator<bool> Execute()
         {
             DX.SetDrawMode(DX.DX_DRAWMODE_BILINEAR);
+            info = new AccountInformation(Kbtter.Instance.Setting.Accounts.ToArray());
             //The Kbtter Project
             var kbp = new Sprite() { Image = CommonObjects.ImageKbtterProject, HomeX = 256, HomeY = 32, X = 320, Y = 240 };
             Manager.Add(kbp, 0);
@@ -108,7 +119,7 @@ namespace Kbtter5.Scenes
                     menu[i].Alpha = 0.5;
                     menu[i].ScaleX = menu[i].ScaleY = 0.8;
                 }
-                menu[i].ApplyOperation(MenuIntro(i * 15, 60, 400));
+                menu[i].ApplyOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
             }
 
             lrc = new[] 
@@ -117,7 +128,7 @@ namespace Kbtter5.Scenes
                 new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.5,ScaleY=0.8,Image=CommonObjects.ImageCursor128[1],X=520,Y=400},
             };
             Manager.AddRangeTo(lrc, 2);
-            foreach (var i in lrc) i.AddOperation(Blink(30, 0.8, Easing.Linear));
+            foreach (var i in lrc) i.AddOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
 
             while (true)
             {
@@ -145,8 +156,9 @@ namespace Kbtter5.Scenes
                                 {
                                     for (int i = 0; i < menu.Length; i++)
                                     {
-                                        menu[i].ApplyOperation(MenuIntro(0, 60, 600));
+                                        menu[i].ApplyOperation(SpritePatterns.MenuIntro(0, 60, 600));
                                     }
+                                    foreach (var i in lrc) i.AddOperation(SpritePatterns.MenuOutro(0, 60, 600));
                                     break;
                                 }
                             }
@@ -156,7 +168,7 @@ namespace Kbtter5.Scenes
                         {
                             case 0:
                                 //Start
-                                Children.AddChildScene(new TitleChildSceneAccountSelect());
+                                Children.AddChildScene(new TitleChildSceneAccountSelect(info));
                                 break;
                             case 1:
                                 //Quick
@@ -188,106 +200,11 @@ namespace Kbtter5.Scenes
                     modestate = 0;
                     for (int i = 0; i < menu.Length; i++)
                     {
-                        menu[i].ApplyOperation(MenuIntro(i * 15, 60, 400));
+                        menu[i].ApplyOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
                     }
+                    foreach (var i in lrc) i.AddOperation(SpritePatterns.MenuOutro(0, 60, 400));
                     break;
             }
-        }
-
-        #region メニュー用AdditionalCoroutineSpritePatternとか
-        public static CoroutineFunction<MultiAdditionalCoroutineSprite> Blink(int time, double duraiton, EasingFunction easing)
-        {
-            return sp => BlinkFunction(sp, time, duraiton, easing);
-        }
-
-        public static IEnumerator<bool> BlinkFunction(MultiAdditionalCoroutineSprite sp, int time, double duraiton, EasingFunction easing)
-        {
-            while (true)
-            {
-                for (int i = 0; i < time; i++)
-                {
-                    sp.Alpha = easing(i, time, 1, -duraiton);
-                    yield return true;
-                }
-            }
-        }
-
-        private static CoroutineFunction<AdditionalCoroutineSprite> MenuIntro(int delay, int time, double ty)
-        {
-            return sp => MenuIntroFunction(sp, delay, time, ty);
-        }
-
-        private static IEnumerator<bool> MenuIntroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
-        {
-            for (int i = 0; i < delay; i++) yield return true;
-            var sy = sp.Y;
-            for (int i = 0; i < time; i++)
-            {
-                sp.Y = Easing.OutBack(i, time, sy, ty - sy);
-                yield return true;
-            }
-            sp.Y = ty;
-        }
-
-        private static CoroutineFunction<AdditionalCoroutineSprite> MenuOutro(int delay, int time, double ty)
-        {
-            return sp => MenuOutroFunction(sp, delay, time, ty);
-        }
-
-        private static IEnumerator<bool> MenuOutroFunction(AdditionalCoroutineSprite sp, int delay, int time, double ty)
-        {
-            for (int i = 0; i < delay; i++) yield return true;
-            var sy = sp.Y;
-            for (int i = 0; i < time; i++)
-            {
-                sp.Y = Easing.OutSine(i, time, sy, ty - sy);
-                yield return true;
-            }
-            sp.Y = ty;
-        }
-
-        private static CoroutineFunction<AdditionalCoroutineSprite> MenuEnable()
-        {
-            return sp => MenuEnableFunction(sp);
-        }
-
-        private static IEnumerator<bool> MenuEnableFunction(AdditionalCoroutineSprite sp)
-        {
-            var sx = sp.X;
-            for (int i = 0; i < 30; i++)
-            {
-                sp.X = Easing.OutQuad(i, 30, sx, 320 - sx);
-                sp.Alpha = Easing.OutQuad(i, 30, 0.5, 0.5);
-                sp.ScaleX = sp.ScaleY = Easing.OutQuad(i, 30, 0.8, 0.2);
-                yield return true;
-            }
-            sp.X = 320;
-            sp.Alpha = 1;
-            sp.ScaleX = sp.ScaleY = 1;
-            yield return true;
-        }
-
-        private static CoroutineFunction<AdditionalCoroutineSprite> MenuDisable(double tx)
-        {
-            return sp => MenuDisableFunction(sp, tx);
-        }
-
-        private static IEnumerator<bool> MenuDisableFunction(AdditionalCoroutineSprite sp, double tx)
-        {
-            var sx = sp.X;
-            var sa = sp.Alpha;
-            var ss = sp.ScaleX;
-            for (int i = 0; i < 30; i++)
-            {
-                sp.X = Easing.OutQuad(i, 30, sx, tx - sx);
-                sp.Alpha = Easing.OutQuad(i, 30, sa, 0.5 - sa);
-                sp.ScaleX = sp.ScaleY = Easing.OutQuad(i, 30, ss, 0.8 - ss);
-                yield return true;
-            }
-            sp.X = tx;
-            sp.Alpha = 0.5;
-            sp.ScaleX = sp.ScaleY = 0.8;
-            yield return true;
         }
 
         public void RefreshMenuPosition()
@@ -296,15 +213,14 @@ namespace Kbtter5.Scenes
             {
                 if (i == selmenu)
                 {
-                    menu[i].ApplyOperation(MenuEnable());
+                    menu[i].ApplyOperation(SpritePatterns.MenuEnable());
                 }
                 else
                 {
-                    menu[i].ApplyOperation(MenuDisable(320 + 256 * (i - selmenu)));
+                    menu[i].ApplyOperation(SpritePatterns.MenuDisable(320 + 256 * (i - selmenu)));
                 }
             }
         }
-        #endregion
 
         public override IEnumerator<bool> Tick()
         {
@@ -335,15 +251,50 @@ namespace Kbtter5.Scenes
     public class TitleChildSceneAccountSelect : ChildScene
     {
         private Kbtter Kbtter = Kbtter.Instance;
-        private Kbtter4Account[] accounts;
         private GamepadState state, tstate, prevstate;
+        private MultiAdditionalCoroutineSprite[] udc;
+        private AccountInformation ainfo;
+        private UserInformation[] uinfo;
+        private UserInformationPanel[] uips;
+
+        public TitleChildSceneAccountSelect(AccountInformation ai)
+        {
+            ainfo = ai;
+        }
 
         public override IEnumerator<bool> Execute()
         {
             Manager.OffsetX = 640;
             Manager.OffsetY = 240;
 
-            Manager.Add(new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.Black) { Value = "アカウント選択", X = 8, Y = 8 }, 0);
+            if (ainfo.Accounts.Length == 0)
+            {
+                Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Red) { X = 16, Y = 120, Value = "アカウントがありません。Kbtter4で登録してください。" }, 2);
+                for (int i = 0; i < 40; i++)
+                {
+                    Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                    yield return true;
+                }
+                Manager.OffsetX = 0;
+                while (true) yield return true;
+            }
+
+            LoadUsers();
+            var sel = 0;
+            Manager.AddRangeTo(uips, 1);
+            for (int i = 0; i < uips.Length; i++)
+            {
+                uips[i].X = 640 * i;
+            }
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Black) { Value = "アカウント選択", X = 8, Y = 8 }, 0);
+            udc = new[] 
+            {
+                new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[2],X=64,Y=48},
+                new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[3],X=64,Y=208},
+            };
+            Manager.AddRangeTo(udc, 2);
+            foreach (var i in udc) i.AddOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
 
             for (int i = 0; i < 40; i++)
             {
@@ -371,6 +322,193 @@ namespace Kbtter5.Scenes
                 prevstate = Gamepad.GetState();
                 yield return true;
             }
+        }
+
+        public void LoadUsers()
+        {
+            uinfo = new UserInformation[ainfo.Accounts.Length];
+            uips = new UserInformationPanel[ainfo.Accounts.Length];
+            for (int i = 0; i < uips.Length; i++) uips[i] = new UserInformationPanel();
+
+            for (int i = 0; i < ainfo.Accounts.Length; i++)
+            {
+                if (!ainfo.HasGot[i])
+                {
+                    ainfo.HasGot[i] = true;
+                    var t = Tokens.Create(
+                        Kbtter.Instance.Setting.Consumer.Key,
+                        Kbtter.Instance.Setting.Consumer.Secret,
+                        ainfo.Accounts[i].AccessToken,
+                        ainfo.Accounts[i].AccessTokenSecret);
+                    var ta = i;
+                    t.Users.ShowAsync(user_id => ainfo.Accounts[ta].UserId)
+                        .ContinueWith(p =>
+                        {
+                            if (p.IsFaulted) return;
+                            ainfo.Users[ta] = p.Result;
+                            ainfo.HasGot[ta] = true;
+                            uinfo[ta] = new UserInformation(p.Result);
+                            uips[ta].RefreshUserInfo(uinfo[ta]);
+                        });
+                }
+                else
+                {
+                    uinfo[i] = new UserInformation(ainfo.Users[i]);
+                    uips[i].RefreshUserInfo(uinfo[i]);
+                }
+            }
+        }
+    }
+
+    public class UserInformation
+    {
+        public User SourceUser { get; private set; }
+        public int ShotStrength { get; private set; }
+        public int BombStrength { get; private set; }
+        public int DefaultPlayers { get; private set; }
+        public int DefaultBombs { get; private set; }
+        public int GrazePoints { get; private set; }
+        public double CollisionRadius { get; private set; }
+
+        public UserInformation(User user)
+        {
+            SourceUser = user;
+            ShotStrength = (SourceUser.StatusesCount + (DateTime.Now - SourceUser.CreatedAt.LocalDateTime).Days * (int)Math.Log10(SourceUser.StatusesCount)) / 25;
+            GrazePoints = (SourceUser.StatusesCount / SourceUser.FollowersCount) / 20 + 10;
+            CollisionRadius = 4.0 * (SourceUser.FriendsCount / SourceUser.FollowersCount);
+            DefaultPlayers = (int)(Math.Log10(SourceUser.FollowersCount) * Math.Log10(SourceUser.FriendsCount)) * 4;
+            DefaultBombs = (int)(Math.Log10(SourceUser.FavouritesCount) + Math.Log10(SourceUser.StatusesCount)) * 2;
+            BombStrength = SourceUser.StatusesCount;
+        }
+    }
+
+    public class UserInformationPanel : MultiAdditionalCoroutineSprite
+    {
+        private UserInformation info;
+        private ObjectManager Manager;
+        private StringSprite username, shots, bombs, defp, defb, grep, colr, u_tw, u_fav, u_fr, u_fo;
+        private Sprite uim;
+
+        public UserInformationPanel()
+        {
+            Manager = new ObjectManager(2);
+            username = new StringSprite(CommonObjects.FontSystemLarge, CommonObjects.Colors.Blue) { Value = "Loading...", X = 128, Y = 40 };
+            shots = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "Loading...", X = 256, Y = 80 };
+            bombs = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "Loading...", X = 256, Y = 104 };
+            defp = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "Loading...", X = 256, Y = 128 };
+            defb = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "Loading...", X = 256, Y = 152 };
+            grep = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "Loading...", X = 256, Y = 176 };
+            colr = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "Loading...", X = 256, Y = 200 };
+
+            u_tw = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "Loading...", X = 512, Y = 80 };
+            u_fav = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "Loading...", X = 512, Y = 104 };
+            u_fr = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "Loading...", X = 512, Y = 128 };
+            u_fo = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "Loading...", X = 512, Y = 152 };
+
+            uim = new Sprite() { HomeX = 48, HomeY = 48, X = 64, Y = 128 };
+        }
+
+        public void RefreshUserInfo(UserInformation i)
+        {
+            info = i;
+            username.Value = info.SourceUser.ScreenName;
+            shots.Value = info.ShotStrength.ToString();
+            bombs.Value = info.BombStrength.ToString();
+            defp.Value = info.DefaultPlayers.ToString();
+            defb.Value = info.DefaultBombs.ToString();
+            grep.Value = info.GrazePoints.ToString();
+            colr.Value = info.CollisionRadius.ToString();
+
+            u_tw.Value = info.SourceUser.StatusesCount.ToString();
+            u_fav.Value = info.SourceUser.FavouritesCount.ToString();
+            u_fr.Value = info.SourceUser.FriendsCount.ToString();
+            u_fo.Value = info.SourceUser.FollowersCount.ToString();
+
+            var target = Path.Combine(
+                            CommonObjects.DataDirectory,
+                            "user",
+                            string.Format("{0}.{1}", info.SourceUser.Id, "png"));
+            if (!File.Exists(target))
+            {
+                using (var wc = new WebClient())
+                using (var st = wc.OpenRead(info.SourceUser.ProfileImageUrlHttps.ToString().Replace("_normal.png", ".png")))
+                {
+                    var bm = new Bitmap(st);
+                    var sav = new Bitmap(bm, 96, 96);
+                    try
+                    {
+                        sav.Save(target);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            uim.Image = DX.LoadGraph(target);
+
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "ショット威力", X = 128, Y = 80 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "ボム威力", X = 128, Y = 104 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "初期残機数", X = 128, Y = 128 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "初期ボム数", X = 128, Y = 152 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "グレイズ得点", X = 128, Y = 176 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "自機判定半径", X = 128, Y = 200 }, 0);
+
+            Manager.Add(uim, 0);
+            Manager.Add(username, 0);
+            Manager.Add(shots, 0);
+            Manager.Add(bombs, 0);
+            Manager.Add(defp, 0);
+            Manager.Add(defb, 0);
+            Manager.Add(grep, 0);
+            Manager.Add(colr, 0);
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "ツイート", X = 400, Y = 80 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "お気に入り", X = 400, Y = 104 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "フォロー", X = 400, Y = 128 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "フォロワー", X = 400, Y = 152 }, 0);
+
+            Manager.Add(u_tw, 0);
+            Manager.Add(u_fav, 0);
+            Manager.Add(u_fr, 0);
+            Manager.Add(u_fo, 0);
+
+            while (true)
+            {
+
+                Manager.TickAll();
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                Manager.OffsetX = ActualX;
+                Manager.OffsetY = ActualY;
+                Manager.DrawAll();
+                yield return true;
+            }
+        }
+    }
+
+    public class AccountInformation
+    {
+        public Kbtter4Account[] Accounts { get; private set; }
+        public User[] Users { get; private set; }
+        public bool[] HasGot { get; private set; }
+
+        public AccountInformation(IEnumerable<Kbtter4Account> acs)
+        {
+            Accounts = acs.ToArray();
+            Users = new User[Accounts.Length];
+            HasGot = new bool[Accounts.Length];
         }
     }
 }

@@ -56,9 +56,10 @@ namespace Kbtter5
 
         public static int[] ImageCursor128 { get; private set; }
 
-        public static int FontSystem = DX.CreateFontToHandle("Meiryo", 16, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
+        public static int FontSystemSmall = DX.CreateFontToHandle("Meiryo", 16, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
         public static int FontSystemBig = DX.CreateFontToHandle("Meiryo", 48, 1, DX.DX_FONTTYPE_ANTIALIASING_4X4);
-        public static int FontBullet = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
+        public static int FontSystemMedium = DX.CreateFontToHandle("Meiryo", 20, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
+        public static int FontSystemLarge = DX.CreateFontToHandle("Meiryo", 32, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
 
         public static TextureFont TextureFontBullet = new TextureFont("Meiryo20");
 

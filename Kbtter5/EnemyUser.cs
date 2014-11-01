@@ -27,7 +27,7 @@ namespace Kbtter5
             MyKind = ObjectKind.Enemy;
             TargetKind = ObjectKind.Player;
             DamageKind = ObjectKind.PlayerBullet;
-            CollisonRadius = 10;
+            CollisionRadius = 10;
             GrazeRadius = 14;
             DieWithParentDeath = false;
         }
@@ -74,7 +74,7 @@ namespace Kbtter5
                 {
                     var xd = X - Player.X;
                     var yd = Y - Player.Y;
-                    var zd = CollisonRadius + Player.CollisonRadius;
+                    var zd = CollisionRadius + Player.CollisionRadius;
                     if ((xd * xd + yd * yd) < zd * zd)
                     {
                         Player.Kill();

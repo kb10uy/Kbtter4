@@ -26,7 +26,7 @@ namespace Kbtter5
         public ObjectKind MyKind { get; set; }
         public ObjectKind TargetKind { get; set; }
         public ObjectKind DamageKind { get; set; }
-        public double CollisonRadius { get; set; }
+        public double CollisionRadius { get; set; }
         public double GrazeRadius { get; set; }
         public ObjectManager ParentManager { get; set; }
         public int Layer { get; set; }
@@ -119,7 +119,7 @@ namespace Kbtter5
             Image = CommonObjects.ImageLoadingCircle32;
             HomeX = 16;
             HomeY = 16;
-            CollisonRadius = 6;
+            CollisionRadius = 6;
             GrazeRadius = 8;
         }
     }

@@ -21,7 +21,7 @@ namespace Kbtter5
 
         public EnemyBoss()
         {
-            CollisonRadius = 40;
+            CollisionRadius = 40;
             GrazeRadius = 64;
             ScaleX = 4;
             ScaleY = 4;
@@ -44,7 +44,7 @@ namespace Kbtter5
                 {
                     var xd = X - Player.X;
                     var yd = Y - Player.Y;
-                    var zd = CollisonRadius + Player.CollisonRadius;
+                    var zd = CollisionRadius + Player.CollisionRadius;
                     if ((xd * xd + yd * yd) < zd * zd)
                     {
                         Player.Kill();

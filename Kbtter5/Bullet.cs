@@ -39,7 +39,7 @@ namespace Kbtter5
             Size = 20;
             HomeX = buffered.Width / 2.0;
             HomeY = buffered.Height / 2.0;
-            CollisonRadius = 4;
+            CollisionRadius = 4;
             GrazeRadius = 8;
         }
 
@@ -53,7 +53,7 @@ namespace Kbtter5
                 {
                     var xd = X - Parent.Player.X;
                     var yd = Y - Parent.Player.Y;
-                    var zd = CollisonRadius + Parent.Player.CollisonRadius;
+                    var zd = CollisionRadius + Parent.Player.CollisionRadius;
                     if ((xd * xd + yd * yd) < zd * zd)
                     {
                         Parent.Player.Kill();
@@ -95,7 +95,7 @@ namespace Kbtter5
         {
             Parent = par;
             Image = img;
-            CollisonRadius = thickness;
+            CollisionRadius = thickness;
             Thickness = thickness;
             Operation = op(par, this);
         }
@@ -135,7 +135,7 @@ namespace Kbtter5
                         yd = (Y + vay * r) - Parent.Player.Y;
                     }
 
-                    var zd = CollisonRadius + Parent.Player.CollisonRadius;
+                    var zd = CollisionRadius + Parent.Player.CollisionRadius;
                     if ((xd * xd + yd * yd) < zd * zd)
                     {
                         Parent.Player.Kill();
@@ -199,7 +199,7 @@ namespace Kbtter5
         {
             Parent = par;
             LaserImage = img;
-            CollisonRadius = col;
+            CollisionRadius = col;
             Thickness = col;
             Operation = op(par, this);
             Curve = curve.Points.ToList();
@@ -241,7 +241,7 @@ namespace Kbtter5
                             yd = (Curve[i].Y + vay * r) - Parent.Player.Y;
                         }
 
-                        var zd = CollisonRadius + Parent.Player.CollisonRadius;
+                        var zd = CollisionRadius + Parent.Player.CollisionRadius;
                         if ((xd * xd + yd * yd) < zd * zd)
                         {
                             Parent.Player.Kill();
@@ -312,7 +312,7 @@ namespace Kbtter5
         public CurveCharacterLaser(EnemyUser par, ICurve curve, CoroutineFunction<UserSprite, CurveLaser> op, Status st)
             : base(par, curve, op, 0, null)
         {
-            CollisonRadius = 4;
+            CollisionRadius = 4;
             GrazeRadius = 8;
             SourceStatus = st;
             Letters = st.Text.Select(p =>

@@ -16,7 +16,7 @@ namespace Kbtter5
 
         public PlayerOption()
         {
-            CollisonRadius = 0;
+            CollisionRadius = 0;
             GrazeRadius = 0;
             DamageKind = ObjectKind.None;
             TargetKind = ObjectKind.None;

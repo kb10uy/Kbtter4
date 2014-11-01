@@ -54,7 +54,7 @@ namespace Kbtter5.Scenes
                 X = 0,
                 Y = 480
             };
-            StringInfo = new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White)
+            StringInfo = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.White)
             {
                 X = 280,
                 Y = 240,
@@ -218,7 +218,7 @@ namespace Kbtter5.Scenes
         private static int enable = 0;
 
         public StatusSprite(Status st)
-            : base(CommonObjects.FontSystem, CommonObjects.Colors.White)
+            : base(CommonObjects.FontSystemSmall, CommonObjects.Colors.White)
         {
             status = st;
             Value = status.Text;
@@ -359,11 +359,11 @@ namespace Kbtter5.Scenes
         public override IEnumerator<bool> Tick()
         {
             Manager.Add(new Sprite() { Image = CommonObjects.ImageScore, X = 8, Y = 8 }, 1);
-            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "残り人数", X = 280, Y = 4 }, 1);
-            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "残りボム", X = 420, Y = 4 }, 1);
-            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "撃墜数", X = 280, Y = 28 }, 1);
-            Manager.Add(new StringSprite(CommonObjects.FontBullet, CommonObjects.Colors.White) { Value = "グレイズ", X = 420, Y = 28 }, 1);
-            Manager.Add(new StringSprite(CommonObjects.FontSystem, CommonObjects.Colors.White) { Value = "描画総数", X = 566, Y = 4 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.White) { Value = "残り人数", X = 280, Y = 4 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.White) { Value = "残りボム", X = 420, Y = 4 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.White) { Value = "撃墜数", X = 280, Y = 28 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.White) { Value = "グレイズ", X = 420, Y = 28 }, 1);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.White) { Value = "描画総数", X = 566, Y = 4 }, 1);
             Manager.Add(NumberScore, 1);
             Manager.Add(NumberFrames, 1);
             Manager.Add(NumberFps, 1);
