@@ -124,6 +124,41 @@ namespace Kbtter5
             yield return true;
         }
 
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> CursorVerticalMove(int time, double y, EasingFunction easing)
+        {
+            return sp => CursorVerticalMoveFunction(sp, time, y, easing);
+        }
+
+        private static IEnumerator<bool> CursorVerticalMoveFunction(MultiAdditionalCoroutineSprite sp, int time, double y, EasingFunction easing)
+        {
+            var sy = sp.Y;
+            for (int i = 0; i < time; i++)
+            {
+                sp.Y = easing(i, time, sy, y - sy);
+                yield return true;
+            }
+            sp.Y = y;
+        }
+
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> CursorMove(int time, double x, double y, EasingFunction easing)
+        {
+            return sp => CursorMoveFunction(sp, time, x, y, easing);
+        }
+
+        private static IEnumerator<bool> CursorMoveFunction(MultiAdditionalCoroutineSprite sp, int time, double x, double y, EasingFunction easing)
+        {
+            var sy = sp.Y;
+            var sx = sp.X;
+            for (int i = 0; i < time; i++)
+            {
+                sp.Y = easing(i, time, sy, y - sy);
+                sp.X = easing(i, time, sx, x - sx);
+                yield return true;
+            }
+            sp.Y = y;
+            sp.X = x;
+        }
+
         #endregion
     }
 }

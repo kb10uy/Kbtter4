@@ -24,6 +24,11 @@ namespace Kbtter5
             return Path.Combine("Kbtter5Data", "img", fname);
         }
 
+        public static string GetUserFilePath(string fname)
+        {
+            return Path.Combine("Kbtter5Data", "user", fname);
+        }
+
         #endregion
 
         public static int ImageLoadingCircle32 = DX.LoadGraph(GetCommonImagePath("loading32.png"));

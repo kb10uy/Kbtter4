@@ -66,6 +66,7 @@ namespace Kbtter5
         public ExpandableDisplayObject()
         {
             Manager = new ObjectManager(4);
+            ExecuteCoroutine = Execute();
         }
 
         public virtual IEnumerator<bool> Execute()
@@ -257,22 +258,24 @@ namespace Kbtter5
             }
         }
 
-        public void ApplyOperation(CoroutineFunction<AdditionalCoroutineSprite> pat)
+        public void ApplySpecialOperation(CoroutineFunction<AdditionalCoroutineSprite> pat)
         {
             SpecialOperation = pat(this);
         }
     }
 
-    public class MultiAdditionalCoroutineSprite : Sprite
+    public class MultiAdditionalCoroutineSprite : AdditionalCoroutineSprite
     {
-        private List<IEnumerator<bool>> operations = new List<IEnumerator<bool>>(), bufop = new List<IEnumerator<bool>>();
-        public IReadOnlyList<IEnumerator<bool>> AvailableOperations { get { return operations; } }
+        public IReadOnlyList<IEnumerator<bool>> AvailableSubOperations { get { return operations; } }
+
         private bool taken;
+        private List<IEnumerator<bool>> operations = new List<IEnumerator<bool>>(), bufop = new List<IEnumerator<bool>>();
 
         public override IEnumerator<bool> Tick()
         {
             while (true)
             {
+                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
                 taken = true;
                 operations.RemoveAll(p => !(p.MoveNext() && p.Current));
                 taken = false;
@@ -282,7 +285,7 @@ namespace Kbtter5
             }
         }
 
-        public void AddOperation(CoroutineFunction<MultiAdditionalCoroutineSprite> pat)
+        public void AddSubOperation(CoroutineFunction<MultiAdditionalCoroutineSprite> pat)
         {
             if (taken)
             {
@@ -292,6 +295,110 @@ namespace Kbtter5
             {
                 bufop.Add(pat(this));
             }
+        }
+
+        public void AddSubOperation(CoroutineFunction<AdditionalCoroutineSprite> pat)
+        {
+            if (taken)
+            {
+                operations.Add(pat(this));
+            }
+            else
+            {
+                bufop.Add(pat(this));
+            }
+        }
+    }
+
+    public class KeyInputObject : DisplayObject, IDisposable
+    {
+        public int KeyInputHandle { get; protected set; }
+        public string InputString { get; protected set; }
+        public int Font { get; set; }
+        public bool IsCanceled { get; protected set; }
+        public bool HasCompleted { get; protected set; }
+
+        public int NormalStringColor { get; set; }
+        public int NormalCursorColor { get; set; }
+        public int IMEBackgroundColor { get; set; }
+        public int IMECursorColor { get; set; }
+        public int IMEUnderlineColor { get; set; }
+        public int IMESuggestionStringColor { get; set; }
+        public int IMEInputModeColor { get; set; }
+        public int SelectBackgroundColor { get; set; }
+        public int SelectStringColor { get; set; }
+        public int IMEWindowBackgroundColor { get; set; }
+
+        public KeyInputObject(int font, int length, bool cancel, bool sc, bool num)
+        {
+            Font = font;
+            KeyInputHandle = DX.MakeKeyInput(length, cancel ? DX.TRUE : DX.FALSE, sc ? DX.TRUE : DX.FALSE, num ? DX.TRUE : DX.FALSE);
+            DX.SetActiveKeyInput(KeyInputHandle);
+            NormalStringColor = CommonObjects.Colors.Black;
+            NormalCursorColor = CommonObjects.Colors.Green;
+            IMEBackgroundColor = CommonObjects.Colors.Yellow;
+            IMECursorColor = CommonObjects.Colors.Red;
+            IMEUnderlineColor = CommonObjects.Colors.Black;
+            IMESuggestionStringColor = CommonObjects.Colors.White;
+            IMEInputModeColor = CommonObjects.Colors.Black;
+            SelectBackgroundColor = CommonObjects.Colors.Azure;
+            SelectStringColor = CommonObjects.Colors.White;
+            IMEWindowBackgroundColor = CommonObjects.Colors.LightGray;
+        }
+
+        public override IEnumerator<bool> Tick()
+        {
+            while (true)
+            {
+                var st = DX.CheckKeyInput(KeyInputHandle);
+                var sb = new StringBuilder();
+                DX.GetKeyInputString(sb, KeyInputHandle);
+                InputString = sb.ToString();
+                switch (st)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        IsDead = true;
+                        HasCompleted = true;
+                        break;
+                    case 2:
+                        IsDead = true;
+                        IsCanceled = true;
+                        break;
+                }
+                yield return true;
+            }
+        }
+
+        public override IEnumerator<bool> Draw()
+        {
+            while (true)
+            {
+                DX.SetKeyInputStringColor(
+                    (ulong)NormalStringColor,
+                    (ulong)NormalCursorColor,
+                    (ulong)IMEBackgroundColor,
+                    (ulong)IMECursorColor,
+                    (ulong)IMEUnderlineColor,
+                    (ulong)IMESuggestionStringColor,
+                    (ulong)IMEInputModeColor,
+                    0, 0, 0, 0,
+                    (ulong)IMEWindowBackgroundColor,
+                    (ulong)SelectBackgroundColor,
+                    (ulong)SelectStringColor,
+                    0);
+                DX.SetKeyInputStringFont(Font);
+                DX.SetDrawBlendMode(DX.DX_BLENDMODE_ALPHA, (int)(Alpha * 255));
+                DX.DrawKeyInputString((int)(ActualX - HomeX), (int)(ActualY - HomeY), KeyInputHandle);
+                yield return true;
+            }
+        }
+
+        public void Dispose()
+        {
+            IsDead = true;
+            DX.DeleteKeyInput(KeyInputHandle);
         }
     }
 

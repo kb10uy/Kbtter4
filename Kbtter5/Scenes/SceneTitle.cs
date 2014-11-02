@@ -15,7 +15,8 @@ using System.Drawing;
 
 namespace Kbtter5.Scenes
 {
-    class SceneTitle : Scene
+    #region SceneTitle
+    public class SceneTitle : Scene
     {
         private Kbtter5 Kbtter5 = Kbtter5.Instance;
         private IEnumerator<bool> Operation;
@@ -120,7 +121,7 @@ namespace Kbtter5.Scenes
                     menu[i].Alpha = 0.5;
                     menu[i].ScaleX = menu[i].ScaleY = 0.8;
                 }
-                menu[i].ApplyOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
+                menu[i].ApplySpecialOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
             }
 
             lrc = new[] 
@@ -129,7 +130,7 @@ namespace Kbtter5.Scenes
                 new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.5,ScaleY=0.8,Image=CommonObjects.ImageCursor128[1],X=520,Y=400},
             };
             Manager.AddRangeTo(lrc, 2);
-            foreach (var i in lrc) i.AddOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
+            foreach (var i in lrc) i.AddSubOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
 
             while (true)
             {
@@ -157,9 +158,9 @@ namespace Kbtter5.Scenes
                                 {
                                     for (int i = 0; i < menu.Length; i++)
                                     {
-                                        menu[i].ApplyOperation(SpritePatterns.MenuIntro(0, 60, 600));
+                                        menu[i].ApplySpecialOperation(SpritePatterns.MenuIntro(0, 60, 600));
                                     }
-                                    foreach (var i in lrc) i.AddOperation(SpritePatterns.MenuOutro(0, 60, 600));
+                                    foreach (var i in lrc) i.AddSubOperation(SpritePatterns.MenuOutro(0, 60, 600));
                                     break;
                                 }
                             }
@@ -209,9 +210,9 @@ namespace Kbtter5.Scenes
                     modestate = 0;
                     for (int i = 0; i < menu.Length; i++)
                     {
-                        menu[i].ApplyOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
+                        menu[i].ApplySpecialOperation(SpritePatterns.MenuIntro(i * 15, 60, 400));
                     }
-                    foreach (var i in lrc) i.AddOperation(SpritePatterns.MenuOutro(0, 60, 400));
+                    foreach (var i in lrc) i.AddSubOperation(SpritePatterns.MenuOutro(0, 60, 400));
                     return;
                 case "ReturnToAccountSelect":
                     modestate = 1;
@@ -226,7 +227,7 @@ namespace Kbtter5.Scenes
                 case "GoToOptionEdit":
                     modestate = 1;
                     selac = Convert.ToInt32(args[0]);
-                    Children.AddChildScene(new TitleChildSceneOptionSelect(new UserInformation(info.Users[selac])));
+                    Children.AddChildScene(new TitleChildSceneOptionSelect(info, selac));
                     return;
             }
         }
@@ -237,11 +238,11 @@ namespace Kbtter5.Scenes
             {
                 if (i == selmenu)
                 {
-                    menu[i].ApplyOperation(SpritePatterns.MenuEnable());
+                    menu[i].ApplySpecialOperation(SpritePatterns.MenuEnable());
                 }
                 else
                 {
-                    menu[i].ApplyOperation(SpritePatterns.MenuDisable(320 + 256 * (i - selmenu)));
+                    menu[i].ApplySpecialOperation(SpritePatterns.MenuDisable(320 + 256 * (i - selmenu)));
                 }
             }
         }
@@ -256,7 +257,7 @@ namespace Kbtter5.Scenes
                 Operation.MoveNext();
                 Manager.TickAll();
                 Children.TickAll();
-                prevstate = Gamepad.GetState();
+                prevstate = state;
                 yield return true;
             }
         }
@@ -271,13 +272,16 @@ namespace Kbtter5.Scenes
             }
         }
     }
+    #endregion
 
+    #region TitleChildSceneAccountSelect
     public class TitleChildSceneAccountSelect : ChildScene
     {
         private Kbtter Kbtter = Kbtter.Instance;
         private GamepadState state, tstate, prevstate;
         private MultiAdditionalCoroutineSprite[] udc;
         private AccountInformation ainfo;
+        private Tokens[] tokens;
         private UserInformation[] uinfo;
         private UserInformationPanel[] uips;
         private bool backing;
@@ -325,7 +329,7 @@ namespace Kbtter5.Scenes
                 new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[3],X=64,Y=208},
             };
             Manager.AddRangeTo(udc, 2);
-            foreach (var i in udc) i.AddOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
+            foreach (var i in udc) i.AddSubOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
 
             for (int i = 0; i < 40; i++)
             {
@@ -360,7 +364,7 @@ namespace Kbtter5.Scenes
                     break;
                 }
 
-                prevstate = Gamepad.GetState();
+                prevstate = state;
                 yield return true;
             }
         }
@@ -382,6 +386,7 @@ namespace Kbtter5.Scenes
                         ainfo.Accounts[i].AccessToken,
                         ainfo.Accounts[i].AccessTokenSecret);
                     var ta = i;
+                    ainfo.Tokens[i] = t;
                     t.Users.ShowAsync(user_id => ainfo.Accounts[ta].UserId)
                         .ContinueWith(p =>
                         {
@@ -397,51 +402,6 @@ namespace Kbtter5.Scenes
                     uinfo[i] = new UserInformation(ainfo.Users[i]);
                     uips[i].RefreshUserInfo(uinfo[i]);
                 }
-            }
-        }
-    }
-
-    public class TitleChildSceneOptionSelect : ChildScene
-    {
-        private UserInformation info;
-        private GamepadState state, tstate, prevstate;
-
-        public TitleChildSceneOptionSelect(UserInformation i)
-        {
-            info = i;
-        }
-
-        public override IEnumerator<bool> Execute()
-        {
-            Manager.OffsetX = 640;
-            Manager.OffsetY = 240;
-
-            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション編集", X = 250, Y = 8 }, 0);
-
-            for (int i = 0; i < 40; i++)
-            {
-                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
-                yield return true;
-            }
-            Manager.OffsetX = 0;
-
-            prevstate = Gamepad.GetState();
-            while (true)
-            {
-                state = Gamepad.GetState();
-                tstate = state.GetTriggerStateWith(prevstate);
-                if (tstate.Buttons[1])
-                {
-                    Parent.SendChildMessage("ReturnToAccountSelect");
-                    for (int i = 0; i < 40; i++)
-                    {
-                        Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
-                        yield return true;
-                    }
-                    break;
-                }
-                prevstate = Gamepad.GetState();
-                yield return true;
             }
         }
     }
@@ -488,10 +448,7 @@ namespace Kbtter5.Scenes
             u_fr.Value = info.SourceUser.FriendsCount.ToString();
             u_fo.Value = info.SourceUser.FollowersCount.ToString();
 
-            var target = Path.Combine(
-                            CommonObjects.DataDirectory,
-                            "user",
-                            string.Format("{0}.{1}", info.SourceUser.Id, "png"));
+            var target = CommonObjects.GetUserFilePath(string.Format("{0}.{1}", info.SourceUser.Id, "png"));
             if (!File.Exists(target))
             {
                 using (var wc = new WebClient())
@@ -561,18 +518,359 @@ namespace Kbtter5.Scenes
             }
         }
     }
+    #endregion
+
+    #region TitleChildSceneOptionSelect
+    public class TitleChildSceneOptionSelect : ChildScene
+    {
+        AccountInformation ai;
+        UserInformation uinfo;
+        private GamepadState state, tstate, prevstate;
+        int index, msel, ocmsel, cs;
+        List<MenuAllocationInformation> mal, ocmal;
+        MultiAdditionalCoroutineSprite mc;
+        OptionUserInformationPanel ouip;
+        KeyInputObject ki;
+        List<StringSprite> okcancel = new List<StringSprite>(), opod;
+        Func<IReadOnlyList<StringSprite>, int, Action<MenuAllocationInformation, bool>> mvf;
+        StringSprite valid;
+
+        public TitleChildSceneOptionSelect(AccountInformation ainfo, int idx)
+        {
+            ai = ainfo;
+            uinfo = new UserInformation(ai.Users[idx]);
+            index = idx;
+            mvf = (ta, aid) => (mai, val) => ta[aid].Alpha = val ? 1.0 : 0.5;
+            opod = new List<StringSprite>
+            {
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 64 - 8, Value = "1st" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 96 - 8, Value = "2nd" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 128 - 8, Value = "3rd" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 160 - 8, Value = "4th" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 192 - 8, Value = "5th" }
+            };
+            mal = new List<MenuAllocationInformation> 
+            {
+                new MenuAllocationInformation(){X=32,Y=64},
+                new MenuAllocationInformation(){X=32,Y=96},
+                new MenuAllocationInformation(){X=32,Y=128},
+                new MenuAllocationInformation(){X=32,Y=160},
+                new MenuAllocationInformation(){X=32,Y=192},
+            };
+            okcancel = new List<StringSprite>
+            {
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "OK", X = 528, Y = 180 , Alpha = 0},
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "キャンセル", X = 528, Y = 204, Alpha = 0 }
+            };
+            ocmal = new List<MenuAllocationInformation> 
+            {
+                new MenuAllocationInformation(){X=512,Y=180+8,IsAvailable=false},
+                new MenuAllocationInformation(){X=512,Y=204+8},
+            };
+            ouip = new OptionUserInformationPanel(ai.Tokens[index], ai.Users[index])
+            {
+                ChangingAction = (p) =>
+                {
+                    if (p)
+                    {
+                        valid.Value = "オプションOK";
+                        valid.Color = CommonObjects.Colors.Blue;
+                        ocmal[0].IsAvailable = true;
+                    }
+                    else
+                    {
+                        valid.Value = "オプションNG";
+                        valid.Color = CommonObjects.Colors.Red;
+                        ocmsel = 1;
+                        ocmal[0].IsAvailable = false;
+                        mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                    }
+                }
+            };
+            for (int i = 0; i < ocmal.Count; i++)
+            {
+                ocmal[i].Upper = ocmal[(i + ocmal.Count - 1) % ocmal.Count];
+                ocmal[i].Lower = ocmal[(i + 1) % ocmal.Count];
+                ocmal[i].AvailableChangingAction = mvf(okcancel, i);
+            }
+            for (int i = 0; i < mal.Count; i++)
+            {
+                mal[i].Upper = mal[(i + mal.Count - 1) % mal.Count];
+                mal[i].Lower = mal[(i + 1) % mal.Count];
+                mal[i].AvailableChangingAction = mvf(opod, i);
+                if (i > 0) mal[i].IsAvailable = false;
+            }
+            valid = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 216, Value = "オプションOK/NG" };
+            mc = new MultiAdditionalCoroutineSprite() { Image = CommonObjects.ImageCursor128[1], HomeX = 64, HomeY = 64, ScaleX = 0.25, ScaleY = 0.25 };
+            cs = 0;
+            ki = null;
+            msel = 0;
+            ocmsel = 0;
+        }
+
+        public override IEnumerator<bool> Execute()
+        {
+            Manager.OffsetX = 640;
+            Manager.OffsetY = 240;
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション編集", X = 250, Y = 8 }, 0);
+            Manager.AddRangeTo(opod, 0);
+
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 64 - 8, Value = "検索:" }, 1);
+            Manager.Add(valid, 0);
+
+            mc.AddSubOperation(SpritePatterns.Blink(30, 0.5, Easing.Linear));
+            Manager.Add(mc, 1);
+            mc.X = mal[msel].X;
+            mc.Y = mal[msel].Y;
+
+            Manager.AddRangeTo(okcancel, 1);
+            Manager.Add(ouip, 1);
+
+            //突入
+            for (int i = 0; i < 40; i++)
+            {
+                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                yield return true;
+            }
+            Manager.OffsetX = 0;
+
+
+            prevstate = Gamepad.GetState();
+            while (true)
+            {
+                state = Gamepad.GetState();
+                tstate = state.GetTriggerStateWith(prevstate);
+
+                switch (cs)
+                {
+                    case 0:
+                        if (tstate.Buttons[1])
+                        {
+                            Parent.SendChildMessage("ReturnToAccountSelect");
+                            for (int i = 0; i < 40; i++)
+                            {
+                                Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                                yield return true;
+                            }
+                            goto EXIT;
+                        }
+                        if (tstate.Buttons[0])
+                        {
+                            GoToScreenNameInput();
+                            break;
+                        }
+                        if ((tstate.Direction & GamepadDirection.Up) != 0)
+                        {
+                            do
+                            {
+                                var tm = mal.IndexOf(mal[msel].Upper);
+                                if (tm != -1) msel = tm;
+                            } while (!mal[msel].IsAvailable);
+                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                            break;
+                        }
+                        if ((tstate.Direction & GamepadDirection.Down) != 0)
+                        {
+                            do
+                            {
+                                var tm = mal.IndexOf(mal[msel].Lower);
+                                if (tm != -1) msel = tm;
+                            } while (!mal[msel].IsAvailable);
+                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                            break;
+                        }
+                        break;
+                    case 1:
+                        if (ki.IsCanceled)
+                        {
+                            ki.Dispose();
+                            GoToNumberSelect();
+                        }
+                        else if (ki.HasCompleted)
+                        {
+                            cs = 2;
+                            ki.Dispose();
+                            okcancel.ForEach(p => p.Alpha = 1);
+                            ouip.SearchUser(ki.InputString);
+                            ocmsel = 1;
+                            mc.AddSubOperation(SpritePatterns.CursorMove(10, ocmal[ocmsel].X, ocmal[ocmsel].Y, Easing.OutQuad));
+                        }
+                        break;
+                    case 2:
+                        if ((tstate.Direction & GamepadDirection.Up) != 0)
+                        {
+                            do
+                            {
+                                var tm = ocmal.IndexOf(ocmal[ocmsel].Upper);
+                                if (tm != -1) ocmsel = tm;
+                            } while (!ocmal[ocmsel].IsAvailable);
+                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                            break;
+                        }
+                        if ((tstate.Direction & GamepadDirection.Down) != 0)
+                        {
+                            do
+                            {
+                                var tm = ocmal.IndexOf(ocmal[ocmsel].Lower);
+                                if (tm != -1) ocmsel = tm;
+                            } while (!ocmal[ocmsel].IsAvailable);
+                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                            break;
+                        }
+                        if (tstate.Buttons[1]) GoToScreenNameInput();
+                        break;
+                }
+                prevstate = state;
+                yield return true;
+            }
+        EXIT: ;
+        }
+
+        private void GoToNumberSelect()
+        {
+            cs = 0;
+            mc.AddSubOperation(SpritePatterns.CursorMove(10, mal[msel].X, mal[msel].Y, Easing.OutQuad));
+        }
+
+        private void GoToScreenNameInput()
+        {
+            cs = 1;
+            mc.AddSubOperation(SpritePatterns.CursorMove(10, 300, 64, Easing.OutQuad));
+            ki = new KeyInputObject(CommonObjects.FontSystemMedium, 20, true, true, false)
+            {
+                X = 376,
+                Y = 64 - 8,
+            };
+            Manager.Add(ki, 1);
+            okcancel.ForEach(p => p.Alpha = 0);
+        }
+    }
+
+    public class OptionUserInformationPanel : ExpandableDisplayObject
+    {
+        StringSprite sname, tweets, fav, friend, follower;
+        Sprite img;
+        public User SourceUser { get; protected set; }
+        public bool IsValidUser { get; protected set; }
+        private Tokens t;
+        private User m;
+        public Action<bool> ChangingAction { get; set; }
+
+        public OptionUserInformationPanel(Tokens ut, User me)
+        {
+            t = ut;
+            m = me;
+        }
+
+        public void SearchUser(string sn)
+        {
+            sname.Value = sn;
+            IsValidUser = true;
+            ChangingAction(false);
+            t.Users.ShowAsync(screen_name => sn)
+                .ContinueWith(p =>
+                {
+                    if (p.IsFaulted)
+                    {
+                        sname.Value = "Not Found";
+                        IsValidUser = false;
+                        return;
+                    }
+                    var u = p.Result;
+                    SourceUser = u;
+                    tweets.Value = SourceUser.StatusesCount.ToString();
+                    fav.Value = SourceUser.FavouritesCount.ToString();
+                    friend.Value = SourceUser.FriendsCount.ToString();
+                    follower.Value = SourceUser.FollowersCount.ToString();
+                    img.Image = UserImageManager.GetUserImage(SourceUser);
+                    try
+                    {
+                        var fs = t.Friendships.Show(source_id => m.Id, target_id => SourceUser.Id);
+                        if ((fs.Source.IsFollowing ?? false) && (fs.Target.IsFollowing ?? false) && m.Id != SourceUser.Id)
+                        {
+                            IsValidUser = true;
+                            ChangingAction(true);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                });
+        }
+
+        public override IEnumerator<bool> Execute()
+        {
+            sname = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { X = 48, Y = 14, Value = "ここに表示されます" };
+            tweets = new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Red) { Value = "Loading...", X = 96, Y = 48 };
+            fav = new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Red) { Value = "Loading...", X = 96, Y = 68 };
+            friend = new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Red) { Value = "Loading...", X = 96, Y = 88 };
+            follower = new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Red) { Value = "Loading...", X = 96, Y = 108 };
+            img = new Sprite() { X = 0, Y = 4 };
+
+            X = 320;
+            Y = 80;
+            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Black) { Value = "ツイート数", X = 0, Y = 48 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Black) { Value = "お気に入り", X = 0, Y = 68 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Black) { Value = "フォロー", X = 0, Y = 88 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemSmall, CommonObjects.Colors.Black) { Value = "フォロワー", X = 0, Y = 108 }, 0);
+
+            Manager.Add(sname, 0);
+            Manager.Add(img, 0);
+            Manager.Add(tweets, 0);
+            Manager.Add(fav, 0);
+            Manager.Add(friend, 0);
+            Manager.Add(follower, 0);
+
+            while (true) yield return true;
+        }
+    }
+
+    #endregion
 
     public class AccountInformation
     {
         public Kbtter4Account[] Accounts { get; private set; }
         public User[] Users { get; private set; }
         public bool[] HasGot { get; private set; }
+        public Tokens[] Tokens { get; private set; }
 
         public AccountInformation(IEnumerable<Kbtter4Account> acs)
         {
             Accounts = acs.ToArray();
             Users = new User[Accounts.Length];
             HasGot = new bool[Accounts.Length];
+            Tokens = new Tokens[Accounts.Length];
+        }
+    }
+
+    public class MenuAllocationInformation
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public MenuAllocationInformation Upper { get; set; }
+        public MenuAllocationInformation Lower { get; set; }
+        public MenuAllocationInformation Lefter { get; set; }
+        public MenuAllocationInformation Righter { get; set; }
+        bool _av;
+        public bool IsAvailable
+        {
+            get { return _av; }
+            set
+            {
+                _av = value;
+                if (AvailableChangingAction != null) AvailableChangingAction(this, value);
+            }
+        }
+        public Action<MenuAllocationInformation, bool> AvailableChangingAction { get; set; }
+
+        public MenuAllocationInformation()
+        {
+            Upper = this;
+            Lower = this;
+            Lefter = this;
+            Righter = this;
+            IsAvailable = true;
         }
     }
 }
