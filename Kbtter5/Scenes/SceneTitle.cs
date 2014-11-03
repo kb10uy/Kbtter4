@@ -227,8 +227,18 @@ namespace Kbtter5.Scenes
                 case "GoToOptionEdit":
                     modestate = 1;
                     selac = Convert.ToInt32(args[0]);
-                    Children.AddChildScene(new TitleChildSceneOptionSelect(info, selac));
+                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac));
                     return;
+            }
+        }
+
+        public override void SendChildMessage(string mes, object obj)
+        {
+            switch (mes)
+            {
+                case "EntryOption":
+                    var ui = obj as OptionInformation;
+                    break;
             }
         }
 
@@ -521,7 +531,7 @@ namespace Kbtter5.Scenes
     #endregion
 
     #region TitleChildSceneOptionSelect
-    public class TitleChildSceneOptionSelect : ChildScene
+    public class TitleChildSceneOptionUserSelect : ChildScene
     {
         AccountInformation ai;
         UserInformation uinfo;
@@ -535,7 +545,7 @@ namespace Kbtter5.Scenes
         Func<IReadOnlyList<StringSprite>, int, Action<MenuAllocationInformation, bool>> mvf;
         StringSprite valid;
 
-        public TitleChildSceneOptionSelect(AccountInformation ainfo, int idx)
+        public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx)
         {
             ai = ainfo;
             uinfo = new UserInformation(ai.Users[idx]);
@@ -613,7 +623,7 @@ namespace Kbtter5.Scenes
             Manager.OffsetX = 640;
             Manager.OffsetY = 240;
 
-            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション編集", X = 250, Y = 8 }, 0);
+            Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプションユーザー選択", X = 210, Y = 8 }, 0);
             Manager.AddRangeTo(opod, 0);
 
             Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 64 - 8, Value = "検索:" }, 1);
@@ -719,6 +729,19 @@ namespace Kbtter5.Scenes
                             break;
                         }
                         if (tstate.Buttons[1]) GoToScreenNameInput();
+                        if (tstate.Buttons[0])
+                        {
+                            switch (ocmsel)
+                            {
+                                case 0:
+                                    Parent.SendChildMessage("EntryOption", new OptionInformation());
+                                    break;
+                                case 1:
+                                    GoToScreenNameInput();
+                                    break;
+                            }
+                            break;
+                        }
                         break;
                 }
                 prevstate = state;
@@ -823,6 +846,18 @@ namespace Kbtter5.Scenes
             Manager.Add(follower, 0);
 
             while (true) yield return true;
+        }
+    }
+
+    public class OptionInformation
+    {
+        public User SourceUser { get; private set; }
+        public string ScreenName { get; private set; }
+
+
+        public OptionInformation(User u)
+        {
+            SourceUser = u;
         }
     }
 

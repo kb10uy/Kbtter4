@@ -35,6 +35,11 @@ namespace Kbtter5
         {
 
         }
+
+        public virtual void SendChildMessage(string mes, object obj)
+        {
+
+        }
     }
 
     public class ChildScene : Scene
