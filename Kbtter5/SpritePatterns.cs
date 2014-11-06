@@ -124,7 +124,7 @@ namespace Kbtter5
             yield return true;
         }
 
-        public static CoroutineFunction<MultiAdditionalCoroutineSprite> CursorVerticalMove(int time, double y, EasingFunction easing)
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> VerticalMove(int time, double y, EasingFunction easing)
         {
             return sp => CursorVerticalMoveFunction(sp, time, y, easing);
         }
@@ -140,7 +140,7 @@ namespace Kbtter5
             sp.Y = y;
         }
 
-        public static CoroutineFunction<MultiAdditionalCoroutineSprite> CursorMove(int time, double x, double y, EasingFunction easing)
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> Move(int time, double x, double y, EasingFunction easing)
         {
             return sp => CursorMoveFunction(sp, time, x, y, easing);
         }
@@ -157,6 +157,22 @@ namespace Kbtter5
             }
             sp.Y = y;
             sp.X = x;
+        }
+
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> Alpha(int time, double alpha, EasingFunction easing)
+        {
+            return sp => AlphaFunction(sp, time, alpha, easing);
+        }
+
+        private static IEnumerator<bool> AlphaFunction(MultiAdditionalCoroutineSprite sp, int time, double alpha, EasingFunction easing)
+        {
+            var sa = sp.Alpha;
+            for (int i = 0; i < time; i++)
+            {
+                sp.Alpha = easing(i, time, sa, alpha - sa);
+                yield return true;
+            }
+            sp.Alpha = alpha;
         }
 
         #endregion

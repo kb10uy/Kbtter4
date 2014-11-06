@@ -253,9 +253,14 @@ namespace Kbtter5
         {
             while (true)
             {
-                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
+                ProcessOperations();
                 yield return true;
             }
+        }
+
+        public virtual void ProcessOperations()
+        {
+            SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
         }
 
         public void ApplySpecialOperation(CoroutineFunction<AdditionalCoroutineSprite> pat)
@@ -275,14 +280,19 @@ namespace Kbtter5
         {
             while (true)
             {
-                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
-                taken = true;
-                operations.RemoveAll(p => !(p.MoveNext() && p.Current));
-                taken = false;
-                operations.AddRange(bufop);
-                bufop.Clear();
+                ProcessOperations();
                 yield return true;
             }
+        }
+
+        public override void ProcessOperations()
+        {
+            SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
+            taken = true;
+            operations.RemoveAll(p => !(p.MoveNext() && p.Current));
+            taken = false;
+            operations.AddRange(bufop);
+            bufop.Clear();
         }
 
         public void AddSubOperation(CoroutineFunction<MultiAdditionalCoroutineSprite> pat)

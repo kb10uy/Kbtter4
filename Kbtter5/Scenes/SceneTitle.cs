@@ -26,6 +26,7 @@ namespace Kbtter5.Scenes
         private int modestate = 0;
         private int selac = 0;
         private MultiAdditionalCoroutineSprite[] lrc;
+        private User[] optusers;
 
         private AccountInformation info;
 
@@ -34,6 +35,7 @@ namespace Kbtter5.Scenes
             Operation = Execute();
             var path = Path.Combine(CommonObjects.DataDirectory, "user");
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            optusers = new User[5];
         }
 
         public IEnumerator<bool> Execute()
@@ -234,10 +236,12 @@ namespace Kbtter5.Scenes
 
         public override void SendChildMessage(string mes, object obj)
         {
+            var tg = mes.Split(':');
             switch (mes)
             {
                 case "EntryOption":
                     var ui = obj as OptionInformation;
+                    optusers[Convert.ToInt32(tg[1])] = ui.SourceUser;
                     break;
             }
         }
@@ -329,7 +333,8 @@ namespace Kbtter5.Scenes
             Manager.AddRangeTo(uips, 1);
             for (int i = 0; i < uips.Length; i++)
             {
-                uips[i].X = 640 * i;
+                uips[i].Y = 240 * i;
+                if (i != sel) uips[i].Alpha = 0;
             }
 
             Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "アカウント選択", X = 250, Y = 8 }, 0);
@@ -372,6 +377,25 @@ namespace Kbtter5.Scenes
                         yield return true;
                     }
                     break;
+                }
+                if ((tstate.Direction & GamepadDirection.Up) != 0)
+                {
+                    uips[sel].AddSubOperation(SpritePatterns.Move(15, 0, -120, Easing.OutQuad));
+                    uips[sel].AddSubOperation(SpritePatterns.Alpha(15, 0, Easing.OutQuad));
+                    sel = (sel + uips.Length - 1) % uips.Length;
+                    uips[sel].Y = 120;
+                    uips[sel].AddSubOperation(SpritePatterns.Move(15, 0, 0, Easing.OutQuad));
+                    uips[sel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.OutQuad));
+
+                }
+                if ((tstate.Direction & GamepadDirection.Down) != 0)
+                {
+                    uips[sel].AddSubOperation(SpritePatterns.Move(15, 0, 120, Easing.OutQuad));
+                    uips[sel].AddSubOperation(SpritePatterns.Alpha(15, 0, Easing.OutQuad));
+                    sel = (sel + 1) % uips.Length;
+                    uips[sel].Y = -120;
+                    uips[sel].AddSubOperation(SpritePatterns.Move(15, 0, 0, Easing.OutQuad));
+                    uips[sel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.OutQuad));
                 }
 
                 prevstate = state;
@@ -512,6 +536,7 @@ namespace Kbtter5.Scenes
             while (true)
             {
                 Manager.TickAll();
+                ProcessOperations();
                 yield return true;
             }
         }
@@ -536,14 +561,15 @@ namespace Kbtter5.Scenes
         AccountInformation ai;
         UserInformation uinfo;
         private GamepadState state, tstate, prevstate;
-        int index, msel, ocmsel, cs;
-        List<MenuAllocationInformation> mal, ocmal;
+        int index, msel, ocmsel, cs, opopmsel;
+        List<MenuAllocationInformation> mal, ocmal, opopmal;
         MultiAdditionalCoroutineSprite mc;
         OptionUserInformationPanel ouip;
         KeyInputObject ki;
-        List<StringSprite> okcancel = new List<StringSprite>(), opod;
+        List<StringSprite> okcancel = new List<StringSprite>(), opod, opsn, opop;
         Func<IReadOnlyList<StringSprite>, int, Action<MenuAllocationInformation, bool>> mvf;
         StringSprite valid;
+        User[] users;
 
         public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx)
         {
@@ -551,6 +577,7 @@ namespace Kbtter5.Scenes
             uinfo = new UserInformation(ai.Users[idx]);
             index = idx;
             mvf = (ta, aid) => (mai, val) => ta[aid].Alpha = val ? 1.0 : 0.5;
+            users = new User[5];
             opod = new List<StringSprite>
             {
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 64 - 8, Value = "1st" },
@@ -559,14 +586,33 @@ namespace Kbtter5.Scenes
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 160 - 8, Value = "4th" },
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 192 - 8, Value = "5th" }
             };
+            opsn = new List<StringSprite>
+            {
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 128, Y = 64 - 8, Value = "" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 128, Y = 96 - 8, Value = "" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 128, Y = 128 - 8, Value = "" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 128, Y = 160 - 8, Value = "" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 128, Y = 192 - 8, Value = "" }
+            };
             mal = new List<MenuAllocationInformation> 
             {
-                new MenuAllocationInformation(){X=32,Y=64},
-                new MenuAllocationInformation(){X=32,Y=96},
-                new MenuAllocationInformation(){X=32,Y=128},
-                new MenuAllocationInformation(){X=32,Y=160},
-                new MenuAllocationInformation(){X=32,Y=192},
+                new MenuAllocationInformation(){ X = 32, Y = 64 },
+                new MenuAllocationInformation(){ X = 32, Y = 96 },
+                new MenuAllocationInformation(){ X = 32, Y = 128 },
+                new MenuAllocationInformation(){ X = 32, Y = 160 },
+                new MenuAllocationInformation(){ X = 32, Y = 192 },
             };
+            opop = new List<StringSprite>
+            {
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 224 - 8, Value = "編集" },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 160, Y = 224 - 8, Value = "削除" },
+            };
+            opopmal = new List<MenuAllocationInformation>
+            {
+                new MenuAllocationInformation(){X=40,Y=224},
+                new MenuAllocationInformation(){X=136,Y=224},
+            };
+
             okcancel = new List<StringSprite>
             {
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "OK", X = 528, Y = 180 , Alpha = 0},
@@ -581,7 +627,9 @@ namespace Kbtter5.Scenes
             {
                 ChangingAction = (p) =>
                 {
-                    if (p)
+                    //タイムラグ対策
+                    if (cs != 2) return;
+                    if (p && users.Where(q => q != null).All(q => q.Id != ouip.SourceUser.Id))
                     {
                         valid.Value = "オプションOK";
                         valid.Color = CommonObjects.Colors.Blue;
@@ -593,10 +641,15 @@ namespace Kbtter5.Scenes
                         valid.Color = CommonObjects.Colors.Red;
                         ocmsel = 1;
                         ocmal[0].IsAvailable = false;
-                        mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                        mc.AddSubOperation(SpritePatterns.VerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
                     }
                 }
             };
+            for (int i = 0; i < opopmal.Count; i++)
+            {
+                opopmal[i].Lefter = opopmal[(i + opopmal.Count - 1) % opopmal.Count];
+                opopmal[i].Righter = opopmal[(i + 1) % opopmal.Count];
+            }
             for (int i = 0; i < ocmal.Count; i++)
             {
                 ocmal[i].Upper = ocmal[(i + ocmal.Count - 1) % ocmal.Count];
@@ -625,6 +678,8 @@ namespace Kbtter5.Scenes
 
             Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプションユーザー選択", X = 210, Y = 8 }, 0);
             Manager.AddRangeTo(opod, 0);
+            Manager.AddRangeTo(opsn, 0);
+            Manager.AddRangeTo(opop, 0);
 
             Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 64 - 8, Value = "検索:" }, 1);
             Manager.Add(valid, 0);
@@ -667,7 +722,7 @@ namespace Kbtter5.Scenes
                         }
                         if (tstate.Buttons[0])
                         {
-                            GoToScreenNameInput();
+                            GoToOptionOperationSelect();
                             break;
                         }
                         if ((tstate.Direction & GamepadDirection.Up) != 0)
@@ -677,7 +732,7 @@ namespace Kbtter5.Scenes
                                 var tm = mal.IndexOf(mal[msel].Upper);
                                 if (tm != -1) msel = tm;
                             } while (!mal[msel].IsAvailable);
-                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                            mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
                             break;
                         }
                         if ((tstate.Direction & GamepadDirection.Down) != 0)
@@ -687,61 +742,19 @@ namespace Kbtter5.Scenes
                                 var tm = mal.IndexOf(mal[msel].Lower);
                                 if (tm != -1) msel = tm;
                             } while (!mal[msel].IsAvailable);
-                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                            mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
                             break;
                         }
                         break;
                     case 1:
-                        if (ki.IsCanceled)
-                        {
-                            ki.Dispose();
-                            GoToNumberSelect();
-                        }
-                        else if (ki.HasCompleted)
-                        {
-                            cs = 2;
-                            ki.Dispose();
-                            okcancel.ForEach(p => p.Alpha = 1);
-                            ouip.SearchUser(ki.InputString);
-                            ocmsel = 1;
-                            mc.AddSubOperation(SpritePatterns.CursorMove(10, ocmal[ocmsel].X, ocmal[ocmsel].Y, Easing.OutQuad));
-                        }
+                        OptionScreenNameInputOperation();
                         break;
                     case 2:
-                        if ((tstate.Direction & GamepadDirection.Up) != 0)
-                        {
-                            do
-                            {
-                                var tm = ocmal.IndexOf(ocmal[ocmsel].Upper);
-                                if (tm != -1) ocmsel = tm;
-                            } while (!ocmal[ocmsel].IsAvailable);
-                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
-                            break;
-                        }
-                        if ((tstate.Direction & GamepadDirection.Down) != 0)
-                        {
-                            do
-                            {
-                                var tm = ocmal.IndexOf(ocmal[ocmsel].Lower);
-                                if (tm != -1) ocmsel = tm;
-                            } while (!ocmal[ocmsel].IsAvailable);
-                            mc.AddSubOperation(SpritePatterns.CursorVerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
-                            break;
-                        }
-                        if (tstate.Buttons[1]) GoToScreenNameInput();
-                        if (tstate.Buttons[0])
-                        {
-                            switch (ocmsel)
-                            {
-                                case 0:
-                                    Parent.SendChildMessage("EntryOption", new OptionInformation());
-                                    break;
-                                case 1:
-                                    GoToScreenNameInput();
-                                    break;
-                            }
-                            break;
-                        }
+                        OptionDecisionOperation();
+                        break;
+                    case 3:
+                        //本当はScreenNameInputの前だけどゆるして
+                        OptionOperationSelectionOperation();
                         break;
                 }
                 prevstate = state;
@@ -750,16 +763,129 @@ namespace Kbtter5.Scenes
         EXIT: ;
         }
 
+        public void OptionOperationSelectionOperation()
+        {
+            if (tstate.Buttons[0])
+            {
+                if (opopmsel == 0)
+                {
+                    GoToScreenNameInput();
+                }
+                else
+                {
+
+                }
+                return;
+            }
+            if (tstate.Buttons[1])
+            {
+                GoToNumberSelect();
+                return;
+            }
+            if ((tstate.Direction & GamepadDirection.Left) != 0)
+            {
+                do
+                {
+                    var tm = opopmal.IndexOf(opopmal[opopmsel].Lefter);
+                    if (tm != -1) opopmsel = tm;
+                } while (!opopmal[opopmsel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.Move(10, opopmal[opopmsel].X, opopmal[opopmsel].Y, Easing.OutQuad));
+                return;
+            }
+            if ((tstate.Direction & GamepadDirection.Right) != 0)
+            {
+                do
+                {
+                    var tm = opopmal.IndexOf(opopmal[opopmsel].Righter);
+                    if (tm != -1) opopmsel = tm;
+                } while (!opopmal[opopmsel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.Move(10, opopmal[opopmsel].X, opopmal[opopmsel].Y, Easing.OutQuad));
+                return;
+            }
+        }
+
+        public void OptionScreenNameInputOperation()
+        {
+            if (ki.IsCanceled)
+            {
+                ki.Dispose();
+                GoToOptionOperationSelect();
+            }
+            else if (ki.HasCompleted)
+            {
+                GoToOptionCheck();
+            }
+        }
+
+        public void OptionDecisionOperation()
+        {
+            if ((tstate.Direction & GamepadDirection.Up) != 0)
+            {
+                do
+                {
+                    var tm = ocmal.IndexOf(ocmal[ocmsel].Upper);
+                    if (tm != -1) ocmsel = tm;
+                } while (!ocmal[ocmsel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.VerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                return;
+            }
+            if ((tstate.Direction & GamepadDirection.Down) != 0)
+            {
+                do
+                {
+                    var tm = ocmal.IndexOf(ocmal[ocmsel].Lower);
+                    if (tm != -1) ocmsel = tm;
+                } while (!ocmal[ocmsel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.VerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                return;
+            }
+            if (tstate.Buttons[1]) GoToScreenNameInput();
+            if (tstate.Buttons[0])
+            {
+                switch (ocmsel)
+                {
+                    case 0:
+                        Parent.SendChildMessage("EntryOption:" + index.ToString(), ouip.SourceUser);
+                        opsn[msel].Value = ouip.SourceUser.ScreenName;
+                        users[msel] = ouip.SourceUser;
+                        if (msel + 1 < 5) mal[msel + 1].IsAvailable = true;
+                        GoToNumberSelect();
+                        break;
+                    case 1:
+                        GoToScreenNameInput();
+                        break;
+                }
+                return;
+            }
+        }
+
+        public void GoToOptionOperationSelect()
+        {
+            cs = 3;
+            mc.AddSubOperation(SpritePatterns.Move(10, opopmal[opopmsel].X, opopmal[opopmsel].Y, Easing.OutQuad));
+        }
+
         private void GoToNumberSelect()
         {
             cs = 0;
-            mc.AddSubOperation(SpritePatterns.CursorMove(10, mal[msel].X, mal[msel].Y, Easing.OutQuad));
+            okcancel.ForEach(p => p.Alpha = 0);
+            mc.AddSubOperation(SpritePatterns.Move(10, mal[msel].X, mal[msel].Y, Easing.OutQuad));
+        }
+
+        private void GoToOptionCheck()
+        {
+            cs = 2;
+            ki.Dispose();
+            okcancel.ForEach(p => p.Alpha = 1);
+            ouip.SearchUser(ki.InputString);
+            ocmsel = 1;
+            mc.AddSubOperation(SpritePatterns.Move(10, ocmal[ocmsel].X, ocmal[ocmsel].Y, Easing.OutQuad));
         }
 
         private void GoToScreenNameInput()
         {
             cs = 1;
-            mc.AddSubOperation(SpritePatterns.CursorMove(10, 300, 64, Easing.OutQuad));
+            mc.AddSubOperation(SpritePatterns.Move(10, 300, 64, Easing.OutQuad));
             ki = new KeyInputObject(CommonObjects.FontSystemMedium, 20, true, true, false)
             {
                 X = 376,
