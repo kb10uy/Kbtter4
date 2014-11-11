@@ -222,7 +222,7 @@ namespace Kbtter5
         }
     }
 
-    public class StringSprite : DisplayObject
+    public class StringSprite : MultiAdditionalCoroutineSprite
     {
         public string Value { get; set; }
         public int FontHandle { get; set; }

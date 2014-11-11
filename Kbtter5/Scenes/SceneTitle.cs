@@ -566,17 +566,22 @@ namespace Kbtter5.Scenes
         MultiAdditionalCoroutineSprite mc;
         OptionUserInformationPanel ouip;
         KeyInputObject ki;
-        List<StringSprite> okcancel = new List<StringSprite>(), opod, opsn, opop;
-        Func<IReadOnlyList<StringSprite>, int, Action<MenuAllocationInformation, bool>> mvf;
-        StringSprite valid;
+        List<StringSprite> okcancel = new List<StringSprite>(), opod, opsn;
+        Func<IReadOnlyList<StringSprite>, int, int, Action<MenuAllocationInformation, bool>> mvf;
+        StringSprite valid, next, opop;
         User[] users;
+        double nextpos = 272;
+        double opsnpos = 224 - 8;
 
         public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx)
         {
             ai = ainfo;
             uinfo = new UserInformation(ai.Users[idx]);
             index = idx;
-            mvf = (ta, aid) => (mai, val) => ta[aid].Alpha = val ? 1.0 : 0.5;
+            mvf = (ta, aid, max) => (mai, val) =>
+            {
+                if (max > aid) ta[aid].Alpha = val ? 1.0 : 0.5;
+            };
             users = new User[5];
             opod = new List<StringSprite>
             {
@@ -586,6 +591,7 @@ namespace Kbtter5.Scenes
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 160 - 8, Value = "4th" },
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 192 - 8, Value = "5th" }
             };
+            next = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { X = 64, Y = nextpos - 8, Value = "決定" };
             opsn = new List<StringSprite>
             {
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 128, Y = 64 - 8, Value = "" },
@@ -601,12 +607,9 @@ namespace Kbtter5.Scenes
                 new MenuAllocationInformation(){ X = 32, Y = 128 },
                 new MenuAllocationInformation(){ X = 32, Y = 160 },
                 new MenuAllocationInformation(){ X = 32, Y = 192 },
+                new MenuAllocationInformation(){ X = 32, Y = 224 },
             };
-            opop = new List<StringSprite>
-            {
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 224 - 8, Value = "編集" },
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 160, Y = 224 - 8, Value = "削除" },
-            };
+            opop = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 224 - 8, Value = "編集        削除" };
             opopmal = new List<MenuAllocationInformation>
             {
                 new MenuAllocationInformation(){X=40,Y=224},
@@ -654,14 +657,14 @@ namespace Kbtter5.Scenes
             {
                 ocmal[i].Upper = ocmal[(i + ocmal.Count - 1) % ocmal.Count];
                 ocmal[i].Lower = ocmal[(i + 1) % ocmal.Count];
-                ocmal[i].AvailableChangingAction = mvf(okcancel, i);
+                ocmal[i].AvailableChangingAction = mvf(okcancel, i, okcancel.Count);
             }
             for (int i = 0; i < mal.Count; i++)
             {
                 mal[i].Upper = mal[(i + mal.Count - 1) % mal.Count];
                 mal[i].Lower = mal[(i + 1) % mal.Count];
-                mal[i].AvailableChangingAction = mvf(opod, i);
-                if (i > 0) mal[i].IsAvailable = false;
+                mal[i].AvailableChangingAction = mvf(opod, i, opod.Count);
+                if (i > 0 && i < mal.Count - 1) mal[i].IsAvailable = false;
             }
             valid = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 216, Value = "オプションOK/NG" };
             mc = new MultiAdditionalCoroutineSprite() { Image = CommonObjects.ImageCursor128[1], HomeX = 64, HomeY = 64, ScaleX = 0.25, ScaleY = 0.25 };
@@ -679,7 +682,8 @@ namespace Kbtter5.Scenes
             Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプションユーザー選択", X = 210, Y = 8 }, 0);
             Manager.AddRangeTo(opod, 0);
             Manager.AddRangeTo(opsn, 0);
-            Manager.AddRangeTo(opop, 0);
+            Manager.Add(opop, 0);
+            Manager.Add(next, 0);
 
             Manager.Add(new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 64 - 8, Value = "検索:" }, 1);
             Manager.Add(valid, 0);
@@ -722,29 +726,21 @@ namespace Kbtter5.Scenes
                         }
                         if (tstate.Buttons[0])
                         {
-                            GoToOptionOperationSelect();
-                            break;
-                        }
-                        if ((tstate.Direction & GamepadDirection.Up) != 0)
-                        {
-                            do
+                            if (msel < 5)
                             {
-                                var tm = mal.IndexOf(mal[msel].Upper);
-                                if (tm != -1) msel = tm;
-                            } while (!mal[msel].IsAvailable);
-                            mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
-                            break;
-                        }
-                        if ((tstate.Direction & GamepadDirection.Down) != 0)
-                        {
-                            do
+                                GoToOptionOperationSelect();
+                            }
+                            else
                             {
-                                var tm = mal.IndexOf(mal[msel].Lower);
-                                if (tm != -1) msel = tm;
-                            } while (!mal[msel].IsAvailable);
-                            mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
-                            break;
+                                for (int i = 0; i < 40; i++)
+                                {
+                                    Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                                    yield return true;
+                                }
+                                goto EXIT;
+                            }
                         }
+                        OptionUserOrderSelectionOperation();
                         break;
                     case 1:
                         OptionScreenNameInputOperation();
@@ -761,6 +757,48 @@ namespace Kbtter5.Scenes
                 yield return true;
             }
         EXIT: ;
+        }
+
+        public void OptionUserOrderSelectionOperation()
+        {
+            if ((tstate.Direction & GamepadDirection.Up) != 0)
+            {
+                int ps = msel;
+                do
+                {
+                    var tm = mal.IndexOf(mal[msel].Upper);
+                    if (tm != -1) msel = tm;
+                } while (!mal[msel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                CheckNextTextPosition(ps);
+                return;
+            }
+            if ((tstate.Direction & GamepadDirection.Down) != 0)
+            {
+                int ps = msel;
+                do
+                {
+                    var tm = mal.IndexOf(mal[msel].Lower);
+                    if (tm != -1) msel = tm;
+                } while (!mal[msel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                CheckNextTextPosition(ps);
+                return;
+            }
+        }
+
+        private void CheckNextTextPosition(int ps)
+        {
+            if ((ps != mal.Count - 1 && msel == mal.Count - 1)/*||(msel != mal.Count - 1 && ps == mal.Count - 1)*/)
+            {
+                opop.AddSubOperation(SpritePatterns.VerticalMove(15, nextpos, Easing.OutQuad));
+                next.AddSubOperation(SpritePatterns.VerticalMove(15, opsnpos, Easing.OutQuad));
+            }
+            else
+            {
+                opop.AddSubOperation(SpritePatterns.VerticalMove(15, opsnpos, Easing.OutQuad));
+                next.AddSubOperation(SpritePatterns.VerticalMove(15, nextpos, Easing.OutQuad));
+            }
         }
 
         public void OptionOperationSelectionOperation()
