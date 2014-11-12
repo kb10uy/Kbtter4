@@ -201,7 +201,7 @@ namespace Kbtter5.Scenes
                 }
             }
         EXIT:
-            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]));
+            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]),optusers);
         }
 
         public override void SendChildMessage(string mes)
@@ -220,6 +220,16 @@ namespace Kbtter5.Scenes
                     modestate = 1;
                     Children.AddChildScene(new TitleChildSceneAccountSelect(info, true));
                     return;
+                case "GoToOptionSetting":
+                    modestate = 1;
+                    Children.AddChildScene(new TitleChildSceneOptionEdit());
+                    return;
+                case "ReturnToOptionEdit":
+                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, true));
+                    return;
+                case "StartGame":
+                    modestate = 2;
+                    return;
             }
 
             var l = mes.Split(':');
@@ -229,7 +239,7 @@ namespace Kbtter5.Scenes
                 case "GoToOptionEdit":
                     modestate = 1;
                     selac = Convert.ToInt32(args[0]);
-                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac));
+                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, false));
                     return;
             }
         }
@@ -572,9 +582,11 @@ namespace Kbtter5.Scenes
         User[] users;
         double nextpos = 272;
         double opsnpos = 224 - 8;
+        bool b;
 
-        public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx)
+        public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx, bool back)
         {
+            b = back;
             ai = ainfo;
             uinfo = new UserInformation(ai.Users[idx]);
             index = idx;
@@ -699,7 +711,7 @@ namespace Kbtter5.Scenes
             //突入
             for (int i = 0; i < 40; i++)
             {
-                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                Manager.OffsetX = Easing.OutQuad(i, 40, b ? -640 : 640, b ? 640 : -640);
                 yield return true;
             }
             Manager.OffsetX = 0;
@@ -732,9 +744,10 @@ namespace Kbtter5.Scenes
                             }
                             else
                             {
+                                Parent.SendChildMessage("GoToOptionSetting");
                                 for (int i = 0; i < 40; i++)
                                 {
-                                    Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                                    Manager.OffsetX = Easing.OutQuad(i, 40, 0, -640);
                                     yield return true;
                                 }
                                 goto EXIT;
@@ -1022,6 +1035,74 @@ namespace Kbtter5.Scenes
         public OptionInformation(User u)
         {
             SourceUser = u;
+        }
+    }
+
+    #endregion
+
+    #region TitleChildSceneOptionEdit
+
+    public class TitleChildSceneOptionEdit : ChildScene
+    {
+        private GamepadState state, tstate, prevstate;
+        StringSprite sum;
+        int cstate = 0;
+
+        public TitleChildSceneOptionEdit()
+        {
+            sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集…はまだ実装してないからZ押せ", X = 85, Y = 8 };
+        }
+
+        public override IEnumerator<bool> Execute()
+        {
+            Manager.Add(sum, 0);
+
+            Manager.OffsetX = 640;
+            Manager.OffsetY = 240;
+            //突入
+            for (int i = 0; i < 40; i++)
+            {
+                Manager.OffsetX = Easing.OutQuad(i, 40, 640, -640);
+                yield return true;
+            }
+            Manager.OffsetX = 0;
+
+            prevstate = Gamepad.GetState();
+            while (true)
+            {
+                state = Gamepad.GetState();
+                tstate = state.GetTriggerStateWith(prevstate);
+                switch (cstate)
+                {
+                    case 0:
+                        if (tstate.Buttons[1])
+                        {
+                            Parent.SendChildMessage("ReturnToOptionEdit");
+                            for (int i = 0; i < 40; i++)
+                            {
+                                Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
+                                yield return true;
+                            }
+                            goto EXIT;
+                        }
+                        if (tstate.Buttons[0])
+                        {
+                            Parent.SendChildMessage("StartGame");
+                            for (int i = 0; i < 40; i++)
+                            {
+                                Manager.OffsetX = Easing.OutQuad(i, 40, 0, -640);
+                                yield return true;
+                            }
+                            goto EXIT;
+                        }
+                        break;
+                    case 1:
+                        break;
+                }
+                prevstate = state;
+                yield return true;
+            }
+        EXIT: ;
         }
     }
 

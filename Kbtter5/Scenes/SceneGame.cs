@@ -31,7 +31,7 @@ namespace Kbtter5.Scenes
         private UserInformation info;
         private List<IDisposable> streams = new List<IDisposable>();
         private Xorshift128Random rnd = new Xorshift128Random();
-        private string BackgroundImagePath = Path.Combine(CommonObjects.DataDirectory, "back.png");
+        private string BackgroundImagePath = CommonObjects.GetUserFilePath("back.png");
         private bool hasback;
         private Stopwatch sw = new Stopwatch();
 
@@ -45,9 +45,11 @@ namespace Kbtter5.Scenes
         private Sprite Background;
         private StringSprite StringInfo;
         private InformationBox Information;
+        private User[] optusers;
 
-        public SceneGame(Kbtter4Account ac,UserInformation ui)
+        public SceneGame(Kbtter4Account ac, UserInformation ui,User[] opt)
         {
+            optusers = opt;
             info = ui;
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             Player = new PlayerUser(this, PlayerOperations.MouseOperaiton, ui);
@@ -154,7 +156,7 @@ namespace Kbtter5.Scenes
         public override IEnumerator<bool> Tick()
         {
             Manager.Add(StringInfo, (int)GameLayer.Information);
-            while (DX.GetASyncLoadNum() != 0)
+            while (DX.GetASyncLoadNum() != 0 || !Player.IsImageLoaded)
             {
                 Manager.TickAll();
                 yield return true;

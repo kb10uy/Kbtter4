@@ -100,7 +100,7 @@ namespace Kbtter5
     public class Sprite : DisplayObject
     {
         public int Image { get; set; }
-        protected bool IsImageLoaded { get; set; }
+        public bool IsImageLoaded { get; protected set; }
 
         public Sprite()
         {

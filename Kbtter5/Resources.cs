@@ -241,6 +241,7 @@ namespace Kbtter5
     {
         public static int ImageSize = 32;
         private static Dictionary<long, int> ImageHandles = new Dictionary<long, int>();
+        private static HashSet<long> CachedIds = new HashSet<long>();
 
         static UserImageManager()
         {
@@ -258,7 +259,8 @@ namespace Kbtter5
             var di = new DirectoryInfo(path);
             foreach (var i in di.GetFiles())
             {
-                ImageHandles[Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name))] = DX.LoadGraph(i.FullName);
+                //ImageHandles[Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name))] = DX.LoadGraph(i.FullName);
+                CachedIds.Add(Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name)));
             }
             //DX.SetUseASyncLoadFlag(DX.TRUE);
         }
@@ -266,12 +268,13 @@ namespace Kbtter5
         public static int GetUserImage(User user)
         {
             if (user == null || user.Id == null) return 0;
-            if (!ImageHandles.ContainsKey((long)user.Id))
-            {
-                var target = Path.Combine(
+            var target = Path.Combine(
                             CommonObjects.DataDirectory,
                             "icon_cache",
                             string.Format("{0}.{1}", user.Id, "png"));
+            if (!CachedIds.Contains((long)user.Id))
+            {
+                //未キャッシュ
                 if (!File.Exists(target))
                     using (var wc = new WebClient())
                     using (var st = wc.OpenRead(user.ProfileImageUrlHttps))
@@ -290,6 +293,12 @@ namespace Kbtter5
                     }
                 ImageHandles[(long)user.Id] = DX.LoadGraph(target);
             }
+            else if (!ImageHandles.ContainsKey((long)user.Id))
+            {
+                //未ロード
+                ImageHandles[(long)user.Id] = DX.LoadGraph(target);
+            }
+
             return ImageHandles[(long)user.Id];
         }
 
