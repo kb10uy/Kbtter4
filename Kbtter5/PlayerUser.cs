@@ -13,25 +13,32 @@ namespace Kbtter5
 {
     public class PlayerUser : UserSprite
     {
+        public int Frames { get; protected set; }
+        public PlayerInput CurrentInput { get; protected set; }
+        public bool Operatable { get; protected set; }
+        public IEnumerator<bool> MovingOperation { get; protected set; }
+        public IEnumerator<bool> ShotOperation { get; protected set; }
+        public IEnumerator<bool> SpecialOperation { get; protected set; }
+        public bool HasCollision { get; protected set; }
+        public int ShotStrength { get; protected set; }
+        public int ShotInterval { get; protected set; }
+        public bool IsShottableTiming { get; protected set; }
+        public bool IsTriggerShottableTiming { get; protected set; }
+        public bool IsGameOver { get; protected set; }
         private Xorshift128Random rnd = new Xorshift128Random();
         private SceneGame game;
-        public int ShotInterval { get; set; }
-        public IEnumerator<bool> Operation { get; protected set; }
-        public IEnumerator<bool> SpecialOperation { get; protected set; }
-        public bool Operatable { get; protected set; }
-        public int ShotStrength { get; protected set; }
         private int GrazePoint;
-        public bool IsGameOver { get; protected set; }
-        public bool HasCollision { get; protected set; }
-        public int Frames { get; protected set; }
         private UserInformation info;
+        private PlayerInputMethod ipmet;
 
-        public PlayerUser(SceneGame sc, CoroutineFunction<PlayerUser> op, UserInformation u)
+        public PlayerUser(SceneGame sc, UserInformation u, CoroutineFunction<PlayerUser> mop, CoroutineFunction<PlayerUser> sop, PlayerInputMethod im)
         {
             info = u;
             game = sc;
+            ipmet = im;
             SourceUser = u.SourceUser;
-            Operation = op(this);
+            MovingOperation = mop(this);
+            ShotOperation = sop(this);
             MyKind = ObjectKind.Player;
             DamageKind = ObjectKind.Enemy | ObjectKind.EnemyBullet;
             CollisionRadius = u.CollisionRadius;
@@ -154,25 +161,25 @@ namespace Kbtter5
 
         public void TryShot(double angle, double speed)
         {
-            if (Frames % ShotInterval != 0) return;
-            ParentManager.Add(new PlayerImageBullet(this, BulletPatterns.Linear(angle, speed, 90), CommonObjects.ImageShot, ShotStrength)
-            {
-                X = X,
-                Y = Y,
-                HomeX = 8,
-                HomeY = 8,
-            }, PlayerBulletLayer);
+
         }
 
         public override IEnumerator<bool> Tick()
         {
             while (true)
             {
-                Operation.MoveNext();
-                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
-                Frames++;
+                CurrentInput = ipmet();
+                IsShottableTiming = (CurrentInput.Button & PlayerInputButton.Shot) != 0;
+                IsTriggerShottableTiming = Frames % ShotInterval == 0 && IsShottableTiming;
+
+                MovingOperation.MoveNext();
                 X = Math.Min(Math.Max(X, 0), CommonObjects.StageWidth);
                 Y = Math.Min(Math.Max(Y, 0), CommonObjects.StageHeight);
+                ShotOperation.MoveNext();
+                if ((CurrentInput.Button & PlayerInputButton.Bomb) != 0) TryBomb();
+                SpecialOperation = (SpecialOperation != null && SpecialOperation.MoveNext() && SpecialOperation.Current) ? SpecialOperation : null;
+
+                Frames++;
                 yield return true;
             }
         }
@@ -243,4 +250,31 @@ namespace Kbtter5
         }
     }
 
+    public delegate PlayerInput PlayerInputMethod();
+
+    public struct PlayerInput
+    {
+        public PlayerInputDirection Direction;
+        public PlayerInputDirection ExtraDirection;
+        public PlayerInputButton Button;
+        public short MouseX;
+        public short MouseY;
+    }
+
+    [Flags]
+    public enum PlayerInputButton
+    {
+        Shot = 1,
+        Bomb = 2,
+        Pause = 4,
+    }
+
+    [Flags]
+    public enum PlayerInputDirection
+    {
+        Up = 1,
+        Down = 2,
+        Left = 4,
+        Right = 8,
+    }
 }

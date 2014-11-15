@@ -98,8 +98,11 @@
     <Compile Include="EnemyPatterns.cs" />
     <Compile Include="EnemyUser.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="PlayerOperations.cs" />
+    <Compile Include="Options\InfinityLaserOption.cs" />
+    <Compile Include="PlayerInputMethods.cs" />
+    <Compile Include="PlayerMovingOperations.cs" />
     <Compile Include="PlayerOption.cs" />
+    <Compile Include="PlayerShotOperations.cs" />
     <Compile Include="PlayerUser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

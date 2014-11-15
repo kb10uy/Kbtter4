@@ -201,7 +201,7 @@ namespace Kbtter5.Scenes
                 }
             }
         EXIT:
-            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]),optusers);
+            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]), optusers);
         }
 
         public override void SendChildMessage(string mes)
@@ -247,7 +247,7 @@ namespace Kbtter5.Scenes
         public override void SendChildMessage(string mes, object obj)
         {
             var tg = mes.Split(':');
-            switch (mes)
+            switch (tg[0])
             {
                 case "EntryOption":
                     var ui = obj as OptionInformation;
@@ -896,7 +896,7 @@ namespace Kbtter5.Scenes
                 switch (ocmsel)
                 {
                     case 0:
-                        Parent.SendChildMessage("EntryOption:" + index.ToString(), ouip.SourceUser);
+                        Parent.SendChildMessage("EntryOption:" + msel.ToString(), new OptionInformation(ouip.SourceUser));
                         opsn[msel].Value = ouip.SourceUser.ScreenName;
                         users[msel] = ouip.SourceUser;
                         if (msel + 1 < 5) mal[msel + 1].IsAvailable = true;

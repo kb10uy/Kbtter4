@@ -46,13 +46,18 @@ namespace Kbtter5.Scenes
         private StringSprite StringInfo;
         private InformationBox Information;
         private User[] optusers;
+        private List<UserInformation> opui;
+        private List<PlayerOption> options;
+        private double optofs = 0.0, optspeed = 0.06, optdist = 40;
 
-        public SceneGame(Kbtter4Account ac, UserInformation ui,User[] opt)
+        public SceneGame(Kbtter4Account ac, UserInformation ui, User[] opt)
         {
             optusers = opt;
+            opui = new List<UserInformation>();
+            opui.AddRange(optusers.Where(p => p != null).Select(p => new UserInformation(p)));
             info = ui;
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
-            Player = new PlayerUser(this, PlayerOperations.MouseOperaiton, ui);
+            Player = new PlayerUser(this, ui, PlayerMovingOperations.MouseOperaiton, PlayerShotOperations.Default, PlayerInputMethods.DefaultStyle);
             Information = new InformationBox(info, Player)
             {
                 X = 0,
@@ -64,6 +69,8 @@ namespace Kbtter5.Scenes
                 Y = 240,
                 Value = "Loading"
             };
+            options = new List<PlayerOption>();
+            options.AddRange(opui.Select(p => new PlayerOption(Player, p)));
         }
 
         ~SceneGame()
@@ -166,6 +173,7 @@ namespace Kbtter5.Scenes
 
             if (hasback) Manager.Add(Background, (int)GameLayer.Background);
             Manager.Add(Player, (int)GameLayer.Player);
+            Manager.AddRangeTo(options, (int)GameLayer.Player);
             Manager.Add(Information, (int)GameLayer.Information);
             Information.Popup();
             prevtime = DX.GetNowCount();
@@ -190,6 +198,15 @@ namespace Kbtter5.Scenes
                     Background.X = 320 - (Player.X - 320) * 0.25;
                     Background.Y = 240 - (Player.Y - 240) * 0.25;
                 }
+                //オプション
+                for (int i = 0; i < options.Count; i++)
+                {
+                    var req = new OptionStateRequest();
+                    req.X = Player.X + Math.Cos(optofs + Math.PI * 2 / options.Count * i) * optdist;
+                    req.Y = Player.Y + Math.Sin(optofs + Math.PI * 2 / options.Count * i) * optdist;
+                    options[i].RequestState(req);
+                }
+                optofs += optspeed;
 
                 Manager.TickAll();
                 //sw.Stop();
