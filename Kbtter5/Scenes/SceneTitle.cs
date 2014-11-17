@@ -225,7 +225,7 @@ namespace Kbtter5.Scenes
                     Children.AddChildScene(new TitleChildSceneOptionEdit());
                     return;
                 case "ReturnToOptionEdit":
-                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, true));
+                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, true, optusers));
                     return;
                 case "StartGame":
                     modestate = 2;
@@ -239,7 +239,7 @@ namespace Kbtter5.Scenes
                 case "GoToOptionEdit":
                     modestate = 1;
                     selac = Convert.ToInt32(args[0]);
-                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, false));
+                    Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, false, optusers));
                     return;
             }
         }
@@ -584,7 +584,7 @@ namespace Kbtter5.Scenes
         double opsnpos = 224 - 8;
         bool b;
 
-        public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx, bool back)
+        public TitleChildSceneOptionUserSelect(AccountInformation ainfo, int idx, bool back, User[] us)
         {
             b = back;
             ai = ainfo;
@@ -594,7 +594,7 @@ namespace Kbtter5.Scenes
             {
                 if (max > aid) ta[aid].Alpha = val ? 1.0 : 0.5;
             };
-            users = new User[5];
+            users = us;
             opod = new List<StringSprite>
             {
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 64, Y = 64 - 8, Value = "1st" },
@@ -676,8 +676,13 @@ namespace Kbtter5.Scenes
                 mal[i].Upper = mal[(i + mal.Count - 1) % mal.Count];
                 mal[i].Lower = mal[(i + 1) % mal.Count];
                 mal[i].AvailableChangingAction = mvf(opod, i, opod.Count);
-                if (i > 0 && i < mal.Count - 1) mal[i].IsAvailable = false;
+                mal[i].IsAvailable = (i < users.Length && users[i] != null) || i == mal.Count - 1 || (users.Count(p => p != null) == i);
             }
+            for (int i = 0; i < opsn.Count; i++)
+            {
+                if (users[i] != null) opsn[i].Value = users[i].ScreenName;
+            }
+
             valid = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { X = 320, Y = 216, Value = "オプションOK/NG" };
             mc = new MultiAdditionalCoroutineSprite() { Image = CommonObjects.ImageCursor128[1], HomeX = 64, HomeY = 64, ScaleX = 0.25, ScaleY = 0.25 };
             cs = 0;

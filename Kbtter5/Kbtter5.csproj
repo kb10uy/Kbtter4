@@ -98,6 +98,7 @@
     <Compile Include="EnemyPatterns.cs" />
     <Compile Include="EnemyUser.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="OptionOperations.cs" />
     <Compile Include="Options\InfinityLaserOption.cs" />
     <Compile Include="PlayerInputMethods.cs" />
     <Compile Include="PlayerMovingOperations.cs" />

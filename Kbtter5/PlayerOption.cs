@@ -10,6 +10,7 @@ using CoreTweet;
 
 namespace Kbtter5
 {
+    #region PlayerOption
     public class PlayerOption : UserSprite
     {
         public PlayerUser Parent { get; protected set; }
@@ -83,4 +84,5 @@ namespace Kbtter5
         public double? ScaleX { get; set; }
         public double? ScaleY { get; set; }
     }
+    #endregion
 }

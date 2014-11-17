@@ -17,7 +17,7 @@ namespace Kbtter5
 
             while (true)
             {
-                if (player.IsTriggerShottableTiming)
+                if (player.IsTriggerShottableTiming && player.Operatable)
                 {
                     var dr = (count / player.ShotInterval) % 8;
                     var pad = player.CurrentInput;
