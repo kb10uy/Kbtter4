@@ -1104,39 +1104,6 @@ namespace Kbtter5.Scenes
         }
     }
 
-    public class OptionInformation
-    {
-        public User SourceUser { get; set; }
-        public UserInformation UserInformation { get; set; }
-        public OptionOperation TargetOperation { get; set; }
-        public OptionInitializationInformation InitializationInformation { get; set; }
-
-        public OptionInformation(User u)
-        {
-            SourceUser = u;
-            UserInformation = new UserInformation(u);
-        }
-    }
-
-    public class OptionSelectionInformation
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public OptionDirection Operation { get; set; }
-        public OptionSelectionUserValueCombinations UserValueCombination { get;set; }
-
-    }
-
-    [Flags]
-    public enum OptionSelectionUserValueCombinations
-    {
-        Int32Value1 = 1,
-        Int32Value2 = 2,
-        DoubleValue1 = 4,
-        DoubleValue2 = 8,
-        StringValue = 16,
-    }
-
     #endregion
 
     public class AccountInformation
