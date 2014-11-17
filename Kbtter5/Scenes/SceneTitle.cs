@@ -27,6 +27,7 @@ namespace Kbtter5.Scenes
         private int selac = 0;
         private MultiAdditionalCoroutineSprite[] lrc;
         private User[] optusers;
+        private OptionInformation[] optinfo;
 
         private AccountInformation info;
 
@@ -36,6 +37,7 @@ namespace Kbtter5.Scenes
             var path = Path.Combine(CommonObjects.DataDirectory, "user");
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             optusers = new User[5];
+            optinfo = new OptionInformation[5];
         }
 
         public IEnumerator<bool> Execute()
@@ -222,7 +224,7 @@ namespace Kbtter5.Scenes
                     return;
                 case "GoToOptionSetting":
                     modestate = 1;
-                    Children.AddChildScene(new TitleChildSceneOptionEdit());
+                    Children.AddChildScene(new TitleChildSceneOptionEdit(optusers));
                     return;
                 case "ReturnToOptionEdit":
                     Children.AddChildScene(new TitleChildSceneOptionUserSelect(info, selac, true, optusers));
@@ -250,8 +252,9 @@ namespace Kbtter5.Scenes
             switch (tg[0])
             {
                 case "EntryOption":
-                    var ui = obj as OptionInformation;
-                    optusers[Convert.ToInt32(tg[1])] = ui.SourceUser;
+                    var ui = obj as User;
+                    optusers[Convert.ToInt32(tg[1])] = ui;
+                    optinfo[Convert.ToInt32(tg[1])] = new OptionInformation(ui);
                     break;
             }
         }
@@ -901,7 +904,7 @@ namespace Kbtter5.Scenes
                 switch (ocmsel)
                 {
                     case 0:
-                        Parent.SendChildMessage("EntryOption:" + msel.ToString(), new OptionInformation(ouip.SourceUser));
+                        Parent.SendChildMessage("EntryOption:" + msel.ToString(), ouip.SourceUser);
                         opsn[msel].Value = ouip.SourceUser.ScreenName;
                         users[msel] = ouip.SourceUser;
                         if (msel + 1 < 5) mal[msel + 1].IsAvailable = true;
@@ -1031,18 +1034,6 @@ namespace Kbtter5.Scenes
         }
     }
 
-    public class OptionInformation
-    {
-        public User SourceUser { get; private set; }
-        public string ScreenName { get; private set; }
-
-
-        public OptionInformation(User u)
-        {
-            SourceUser = u;
-        }
-    }
-
     #endregion
 
     #region TitleChildSceneOptionEdit
@@ -1052,9 +1043,11 @@ namespace Kbtter5.Scenes
         private GamepadState state, tstate, prevstate;
         StringSprite sum;
         int cstate = 0;
+        User[] opts;
 
-        public TitleChildSceneOptionEdit()
+        public TitleChildSceneOptionEdit(User[] op)
         {
+            opts = op;
             sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集…はまだ実装してないからZ押せ", X = 85, Y = 8 };
         }
 
@@ -1109,6 +1102,39 @@ namespace Kbtter5.Scenes
             }
         EXIT: ;
         }
+    }
+
+    public class OptionInformation
+    {
+        public User SourceUser { get; set; }
+        public UserInformation UserInformation { get; set; }
+        public OptionOperation TargetOperation { get; set; }
+        public OptionInitializationInformation InitializationInformation { get; set; }
+
+        public OptionInformation(User u)
+        {
+            SourceUser = u;
+            UserInformation = new UserInformation(u);
+        }
+    }
+
+    public class OptionSelectionInformation
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public OptionDirection Operation { get; set; }
+        public OptionSelectionUserValueCombinations UserValueCombination { get;set; }
+
+    }
+
+    [Flags]
+    public enum OptionSelectionUserValueCombinations
+    {
+        Int32Value1 = 1,
+        Int32Value2 = 2,
+        DoubleValue1 = 4,
+        DoubleValue2 = 8,
+        StringValue = 16,
     }
 
     #endregion
