@@ -58,6 +58,7 @@ namespace Kbtter5.Scenes
             info = ui;
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             Player = new PlayerUser(this, ui, PlayerMovingOperations.MouseOperaiton, PlayerShotOperations.Default, PlayerInputMethods.DefaultStyle);
+            BackgroundImagePath = CommonObjects.GetUserFilePath("back_" + ui.SourceUser.Id.ToString() + ".png");
             Information = new InformationBox(info, Player)
             {
                 X = 0,

@@ -1041,18 +1041,23 @@ namespace Kbtter5.Scenes
     public class TitleChildSceneOptionEdit : ChildScene
     {
         private GamepadState state, tstate, prevstate;
-        StringSprite sum, type, mode;
-        List<StringSprite> uvdesc, uvs;
+        StringSprite sum, type, mode, seltype, selmode;
+        List<StringSprite> uvdesc, ipuvdesc, uvs;
         MultiAdditionalCoroutineSprite[] udc;
         MultiAdditionalCoroutineSprite mc;
         MenuAllocationInformation[] uvsmal;
-        int cstate = 0;
+        int cstate = 0, usel = 0, smsel = 0, avu;
         User[] opts;
+        OptionSelectionInformation[] osi;
+        OptionInitializationInformation[] oii;
+        List<MultiAdditionalCoroutineSprite> selopts;
 
         public TitleChildSceneOptionEdit(User[] op)
         {
             opts = op;
-            sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集…はまだ実装してないからZ押せ", X = 85, Y = 8 };
+            osi = new OptionSelectionInformation[opts.Length];
+            oii = new OptionInitializationInformation[opts.Length];
+            sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集", X = 230, Y = 8 };
             type = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備タイプ", X = 160, Y = 32 + 8 };
             mode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "モード", X = 160, Y = 64 + 8 };
             uvdesc = new List<StringSprite>()
@@ -1062,16 +1067,25 @@ namespace Kbtter5.Scenes
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション3", X = 160, Y = 160 + 8 },
             };
 
+            seltype = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 32 + 8 };
+            selmode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 64 + 8 };
+            ipuvdesc = new List<StringSprite>()
+            {
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 96 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 128 + 8 },       
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 160 + 8 },
+            };
+
             uvs = new List<StringSprite>();
             uvs.Add(mode);
             uvs.AddRange(uvdesc);
 
             uvsmal = new[]
             {
-                new MenuAllocationInformation{ X = 112, Y = 64 },
-                new MenuAllocationInformation{ X = 112, Y = 96 },
-                new MenuAllocationInformation{ X = 112, Y = 128 },
-                new MenuAllocationInformation{ X = 112, Y = 160 },
+                new MenuAllocationInformation{ X = 144, Y = 80 },
+                new MenuAllocationInformation{ X = 144, Y = 112 },
+                new MenuAllocationInformation{ X = 144, Y = 144 },
+                new MenuAllocationInformation{ X = 144, Y = 172 },
             };
 
             for (int i = 0; i < uvsmal.Length; i++)
@@ -1083,13 +1097,30 @@ namespace Kbtter5.Scenes
                     };
                 uvsmal[i].IsAvailable = false;
             }
+
             udc = new[] 
             {
                 new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[2],X=64,Y=48},
                 new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[3],X=64,Y=208},
             };
+            selopts = new List<MultiAdditionalCoroutineSprite>();
+            foreach (var i in opts)
+            {
+                if (i == null) continue;
+                selopts.Add(new MultiAdditionalCoroutineSprite() { HomeX = 48, HomeY = 48, X = 64, Y = 128, Image = BigUserImageManager.GetUserImage(i), Alpha = 0 });
+            }
+            avu = selopts.Count;
+            for (int i = 0; i < avu; i++)
+            {
+                osi[i] = OptionOperations.SelectionInformation[0];
+                oii[i] = new OptionInitializationInformation();
+            }
+            selopts.Add(new MultiAdditionalCoroutineSprite() { HomeX = 48, HomeY = 48, X = 64, Y = 128, Image = CommonObjects.ImageOptionEditEnd, Alpha = 0 });
+            selopts[usel].Alpha = 1;
+
             mc = new MultiAdditionalCoroutineSprite() { Image = CommonObjects.ImageCursor128[1], HomeX = 64, HomeY = 64, ScaleX = 0.25, ScaleY = 0.25 };
-            
+            mc.X = uvsmal[smsel].X;
+            mc.Y = uvsmal[smsel].Y;
         }
 
         public override IEnumerator<bool> Execute()
@@ -1097,9 +1128,13 @@ namespace Kbtter5.Scenes
             Manager.Add(sum, 1);
             Manager.Add(type, 1);
             Manager.AddRangeTo(uvs, 1);
-            Manager.AddRangeTo(udc, 1);
+            Manager.Add(seltype, 1);
+            Manager.Add(selmode, 1);
+            Manager.AddRangeTo(ipuvdesc, 1);
+            Manager.AddRangeTo(udc, 2);
             foreach (var i in udc) i.AddSubOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
             Manager.Add(mc, 2);
+            Manager.AddRangeTo(selopts, 1);
             Manager.OffsetX = 640;
             Manager.OffsetY = 240;
             //突入
@@ -1130,22 +1165,57 @@ namespace Kbtter5.Scenes
                         }
                         if (tstate.Buttons[0])
                         {
-                            Parent.SendChildMessage("StartGame");
-                            for (int i = 0; i < 40; i++)
+                            if (usel == selopts.Count - 1)
                             {
-                                Manager.OffsetX = Easing.OutQuad(i, 40, 0, -640);
-                                yield return true;
+                                Parent.SendChildMessage("StartGame");
+                                for (int i = 0; i < 40; i++)
+                                {
+                                    Manager.OffsetX = Easing.OutQuad(i, 40, 0, -640);
+                                    yield return true;
+                                }
+                                goto EXIT;
                             }
-                            goto EXIT;
+                            else
+                            {
+                                cstate = 1;
+                            }
+                        }
+                        if ((tstate.Direction & GamepadDirection.Up) != 0)
+                        {
+                            selopts[usel].AddSubOperation(SpritePatterns.Alpha(15, 0, Easing.Linear));
+                            selopts[usel].AddSubOperation(SpritePatterns.Move(15, selopts[usel].X, selopts[usel].Y - 96, Easing.OutQuad));
+                            usel = (usel + (selopts.Count - 1)) % selopts.Count;
+                            selopts[usel].Y = 128 + 96;
+                            selopts[usel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.Linear));
+                            selopts[usel].AddSubOperation(SpritePatterns.Move(15, selopts[usel].X, selopts[usel].Y - 96, Easing.OutQuad));
+                        }
+                        if ((tstate.Direction & GamepadDirection.Down) != 0)
+                        {
+                            selopts[usel].AddSubOperation(SpritePatterns.Alpha(15, 0, Easing.Linear));
+                            selopts[usel].AddSubOperation(SpritePatterns.Move(15, selopts[usel].X, selopts[usel].Y + 96, Easing.OutQuad));
+                            usel = (usel + 1) % selopts.Count;
+                            selopts[usel].Y = 128 - 96;
+                            selopts[usel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.Linear));
+                            selopts[usel].AddSubOperation(SpritePatterns.Move(15, selopts[usel].X, selopts[usel].Y + 96, Easing.OutQuad));
                         }
                         break;
                     case 1:
+                        if (tstate.Buttons[1])
+                        {
+                            cstate = 0;
+                        }
                         break;
                 }
                 prevstate = state;
                 yield return true;
             }
         EXIT: ;
+        }
+
+        public void RefreshOptionInformation()
+        {
+            seltype.Value = osi[usel].Name;
+
         }
     }
 

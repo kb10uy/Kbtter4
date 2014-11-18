@@ -14,9 +14,24 @@ namespace Kbtter5
     {
         public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
         {
+            NoneOptionInformation,
             LinearLaserOptionInformation,
             HomingShotOptionInformation
         };
+
+        #region None
+        public static OptionSelectionInformation NoneOptionInformation = new OptionSelectionInformation()
+        {
+            Name = "なし",
+            Description = "いるだけで何もしません",
+            Operation = NoneOption,
+        };
+
+        public static IEnumerator<bool> NoneOption(PlayerOption option, OptionInitializationInformation info)
+        {
+            while (true) yield return true;
+        }
+        #endregion
 
         #region LinearLaserOption
         public static OptionSelectionInformation LinearLaserOptionInformation = new OptionSelectionInformation()

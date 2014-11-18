@@ -45,6 +45,8 @@ namespace Kbtter5
         public static int ImageTitleMenuQuick = DX.LoadGraph(GetCommonImagePath("title_menu_quick.png"));
         public static int ImageTitleMenuRanking = DX.LoadGraph(GetCommonImagePath("title_menu_ranking.png"));
         public static int ImageTitleMenuOption = DX.LoadGraph(GetCommonImagePath("title_menu_option.png"));
+        
+        public static int ImageOptionEditEnd = DX.LoadGraph(GetCommonImagePath("option_end.png"));
 
         public static int StageWidth = 640;
         public static int StageHeight = 480;
@@ -323,6 +325,72 @@ namespace Kbtter5
                 }
 
             }
+            return ImageHandles[(long)user.Id];
+        }
+    }
+
+    public static class BigUserImageManager
+    {
+        public static int ImageSize = 96;
+        private static Dictionary<long, int> ImageHandles = new Dictionary<long, int>();
+        private static HashSet<long> CachedIds = new HashSet<long>();
+
+        static BigUserImageManager()
+        {
+            LoadCachedUser();
+        }
+
+        private static void ClearCache()
+        {
+        }
+
+        private static void LoadCachedUser()
+        {
+            var path = Path.Combine(CommonObjects.DataDirectory, "icon_cache_big");
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            var di = new DirectoryInfo(path);
+            foreach (var i in di.GetFiles())
+            {
+                //ImageHandles[Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name))] = DX.LoadGraph(i.FullName);
+                CachedIds.Add(Convert.ToInt64(Path.GetFileNameWithoutExtension(i.Name)));
+            }
+            //DX.SetUseASyncLoadFlag(DX.TRUE);
+        }
+
+        public static int GetUserImage(User user)
+        {
+            if (user == null || user.Id == null) return 0;
+            var target = Path.Combine(
+                            CommonObjects.DataDirectory,
+                            "icon_cache_big",
+                            string.Format("{0}.{1}", user.Id, "png"));
+            if (!CachedIds.Contains((long)user.Id))
+            {
+                //未キャッシュ
+                if (!File.Exists(target))
+                    using (var wc = new WebClient())
+                    using (var st = wc.OpenRead(user.ProfileImageUrlHttps))
+                    {
+                        var bm = new Bitmap(st);
+                        var sav = new Bitmap(bm, 96, 96);
+                        try
+                        {
+                            sav.Save(target);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                ImageHandles[(long)user.Id] = DX.LoadGraph(target);
+            }
+            else if (!ImageHandles.ContainsKey((long)user.Id))
+            {
+                //未ロード
+                ImageHandles[(long)user.Id] = DX.LoadGraph(target);
+            }
+
             return ImageHandles[(long)user.Id];
         }
     }
