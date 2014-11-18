@@ -14,7 +14,8 @@ namespace Kbtter5
     {
         public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
         {
-            LinearLaserOptionInformation
+            LinearLaserOptionInformation,
+            HomingShotOptionInformation
         };
 
         #region LinearLaserOption
@@ -31,6 +32,37 @@ namespace Kbtter5
         {
             while (true) yield return true;
         }
+        #endregion
+
+        #region HomingShotOption
+        public static OptionSelectionInformation HomingShotOptionInformation = new OptionSelectionInformation()
+        {
+            Name = "ホーミング",
+            Description = "ホーミング弾です",
+            Operation = HomingShotOption,
+            ModeStrings = new[] { "ショット性能重視", "カーブ性能重視" },
+            UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode | OptionSelectionValue.StringValue,
+            UserValueDescription = new Dictionary<OptionSelectionValue, string> 
+            {
+                { OptionSelectionValue.StringValue, "あ" }
+            }
+        };
+
+        public static IEnumerator<bool> HomingShotOption(PlayerOption option, OptionInitializationInformation info)
+        {
+            while (true) yield return true;
+        }
+        #endregion
+
+        #region ユーティリティ
+        public static IReadOnlyList<OptionSelectionValue> GetDecomposedValues(this OptionSelectionValue v)
+        {
+            var ret = new List<OptionSelectionValue>();
+            var em = Enum.GetValues(typeof(OptionSelectionValue)).Cast<OptionSelectionValue>();
+            foreach (var i in em) if ((v & i) != 0) ret.Add(i);
+            return ret;
+        }
+
         #endregion
     }
 
@@ -67,7 +99,7 @@ namespace Kbtter5
         public IReadOnlyList<string> ModeStrings { get; set; }
         public OptionOperation Operation { get; set; }
         public OptionSelectionValue UserValueCombination { get; set; }
-
+        public IReadOnlyDictionary<OptionSelectionValue, string> UserValueDescription { get; set; }
     }
 
     [Flags]

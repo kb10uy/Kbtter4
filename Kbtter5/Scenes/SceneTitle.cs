@@ -1041,7 +1041,11 @@ namespace Kbtter5.Scenes
     public class TitleChildSceneOptionEdit : ChildScene
     {
         private GamepadState state, tstate, prevstate;
-        StringSprite sum;
+        StringSprite sum, type, mode;
+        List<StringSprite> uvdesc, uvs;
+        MultiAdditionalCoroutineSprite[] udc;
+        MultiAdditionalCoroutineSprite mc;
+        MenuAllocationInformation[] uvsmal;
         int cstate = 0;
         User[] opts;
 
@@ -1049,12 +1053,53 @@ namespace Kbtter5.Scenes
         {
             opts = op;
             sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集…はまだ実装してないからZ押せ", X = 85, Y = 8 };
+            type = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備タイプ", X = 160, Y = 32 + 8 };
+            mode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "モード", X = 160, Y = 64 + 8 };
+            uvdesc = new List<StringSprite>()
+            {
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション1", X = 160, Y = 96 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション2", X = 160, Y = 128 + 8 },       
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション3", X = 160, Y = 160 + 8 },
+            };
+
+            uvs = new List<StringSprite>();
+            uvs.Add(mode);
+            uvs.AddRange(uvdesc);
+
+            uvsmal = new[]
+            {
+                new MenuAllocationInformation{ X = 112, Y = 64 },
+                new MenuAllocationInformation{ X = 112, Y = 96 },
+                new MenuAllocationInformation{ X = 112, Y = 128 },
+                new MenuAllocationInformation{ X = 112, Y = 160 },
+            };
+
+            for (int i = 0; i < uvsmal.Length; i++)
+            {
+                uvsmal[i].AvailableChangingAction =
+                    (p, v) =>
+                    {
+                        uvs[i].Alpha = v ? 1.0 : 0.5;
+                    };
+                uvsmal[i].IsAvailable = false;
+            }
+            udc = new[] 
+            {
+                new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[2],X=64,Y=48},
+                new MultiAdditionalCoroutineSprite(){HomeX=64,HomeY=64,ScaleX=0.8,ScaleY=0.4,Image=CommonObjects.ImageCursor128[3],X=64,Y=208},
+            };
+            mc = new MultiAdditionalCoroutineSprite() { Image = CommonObjects.ImageCursor128[1], HomeX = 64, HomeY = 64, ScaleX = 0.25, ScaleY = 0.25 };
+            
         }
 
         public override IEnumerator<bool> Execute()
         {
-            Manager.Add(sum, 0);
-
+            Manager.Add(sum, 1);
+            Manager.Add(type, 1);
+            Manager.AddRangeTo(uvs, 1);
+            Manager.AddRangeTo(udc, 1);
+            foreach (var i in udc) i.AddSubOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
+            Manager.Add(mc, 2);
             Manager.OffsetX = 640;
             Manager.OffsetY = 240;
             //突入
