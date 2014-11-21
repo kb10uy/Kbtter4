@@ -12,13 +12,6 @@ namespace Kbtter5
 
     public static class OptionOperations
     {
-        public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
-        {
-            NoneOptionInformation,
-            LinearLaserOptionInformation,
-            HomingShotOptionInformation
-        };
-
         #region None
         public static OptionSelectionInformation NoneOptionInformation = new OptionSelectionInformation()
         {
@@ -69,6 +62,13 @@ namespace Kbtter5
         }
         #endregion
 
+        public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
+        {
+            NoneOptionInformation,
+            LinearLaserOptionInformation,
+            HomingShotOptionInformation
+        };
+
         #region ユーティリティ
         public static IReadOnlyList<OptionSelectionValue> GetDecomposedValues(this OptionSelectionValue v)
         {
@@ -77,6 +77,22 @@ namespace Kbtter5
             foreach (var i in em) if ((v & i) != 0) ret.Add(i);
             return ret;
         }
+
+        public static IReadOnlyList<string> OptionDirectionDescriptions = new List<string>
+        {
+            "未定義",
+            "右",
+            "右下",
+            "下",
+            "左下",
+            "左",
+            "左上",
+            "上",
+            "右上",
+            "プレイヤーに従う",
+            "最も近い敵",
+            "ランダム"
+        };
 
         #endregion
     }
@@ -131,6 +147,7 @@ namespace Kbtter5
 
     public enum OptionDirection
     {
+        Undefined = 0,
         Right,
         DownerRight,
         Down,
@@ -139,7 +156,6 @@ namespace Kbtter5
         UpperLeft,
         Up,
         UpperRight,
-        Undefined,
         PlayerFollowing,
         NearestEnemy,
         Random,

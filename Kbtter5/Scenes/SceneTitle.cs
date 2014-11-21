@@ -1041,34 +1041,36 @@ namespace Kbtter5.Scenes
     public class TitleChildSceneOptionEdit : ChildScene
     {
         private GamepadState state, tstate, prevstate;
-        StringSprite sum, type, mode, seltype, selmode;
-        List<StringSprite> uvdesc, ipuvdesc, uvs;
+        StringSprite sum, type, dirc, mode, seltype, seldirc, selmode;
+        List<StringSprite> uvdesc, ipuvdesc, uvs, seluvs;
         MultiAdditionalCoroutineSprite[] udc;
         MultiAdditionalCoroutineSprite mc;
-        MenuAllocationInformation[] uvsmal;
+        List<MenuAllocationInformation> uvsmal;
         int cstate = 0, usel = 0, smsel = 0, avu;
         User[] opts;
-        OptionSelectionInformation[] osi;
+        int[] osi;
         OptionInitializationInformation[] oii;
         List<MultiAdditionalCoroutineSprite> selopts;
 
         public TitleChildSceneOptionEdit(User[] op)
         {
             opts = op;
-            osi = new OptionSelectionInformation[opts.Length];
+            osi = new int[opts.Length];
             oii = new OptionInitializationInformation[opts.Length];
             sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集", X = 230, Y = 8 };
             type = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備タイプ", X = 160, Y = 32 + 8 };
-            mode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "モード", X = 160, Y = 64 + 8 };
+            dirc = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備方向", X = 160, Y = 64 + 8 };
+            mode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "モード", X = 160, Y = 96 + 8 };
             uvdesc = new List<StringSprite>()
             {
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション1", X = 160, Y = 96 + 8 },
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション2", X = 160, Y = 128 + 8 },       
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション3", X = 160, Y = 160 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション1", X = 160, Y = 128 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション2", X = 160, Y = 160 + 8 },       
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション3", X = 160, Y = 192 + 8 },
             };
 
             seltype = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 32 + 8 };
-            selmode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 64 + 8 };
+            seldirc = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 64 + 8 };
+            selmode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 96 + 8 };
             ipuvdesc = new List<StringSprite>()
             {
                 new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 96 + 8 },
@@ -1077,25 +1079,38 @@ namespace Kbtter5.Scenes
             };
 
             uvs = new List<StringSprite>();
+            uvs.Add(type);
+            uvs.Add(dirc);
             uvs.Add(mode);
             uvs.AddRange(uvdesc);
 
-            uvsmal = new[]
+            seluvs = new List<StringSprite>();
+            seluvs.Add(seltype);
+            seluvs.Add(seldirc);
+            seluvs.Add(selmode);
+            seluvs.AddRange(ipuvdesc);
+
+            uvsmal = new List<MenuAllocationInformation>
             {
+                new MenuAllocationInformation{ X = 144, Y = 48 },
                 new MenuAllocationInformation{ X = 144, Y = 80 },
                 new MenuAllocationInformation{ X = 144, Y = 112 },
                 new MenuAllocationInformation{ X = 144, Y = 144 },
                 new MenuAllocationInformation{ X = 144, Y = 172 },
+                new MenuAllocationInformation{ X = 144, Y = 204 },
             };
 
-            for (int i = 0; i < uvsmal.Length; i++)
+            for (int i = 0; i < uvsmal.Count; i++)
             {
+                int ci = i;
+                uvsmal[i].Upper = uvsmal[(i + uvsmal.Count - 1) % uvsmal.Count];
+                uvsmal[i].Lower = uvsmal[(i + 1) % uvsmal.Count];
                 uvsmal[i].AvailableChangingAction =
                     (p, v) =>
                     {
-                        uvs[i].Alpha = v ? 1.0 : 0.5;
+                        uvs[ci].Alpha = seluvs[ci].Alpha = v ? 1.0 : 0.5;
                     };
-                uvsmal[i].IsAvailable = false;
+                if (i >= 1) uvsmal[i].IsAvailable = false;
             }
 
             udc = new[] 
@@ -1112,7 +1127,7 @@ namespace Kbtter5.Scenes
             avu = selopts.Count;
             for (int i = 0; i < avu; i++)
             {
-                osi[i] = OptionOperations.SelectionInformation[0];
+                osi[i] = 0;
                 oii[i] = new OptionInitializationInformation();
             }
             selopts.Add(new MultiAdditionalCoroutineSprite() { HomeX = 48, HomeY = 48, X = 64, Y = 128, Image = CommonObjects.ImageOptionEditEnd, Alpha = 0 });
@@ -1126,11 +1141,8 @@ namespace Kbtter5.Scenes
         public override IEnumerator<bool> Execute()
         {
             Manager.Add(sum, 1);
-            Manager.Add(type, 1);
             Manager.AddRangeTo(uvs, 1);
-            Manager.Add(seltype, 1);
-            Manager.Add(selmode, 1);
-            Manager.AddRangeTo(ipuvdesc, 1);
+            Manager.AddRangeTo(seluvs, 1);
             Manager.AddRangeTo(udc, 2);
             foreach (var i in udc) i.AddSubOperation(SpritePatterns.Blink(30, 0.8, Easing.Linear));
             Manager.Add(mc, 2);
@@ -1177,7 +1189,7 @@ namespace Kbtter5.Scenes
                             }
                             else
                             {
-                                cstate = 1;
+                                GoToEditingMode();
                             }
                         }
                         if ((tstate.Direction & GamepadDirection.Up) != 0)
@@ -1188,6 +1200,9 @@ namespace Kbtter5.Scenes
                             selopts[usel].Y = 128 + 96;
                             selopts[usel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.Linear));
                             selopts[usel].AddSubOperation(SpritePatterns.Move(15, selopts[usel].X, selopts[usel].Y - 96, Easing.OutQuad));
+                            if (usel < avu) RefreshOptionInformation(false);
+                            smsel = 0;
+                            mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
                         }
                         if ((tstate.Direction & GamepadDirection.Down) != 0)
                         {
@@ -1197,13 +1212,13 @@ namespace Kbtter5.Scenes
                             selopts[usel].Y = 128 - 96;
                             selopts[usel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.Linear));
                             selopts[usel].AddSubOperation(SpritePatterns.Move(15, selopts[usel].X, selopts[usel].Y + 96, Easing.OutQuad));
+                            if (usel < avu) RefreshOptionInformation(false);
+                            smsel = 0;
+                            mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
                         }
                         break;
                     case 1:
-                        if (tstate.Buttons[1])
-                        {
-                            cstate = 0;
-                        }
+                        SubMenuOperation();
                         break;
                 }
                 prevstate = state;
@@ -1212,10 +1227,103 @@ namespace Kbtter5.Scenes
         EXIT: ;
         }
 
-        public void RefreshOptionInformation()
+        public void SubMenuOperation()
         {
-            seltype.Value = osi[usel].Name;
+            if ((tstate.Direction & GamepadDirection.Up) != 0)
+            {
+                do
+                {
+                    var tm = uvsmal.IndexOf(uvsmal[smsel].Upper);
+                    if (tm != -1) smsel = tm;
+                } while (!uvsmal[smsel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
+            }
+            if ((tstate.Direction & GamepadDirection.Down) != 0)
+            {
+                do
+                {
+                    var tm = uvsmal.IndexOf(uvsmal[smsel].Lower);
+                    if (tm != -1) smsel = tm;
+                } while (!uvsmal[smsel].IsAvailable);
+                mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
+            }
+            switch (smsel)
+            {
+                case 0:
+                    if ((tstate.Direction & GamepadDirection.Left) != 0)
+                    {
+                        osi[usel] = (osi[usel] + (OptionOperations.SelectionInformation.Count - 1)) % OptionOperations.SelectionInformation.Count;
+                        RefreshOptionInformation(true);
+                    }
+                    if ((tstate.Direction & GamepadDirection.Right) != 0)
+                    {
+                        osi[usel] = (osi[usel] + 1) % OptionOperations.SelectionInformation.Count;
+                        RefreshOptionInformation(true);
+                    }
+                    break;
+                case 1:
+                    if ((tstate.Direction & GamepadDirection.Left) != 0)
+                    {
+                        oii[usel].Direction = (OptionDirection)((int)(oii[usel].Direction + (OptionOperations.OptionDirectionDescriptions.Count - 1)) % OptionOperations.OptionDirectionDescriptions.Count);
+                        RefreshOptionInformation(true);
+                    }
+                    if ((tstate.Direction & GamepadDirection.Right) != 0)
+                    {
+                        oii[usel].Direction = (OptionDirection)((int)(oii[usel].Direction + 1) % OptionOperations.OptionDirectionDescriptions.Count);
+                        RefreshOptionInformation(true);
+                    }
+                    break;
+                case 2:
+                    var tosi = OptionOperations.SelectionInformation[osi[usel]];
+                    if ((tstate.Direction & GamepadDirection.Left) != 0)
+                    {
+                        oii[usel].Mode = (oii[usel].Mode + (tosi.ModeStrings.Count - 1)) % tosi.ModeStrings.Count;
+                        RefreshOptionInformation(true);
+                    }
+                    if ((tstate.Direction & GamepadDirection.Right) != 0)
+                    {
+                        oii[usel].Mode = (oii[usel].Mode + 1) % tosi.ModeStrings.Count;
+                        RefreshOptionInformation(true);
+                    }
+                    break;
+            }
+            if (tstate.Buttons[1])
+            {
+                cstate = 0;
+            }
+        }
 
+        public void GoToEditingMode()
+        {
+            cstate = 1;
+        }
+
+        public void RefreshOptionInformation(bool changing)
+        {
+            var tosi = OptionOperations.SelectionInformation[osi[usel]];
+            var al = tosi.UserValueCombination.GetDecomposedValues();
+            for (int i = 1; i < uvsmal.Count; i++)
+            {
+                seluvs[i].Value = "";
+                uvsmal[i].IsAvailable = false;
+            }
+
+            foreach (var i in al)
+            {
+                switch (i)
+                {
+                    case OptionSelectionValue.Direction:
+                        uvsmal[1].IsAvailable = true;
+                        break;
+                    case OptionSelectionValue.Mode:
+                        uvsmal[2].IsAvailable = true;
+                        selmode.Value = tosi.ModeStrings[oii[usel].Mode];
+                        break;
+                }
+            }
+
+            seltype.Value = tosi.Name;
+            seldirc.Value = OptionOperations.OptionDirectionDescriptions[(int)oii[usel].Direction];
         }
     }
 
