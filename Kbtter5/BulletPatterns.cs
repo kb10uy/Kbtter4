@@ -70,12 +70,12 @@ namespace Kbtter5
             }
         }
 
-        public static CoroutineFunction<UserSprite, Bullet> LazyHomingToEnemy(PlayerUser u, double startAngle, double startSpeed, int delay, double homingSpeed)
+        public static CoroutineFunction<UserSprite, PlayerBullet> LazyHomingToEnemy(PlayerUser u, double startAngle, double startSpeed, int delay, double homingSpeed)
         {
             return (par, b) => LazyHomingToEnemy(u, b, startAngle, startSpeed, delay, homingSpeed);
         }
 
-        private static IEnumerator<bool> LazyHomingToEnemy(PlayerUser par, Bullet b, double startAngle, double startSpeed, int delay, double homingSpeed)
+        private static IEnumerator<bool> LazyHomingToEnemy(PlayerUser par, PlayerBullet b, double startAngle, double startSpeed, int delay, double homingSpeed)
         {
             for (int i = 0; i < delay; i++)
             {

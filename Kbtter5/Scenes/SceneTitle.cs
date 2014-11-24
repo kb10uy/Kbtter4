@@ -1316,13 +1316,13 @@ namespace Kbtter5.Scenes
                     if ((tstate.Direction & GamepadDirection.Left) != 0)
                     {
                         oii[usel].Direction = (OptionDirection)((int)(oii[usel].Direction + (OptionOperations.OptionDirectionDescriptions.Count - 1)) % OptionOperations.OptionDirectionDescriptions.Count);
-                        RefreshOptionInformation(true);
+                        RefreshOptionInformation(false);
                         CommonObjects.SoundMenuSelect.Play();
                     }
                     if ((tstate.Direction & GamepadDirection.Right) != 0)
                     {
                         oii[usel].Direction = (OptionDirection)((int)(oii[usel].Direction + 1) % OptionOperations.OptionDirectionDescriptions.Count);
-                        RefreshOptionInformation(true);
+                        RefreshOptionInformation(false);
                         CommonObjects.SoundMenuSelect.Play();
                     }
                     break;
@@ -1331,13 +1331,13 @@ namespace Kbtter5.Scenes
                     if ((tstate.Direction & GamepadDirection.Left) != 0)
                     {
                         oii[usel].Mode = (oii[usel].Mode + (tosi.ModeStrings.Count - 1)) % tosi.ModeStrings.Count;
-                        RefreshOptionInformation(true);
+                        RefreshOptionInformation(false);
                         CommonObjects.SoundMenuSelect.Play();
                     }
                     if ((tstate.Direction & GamepadDirection.Right) != 0)
                     {
                         oii[usel].Mode = (oii[usel].Mode + 1) % tosi.ModeStrings.Count;
-                        RefreshOptionInformation(true);
+                        RefreshOptionInformation(false);
                         CommonObjects.SoundMenuSelect.Play();
                     }
                     break;
@@ -1479,7 +1479,20 @@ namespace Kbtter5.Scenes
             {
                 uvdesc[i].Value = String.Format("装備固有オプション{0}", i + 1);
             }
-
+            if (changing)
+            {
+                oii[usel].Direction = tosi.DefaultValue.Direction;
+                oii[usel].Mode = tosi.DefaultValue.Mode;
+                oii[usel].UserInt32Value1 = tosi.DefaultValue.UserInt32Value1;
+                oii[usel].UserInt32Value2 = tosi.DefaultValue.UserInt32Value2;
+                oii[usel].UserInt32Value3 = tosi.DefaultValue.UserInt32Value3;
+                oii[usel].UserDoubleValue1 = tosi.DefaultValue.UserDoubleValue1;
+                oii[usel].UserDoubleValue2 = tosi.DefaultValue.UserDoubleValue2;
+                oii[usel].UserDoubleValue3 = tosi.DefaultValue.UserDoubleValue3;
+                oii[usel].UserStringValue1 = tosi.DefaultValue.UserStringValue1;
+                oii[usel].UserStringValue2 = tosi.DefaultValue.UserStringValue2;
+                oii[usel].UserStringValue3 = tosi.DefaultValue.UserStringValue3;
+            }
             seltype.Value = tosi.Name;
             var uvu = 0;
             foreach (var i in al)

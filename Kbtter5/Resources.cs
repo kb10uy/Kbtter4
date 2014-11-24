@@ -45,6 +45,7 @@ namespace Kbtter5
         public static int ImageStar = DX.LoadGraph(GetCommonImagePath("shot2.png"));
 
         public static int ImageLaser16 = DX.LoadGraph(GetCommonImagePath("laser1.png"));
+        public static int ImageLaser8 = DX.LoadGraph(GetCommonImagePath("laser2.png"));
 
         public static int ImageTitleMenuStart = DX.LoadGraph(GetCommonImagePath("title_menu_start.png"));
         public static int ImageTitleMenuQuick = DX.LoadGraph(GetCommonImagePath("title_menu_quick.png"));

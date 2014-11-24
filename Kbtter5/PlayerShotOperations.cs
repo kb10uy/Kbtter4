@@ -32,7 +32,7 @@ namespace Kbtter5
                     if (pad.ExtraDirection == (PlayerInputDirection.Up | PlayerInputDirection.Right)) dr = 7;
 
                     player.ParentManager.Add(
-                        new PlayerImageBullet(player, BulletPatterns.Linear(Math.PI / 4.0 * dr, 8, 90),
+                        new PlayerImageBullet(player, Linear(Math.PI / 4.0 * dr, 8, 90),
                         CommonObjects.ImageShot, player.ShotStrength)
                     {
                         X = player.X,
@@ -44,6 +44,23 @@ namespace Kbtter5
                 count++;
                 yield return true;
             }
+        }
+
+        private static CoroutineFunction<UserSprite, PlayerBullet> Linear(double angle, double speed, int time)
+        {
+            return (par, b) => Linear(par, b, angle, speed, time);
+        }
+
+        private static IEnumerator<bool> Linear(UserSprite par, PlayerBullet b, double angle, double speed, int time)
+        {
+            for (int i = 0; i < time; i++)
+            {
+                b.X += Math.Cos(angle) * speed;
+                b.Y += Math.Sin(angle) * speed;
+                yield return true;
+            }
+            b.IsDead = true;
+            yield break;
         }
     }
 }

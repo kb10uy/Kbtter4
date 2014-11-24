@@ -185,48 +185,7 @@ namespace Kbtter5
         }
     }
 
-    public class PlayerImageBullet : Bullet
-    {
-        public PlayerUser Parent { get; protected set; }
-        public int Strength { get; protected set; }
-
-        public PlayerImageBullet(PlayerUser pa, CoroutineFunction<UserSprite, Bullet> op, int i, int s)
-        {
-            Parent = pa;
-            Operation = op(Parent, this);
-            Image = i;
-            IsImageLoaded = true;
-            Strength = s;
-            CollisionRadius = 8;
-            MyKind = ObjectKind.PlayerBullet;
-            TargetKind = ObjectKind.Enemy;
-        }
-
-        public override IEnumerator<bool> Tick()
-        {
-            while (!IsDead)
-            {
-                IsDead = !(Operation.MoveNext() && Operation.Current);
-                if (X <= -HomeX || X >= HomeX + CommonObjects.StageWidth || Y <= -HomeY || Y >= HomeY + CommonObjects.StageHeight) IsDead = true;
-
-                foreach (var i in ParentManager.OfType<EnemyUser>().Where(p =>
-                {
-                    var tg = p.MyKind != MyKind && ((p.DamageKind & MyKind) != 0);
-                    var xd = X - p.X;
-                    var yd = Y - p.Y;
-                    var zd = CollisionRadius + p.CollisionRadius;
-                    var cl = (xd * xd + yd * yd) < zd * zd;
-                    return tg && cl;
-                }))
-                {
-                    i.Damage(Strength);
-                    IsDead = true;
-                    break;
-                }
-                yield return true;
-            }
-        }
-    }
+    
 
     public class UserInformation
     {

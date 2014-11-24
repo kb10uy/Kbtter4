@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CoreTweet;
 using DxLibDLL;
+using EasingSharp;
 
 namespace Kbtter5
 {
@@ -33,33 +34,190 @@ namespace Kbtter5
             Description = "普通のレーザーです",
             Operation = LinearLaserOption,
             ModeStrings = new[] { "Kbtter5", "魔理沙" },
-            UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode
+            UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode,
+            DefaultValue = new OptionInitializationInformation()
+            {
+                Direction = OptionDirection.Up,
+                Mode = 1,
+            }
         };
 
-        public static IEnumerator<bool> LinearLaserOption(PlayerOption option, OptionInitializationInformation info)
+        private static IEnumerator<bool> LinearLaserOption(PlayerOption option, OptionInitializationInformation info)
         {
-            while (true) yield return true;
+            var s = false;
+            var ps = false;
+            var la = false;
+            PlayerLinearLaser ls = null;
+
+            while (true)
+            {
+                s = option.Parent.IsShottableTiming;
+                if (!ps && s)
+                {
+                    la = true;
+                    ls = new PlayerLinearLaser(option, LinearLaserMarisaStyle, 8, CommonObjects.ImageLaser8)
+                    {
+                        Angle = GetAngle(info.Direction) ?? 0,
+                        X = option.X,
+                        Y = option.Y
+                    };
+                    option.ParentManager.Add(ls, (int)GameLayer.PlayerBullet);
+                }
+                if (ps && !s)
+                {
+                    la = false;
+                    ls.AddSubOperation(LaserThrowAway(ls.Angle, 20));
+                }
+                if (la)
+                {
+                    ls.X = option.X;
+                    ls.Y = option.Y;
+                }
+                ps = s;
+                yield return true;
+            }
         }
+
+        private static IEnumerator<bool> LinearLaserMarisaStyle(UserSprite par, PlayerLinearLaser laser)
+        {
+            laser.BrightR = (byte)((long)par.SourceUser.Id & 0xFF);
+            laser.BrightG = (byte)((long)(par.SourceUser.Id >> 8) & 0xFF);
+            laser.BrightB = (byte)((long)(par.SourceUser.Id >> 16) & 0xFF);
+            while (true)
+            {
+                if (laser.Length < 800) laser.Length += 20;
+                yield return true;
+            }
+        }
+
+        private static CoroutineFunction<MultiAdditionalCoroutineSprite> LaserThrowAway(double angle, double speed)
+        {
+            return sp => LaserThrowAwayFunction(sp, angle, speed);
+        }
+
+        private static IEnumerator<bool> LaserThrowAwayFunction(MultiAdditionalCoroutineSprite sp, double angle, double speed)
+        {
+            while (true)
+            {
+                sp.X += Math.Cos(angle) * speed;
+                sp.Y += Math.Sin(angle) * speed;
+                yield return true;
+            }
+        }
+
+        #endregion
+
+        #region FollwingAttackOption
+        private static OptionSelectionInformation FollwingAttackOptionInformation = new OptionSelectionInformation()
+        {
+            Name = "サーチアンドデストロイ",
+            Description = "近くの敵に特攻を仕掛けまくります",
+            ModeStrings = new[] { "広く弱く", "狭く強く", "なみなみ" },
+            Operation = FollwingAttackOption,
+            UserValueCombination = OptionSelectionValue.Mode,
+            DefaultValue = new OptionInitializationInformation()
+            {
+                Mode = 2
+            }
+        };
+
+        private static IEnumerator<bool> FollwingAttackOption(PlayerOption option, OptionInitializationInformation info)
+        {
+            bool tg = false;
+            EnemyUser target = null;
+            var tl = option.ParentManager.OfType<EnemyUser>()
+                .Where(p =>
+                {
+                    var x = p.X - option.X;
+                    var y = p.Y - option.Y;
+                    return Math.Sqrt(x * x + y * y) <= 200;
+                });
+            while (true)
+            {
+                target = tl.FirstOrDefault();
+                if (target == null && tg)
+                {
+                    tg = false;
+                    var sx = option.X;
+                    var sy = option.Y;
+                    for (int i = 0; i < 30; i++)
+                    {
+                        option.PreventParentOperation();
+                        option.X = Easing.OutQuad(i, 30, sx, option.Parent.X - sx);
+                        option.Y = Easing.OutQuad(i, 30, sy, option.Parent.Y - sy);
+                        yield return true;
+                    }
+                }
+                else if (!tg && target != null)
+                {
+                    tg = true;
+                    while (target != null)
+                    {
+                        var sx = option.X;
+                        var sy = option.Y;
+                        //同じ敵から同時に帰ってくると見栄えしないのでランダム
+                        var rw = rnd.Next(10);
+                        for (int i = 0; i < rw; i++)
+                        {
+                            option.PreventParentOperation();
+                            yield return true;
+                        }
+                        for (int i = 0; i < 30; i++)
+                        {
+                            option.PreventParentOperation();
+                            option.X = Easing.OutQuad(i, 30, sx, target.X - sx);
+                            option.Y = Easing.OutQuad(i, 30, sy, target.Y - sy);
+                            yield return true;
+                        }
+                        while (!target.IsDead)
+                        {
+                            option.PreventParentOperation();
+                            option.X = target.X;
+                            option.Y = target.Y;
+                            target.Damage(100);
+                            yield return true;
+                        }
+                        tl = option.ParentManager.OfType<EnemyUser>()
+                        .Where(p =>
+                        {
+                            var x = p.X - option.X;
+                            var y = p.Y - option.Y;
+                            return Math.Sqrt(x * x + y * y) <= 200;
+                        });
+                        target = tl.FirstOrDefault();
+                    }
+                }
+                else
+                {
+                    yield return true;
+                }
+            }
+        }
+
         #endregion
 
         #region HomingShotOption
-        public static OptionSelectionInformation HomingShotOptionInformation = new OptionSelectionInformation()
+        private static OptionSelectionInformation HomingShotOptionInformation = new OptionSelectionInformation()
         {
             Name = "ホーミング",
             Description = "ホーミング弾です",
             Operation = HomingShotOption,
-            ModeStrings = new[] { "ショット性能重視", "カーブ性能重視" },
+            ModeStrings = new[] { "ショット性能重視", "カーブ性能重視","バランス重視" },
             UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode,
+            DefaultValue = new OptionInitializationInformation()
+            {
+                Mode = 2
+            }
         };
 
-        public static IEnumerator<bool> HomingShotOption(PlayerOption option, OptionInitializationInformation info)
+        private static IEnumerator<bool> HomingShotOption(PlayerOption option, OptionInitializationInformation info)
         {
             while (true) yield return true;
         }
         #endregion
 
         #region StringAdvertisementOption
-        public static OptionSelectionInformation StringAdvertisementOptionInformation = new OptionSelectionInformation()
+        private static OptionSelectionInformation StringAdvertisementOptionInformation = new OptionSelectionInformation()
         {
             Name = "文字列表示",
             Description = "好きな文字列を表示します。",
@@ -88,7 +246,7 @@ namespace Kbtter5
             }
         };
 
-        public static IEnumerator<bool> StringAdvertisementOption(PlayerOption option, OptionInitializationInformation info)
+        private static IEnumerator<bool> StringAdvertisementOption(PlayerOption option, OptionInitializationInformation info)
         {
             var cv = info.UserStringValue2.Split(',').Select(p => Convert.ToInt32(p)).ToArray();
 
@@ -108,11 +266,14 @@ namespace Kbtter5
         {
             NoneOptionInformation,
             LinearLaserOptionInformation,
+            FollwingAttackOptionInformation,
             HomingShotOptionInformation,
             StringAdvertisementOptionInformation,
         };
 
         #region ユーティリティ
+        private static Xorshift128Random rnd = new Xorshift128Random();
+
         public static IReadOnlyList<OptionSelectionValue> GetDecomposedValues(this OptionSelectionValue v)
         {
             var ret = new List<OptionSelectionValue>();
@@ -136,6 +297,30 @@ namespace Kbtter5
             "最も近い敵",
             "ランダム"
         };
+
+        public static double? GetAngle(OptionDirection d)
+        {
+            switch ((int)d)
+            {
+                case 0:
+                case 9:
+                case 10:
+                    return null;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    return Math.PI * 2.0 / 8.0 * ((int)d - 1);
+                case 11:
+                    return rnd.NextDouble() * Math.PI * 2;
+                default:
+                    return null;
+            }
+        }
 
         #endregion
     }

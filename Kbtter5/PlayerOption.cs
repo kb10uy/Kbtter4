@@ -33,6 +33,7 @@ namespace Kbtter5
         public PlayerOption(PlayerUser p, OptionInformation user)
             : this()
         {
+            Parent = p;
             Information = user;
             SourceUser = Information.SourceUser;
             Image = UserImageManager.GetUserImage(SourceUser);
