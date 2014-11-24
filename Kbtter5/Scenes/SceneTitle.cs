@@ -207,7 +207,7 @@ namespace Kbtter5.Scenes
                 }
             }
         EXIT:
-            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]), optusers);
+            Kbtter5.CurrentScene = new SceneGame(info.Accounts[selac], new UserInformation(info.Users[selac]), optinfo);
         }
 
         public override void SendChildMessage(string mes)
@@ -259,6 +259,10 @@ namespace Kbtter5.Scenes
                     var ui = obj as User;
                     optusers[Convert.ToInt32(tg[1])] = ui;
                     optinfo[Convert.ToInt32(tg[1])] = new OptionInformation(ui);
+                    break;
+                case "ApplyOptionInformation":
+                    var ol = obj as OptionInformation[];
+                    optinfo = ol;
                     break;
             }
         }
@@ -1204,6 +1208,14 @@ namespace Kbtter5.Scenes
                             CommonObjects.SoundMenuOK.Play();
                             if (usel == selopts.Count - 1)
                             {
+                                var ol = new OptionInformation[5];
+                                for (int i = 0; i < avu; i++)
+                                {
+                                    ol[i] = new OptionInformation(opts[i]);
+                                    ol[i].TargetOperation = OptionOperations.SelectionInformation[osi[i]].Operation;
+                                    ol[i].InitializationInformation = oii[i];
+                                }
+                                Parent.SendChildMessage("ApplyOptionInformation", ol);
                                 Parent.SendChildMessage("StartGame");
                                 for (int i = 0; i < 40; i++)
                                 {
@@ -1338,6 +1350,7 @@ namespace Kbtter5.Scenes
                         seluvs[smsel].Alpha = 0;
                         Manager.Add(ki, 2);
                         cstate = 2;
+                        CommonObjects.SoundMenuOK.Play();
                     }
                     break;
             }
@@ -1386,6 +1399,10 @@ namespace Kbtter5.Scenes
                         toii.UserInt32Value2 = Convert.ToInt32(ki.InputString);
                         ipuvdesc[uvi].Value = toii.UserInt32Value2.ToString();
                         break;
+                    case OptionSelectionValue.Int32Value3:
+                        toii.UserInt32Value3 = Convert.ToInt32(ki.InputString);
+                        ipuvdesc[uvi].Value = toii.UserInt32Value3.ToString();
+                        break;
                     case OptionSelectionValue.DoubleValue1:
                         toii.UserDoubleValue1 = Convert.ToDouble(ki.InputString);
                         ipuvdesc[uvi].Value = toii.UserDoubleValue1.ToString();
@@ -1394,9 +1411,45 @@ namespace Kbtter5.Scenes
                         toii.UserDoubleValue2 = Convert.ToDouble(ki.InputString);
                         ipuvdesc[uvi].Value = toii.UserDoubleValue2.ToString();
                         break;
-                    case OptionSelectionValue.StringValue:
-                        toii.UserStringValue = ki.InputString;
-                        ipuvdesc[uvi].Value = toii.UserStringValue;
+                    case OptionSelectionValue.DoubleValue3:
+                        toii.UserDoubleValue3 = Convert.ToDouble(ki.InputString);
+                        ipuvdesc[uvi].Value = toii.UserDoubleValue3.ToString();
+                        break;
+                    case OptionSelectionValue.StringValue1:
+                        if (tosi.DefaultValue.UserStringValue1Validation == null ||
+                            (tosi.DefaultValue.UserStringValue1Validation != null && tosi.DefaultValue.UserStringValue1Validation(ki.InputString)))
+                        {
+                            toii.UserStringValue1 = ki.InputString;
+                            ipuvdesc[uvi].Value = toii.UserStringValue1;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException();
+                        }
+                        break;
+                    case OptionSelectionValue.StringValue2:
+                        if (tosi.DefaultValue.UserStringValue2Validation == null ||
+                            (tosi.DefaultValue.UserStringValue2Validation != null && tosi.DefaultValue.UserStringValue2Validation(ki.InputString)))
+                        {
+                            toii.UserStringValue2 = ki.InputString;
+                            ipuvdesc[uvi].Value = toii.UserStringValue2;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException();
+                        }
+                        break;
+                    case OptionSelectionValue.StringValue3:
+                        if (tosi.DefaultValue.UserStringValue3Validation == null ||
+                            (tosi.DefaultValue.UserStringValue3Validation != null && tosi.DefaultValue.UserStringValue3Validation(ki.InputString)))
+                        {
+                            toii.UserStringValue3 = ki.InputString;
+                            ipuvdesc[uvi].Value = toii.UserStringValue3;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException();
+                        }
                         break;
                 }
                 return true;
@@ -1435,41 +1488,65 @@ namespace Kbtter5.Scenes
                 {
                     case OptionSelectionValue.Direction:
                         uvsmal[1].IsAvailable = true;
-                        seldirc.Value = OptionOperations.OptionDirectionDescriptions[(int)oii[usel].Direction];
+                        seldirc.Value = OptionOperations.OptionDirectionDescriptions[changing ? (int)tosi.DefaultValue.Direction : (int)oii[usel].Direction];
                         break;
                     case OptionSelectionValue.Mode:
                         uvsmal[2].IsAvailable = true;
-                        selmode.Value = tosi.ModeStrings[oii[usel].Mode];
+                        selmode.Value = tosi.ModeStrings[(changing ? tosi.DefaultValue : oii[usel]).Mode];
                         break;
 
                     case OptionSelectionValue.Int32Value1:
                         if (uvu >= 3) break;
                         ApplyUserValue(tosi, uvu, i);
-                        ipuvdesc[uvu].Value = oii[usel].UserInt32Value1.ToString();
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserInt32Value1.ToString();
                         uvu++;
                         break;
                     case OptionSelectionValue.Int32Value2:
                         if (uvu >= 3) break;
                         ApplyUserValue(tosi, uvu, i);
-                        ipuvdesc[uvu].Value = oii[usel].UserInt32Value2.ToString();
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserInt32Value2.ToString();
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.Int32Value3:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserInt32Value3.ToString();
                         uvu++;
                         break;
                     case OptionSelectionValue.DoubleValue1:
                         if (uvu >= 3) break;
                         ApplyUserValue(tosi, uvu, i);
-                        ipuvdesc[uvu].Value = oii[usel].UserDoubleValue1.ToString();
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserDoubleValue1.ToString();
                         uvu++;
                         break;
                     case OptionSelectionValue.DoubleValue2:
                         if (uvu >= 3) break;
                         ApplyUserValue(tosi, uvu, i);
-                        ipuvdesc[uvu].Value = oii[usel].UserDoubleValue2.ToString();
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserDoubleValue2.ToString();
                         uvu++;
                         break;
-                    case OptionSelectionValue.StringValue:
+                    case OptionSelectionValue.DoubleValue3:
                         if (uvu >= 3) break;
                         ApplyUserValue(tosi, uvu, i);
-                        ipuvdesc[uvu].Value = oii[usel].UserStringValue;
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserDoubleValue3.ToString();
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.StringValue1:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserStringValue1;
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.StringValue2:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserStringValue2;
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.StringValue3:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = (changing ? tosi.DefaultValue : oii[usel]).UserStringValue3;
                         uvu++;
                         break;
                 }

@@ -49,11 +49,7 @@ namespace Kbtter5
             Description = "ホーミング弾です",
             Operation = HomingShotOption,
             ModeStrings = new[] { "ショット性能重視", "カーブ性能重視" },
-            UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode | OptionSelectionValue.StringValue,
-            UserValueDescription = new Dictionary<OptionSelectionValue, string> 
-            {
-                { OptionSelectionValue.StringValue, "あ" }
-            }
+            UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode,
         };
 
         public static IEnumerator<bool> HomingShotOption(PlayerOption option, OptionInitializationInformation info)
@@ -63,18 +59,49 @@ namespace Kbtter5
         #endregion
 
         #region StringAdvertisementOption
-        public static OptionSelectionInformation StringAdvertisementOption = new OptionSelectionInformation()
+        public static OptionSelectionInformation StringAdvertisementOptionInformation = new OptionSelectionInformation()
         {
             Name = "文字列表示",
             Description = "好きな文字列を表示します。",
-            Operation = NoneOption,
-            UserValueCombination = OptionSelectionValue.StringValue | OptionSelectionValue.Int32Value1,
+            Operation = StringAdvertisementOption,
+            UserValueCombination = OptionSelectionValue.StringValue1 | OptionSelectionValue.StringValue2,
             UserValueDescription = new Dictionary<OptionSelectionValue, string>
             {
-                { OptionSelectionValue.StringValue, "表示文字列" },
-                { OptionSelectionValue.Int32Value1, "Int32テスト" }
+                { OptionSelectionValue.StringValue1, "表示文字列" },
+                { OptionSelectionValue.StringValue2, "色(R,G,Bの形で10進)" },
+            },
+            DefaultValue = new OptionInitializationInformation()
+            {
+                UserStringValue2 = "255,255,255",
+                UserStringValue2Validation = (p) =>
+                {
+                    try
+                    {
+                        var t = p.Split(',').Select(q => Convert.ToInt32(q)).ToArray();
+                        return t.Length == 3;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
             }
         };
+
+        public static IEnumerator<bool> StringAdvertisementOption(PlayerOption option, OptionInitializationInformation info)
+        {
+            var cv = info.UserStringValue2.Split(',').Select(p => Convert.ToInt32(p)).ToArray();
+
+            var ss = new StringSprite(CommonObjects.FontSystemMedium, DX.GetColor(cv[0], cv[1], cv[2])) { Value = info.UserStringValue1 };
+            option.ParentManager.Add(ss, (int)GameLayer.Player);
+
+            while (true)
+            {
+                ss.X = option.X;
+                ss.Y = option.Y;
+                yield return true;
+            }
+        }
         #endregion
 
         public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
@@ -82,7 +109,7 @@ namespace Kbtter5
             NoneOptionInformation,
             LinearLaserOptionInformation,
             HomingShotOptionInformation,
-            StringAdvertisementOption,
+            StringAdvertisementOptionInformation,
         };
 
         #region ユーティリティ
@@ -113,15 +140,30 @@ namespace Kbtter5
         #endregion
     }
 
+    #region 関係各クラス
     public class OptionInitializationInformation
     {
         public OptionDirection Direction { get; set; }
         public int Mode { get; set; }
         public int UserInt32Value1 { get; set; }
         public int UserInt32Value2 { get; set; }
+        public int UserInt32Value3 { get; set; }
         public double UserDoubleValue1 { get; set; }
         public double UserDoubleValue2 { get; set; }
-        public string UserStringValue { get; set; }
+        public double UserDoubleValue3 { get; set; }
+        public string UserStringValue1 { get; set; }
+        public string UserStringValue2 { get; set; }
+        public string UserStringValue3 { get; set; }
+        public Predicate<string> UserStringValue1Validation { get; set; }
+        public Predicate<string> UserStringValue2Validation { get; set; }
+        public Predicate<string> UserStringValue3Validation { get; set; }
+
+        public OptionInitializationInformation()
+        {
+            UserStringValue1 = "";
+            UserStringValue2 = "";
+            UserStringValue3 = "";
+        }
     }
 
 
@@ -148,6 +190,7 @@ namespace Kbtter5
         public OptionOperation Operation { get; set; }
         public OptionSelectionValue UserValueCombination { get; set; }
         public IReadOnlyDictionary<OptionSelectionValue, string> UserValueDescription { get; set; }
+        public OptionInitializationInformation DefaultValue { get; set; }
 
         public OptionSelectionInformation()
         {
@@ -156,6 +199,7 @@ namespace Kbtter5
             ActualUserValues = new OptionSelectionValue[3];
             ModeStrings = new List<string>();
             UserValueDescription = new Dictionary<OptionSelectionValue, string>();
+            DefaultValue = new OptionInitializationInformation();
         }
     }
 
@@ -166,9 +210,13 @@ namespace Kbtter5
         Mode = 2,
         Int32Value1 = 4,
         Int32Value2 = 8,
-        DoubleValue1 = 16,
-        DoubleValue2 = 32,
-        StringValue = 64,
+        Int32Value3 = 16,
+        DoubleValue1 = 32,
+        DoubleValue2 = 64,
+        DoubleValue3 = 128,
+        StringValue1 = 256,
+        StringValue2 = 512,
+        StringValue3 = 1024,
     }
 
     public enum OptionDirection
@@ -186,5 +234,5 @@ namespace Kbtter5
         NearestEnemy,
         Random,
     }
-
+    #endregion
 }

@@ -45,16 +45,13 @@ namespace Kbtter5.Scenes
         private Sprite Background;
         private StringSprite StringInfo;
         private InformationBox Information;
-        private User[] optusers;
-        private List<UserInformation> opui;
+        private OptionInformation[] optinfo;
         private List<PlayerOption> options;
         private double optofs = 0.0, optspeed = 0.06, optdist = 40;
 
-        public SceneGame(Kbtter4Account ac, UserInformation ui, User[] opt)
+        public SceneGame(Kbtter4Account ac, UserInformation ui, OptionInformation[] opt)
         {
-            optusers = opt;
-            opui = new List<UserInformation>();
-            opui.AddRange(optusers.Where(p => p != null).Select(p => new UserInformation(p)));
+            optinfo = opt.Where(p => p != null).ToArray();
             info = ui;
             tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             Player = new PlayerUser(this, ui, PlayerMovingOperations.MouseOperaiton, PlayerShotOperations.Default, PlayerInputMethods.DefaultStyle);
@@ -71,7 +68,7 @@ namespace Kbtter5.Scenes
                 Value = "Loading"
             };
             options = new List<PlayerOption>();
-            options.AddRange(opui.Select(p => new PlayerOption(Player, p)));
+            options.AddRange(optinfo.Select(p => new PlayerOption(Player, p)));
         }
 
         ~SceneGame()

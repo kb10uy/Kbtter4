@@ -14,7 +14,7 @@ namespace Kbtter5
     public class PlayerOption : UserSprite
     {
         public PlayerUser Parent { get; protected set; }
-        public UserInformation Information { get; protected set; }
+        public OptionInformation Information { get; protected set; }
         public IEnumerator<bool> ExecuteCoroutine { get; protected set; }
         private bool IsDefaultOperationPrevented { get; set; }
         public OptionStateRequest RequestedState { get; protected set; }
@@ -30,12 +30,13 @@ namespace Kbtter5
             ExecuteCoroutine = Execute();
         }
 
-        public PlayerOption(PlayerUser p, UserInformation user)
+        public PlayerOption(PlayerUser p, OptionInformation user)
             : this()
         {
             Information = user;
             SourceUser = Information.SourceUser;
             Image = UserImageManager.GetUserImage(SourceUser);
+            ExecuteCoroutine = user.TargetOperation(this, user.InitializationInformation);
         }
 
         public override IEnumerator<bool> Tick()
