@@ -271,7 +271,7 @@ namespace Kbtter5
 
     public class MultiAdditionalCoroutineSprite : AdditionalCoroutineSprite
     {
-        public IReadOnlyList<IEnumerator<bool>> AvailableSubOperations { get { return operations; } }
+        public IList<IEnumerator<bool>> AvailableSubOperations { get { return operations; } }
 
         private bool taken;
         private List<IEnumerator<bool>> operations = new List<IEnumerator<bool>>(), bufop = new List<IEnumerator<bool>>();

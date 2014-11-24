@@ -99,6 +99,7 @@ namespace Kbtter5.Scenes
                     yield return true;
                 }
             } while (!tstate.Buttons.Any(p => p));
+            CommonObjects.SoundMenuOK.Play();
             var st = pz.Alpha;
             for (int i = 0; i < 30; i++)
             {
@@ -149,17 +150,20 @@ namespace Kbtter5.Scenes
                             {
                                 selmenu = (selmenu + menu.Length - 1) % menu.Length;
                                 RefreshMenuPosition();
+                                CommonObjects.SoundMenuSelect.Play();
                             }
                             if ((tstate.Direction & GamepadDirection.Right) != 0)
                             {
                                 selmenu = (selmenu + 1) % menu.Length;
                                 RefreshMenuPosition();
+                                CommonObjects.SoundMenuSelect.Play();
                             }
                             if (tstate.Buttons[0])
                             {
                                 //救済措置
                                 if (selmenu == 0)
                                 {
+                                    CommonObjects.SoundMenuOK.Play();
                                     for (int i = 0; i < menu.Length; i++)
                                     {
                                         menu[i].ApplySpecialOperation(SpritePatterns.MenuIntro(0, 60, 600));
@@ -374,6 +378,7 @@ namespace Kbtter5.Scenes
                 if (tstate.Buttons[1])
                 {
                     Parent.SendChildMessage("ReturnToMenuSelect");
+                    CommonObjects.SoundMenuCancel.Play();
                     for (int i = 0; i < 40; i++)
                     {
                         Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
@@ -384,6 +389,7 @@ namespace Kbtter5.Scenes
                 if (tstate.Buttons[0] && uinfo[sel] != null)
                 {
                     Parent.SendChildMessage("GoToOptionEdit:" + sel.ToString());
+                    CommonObjects.SoundMenuOK.Play();
                     for (int i = 0; i < 40; i++)
                     {
                         Manager.OffsetX = Easing.OutQuad(i, 40, 0, -640);
@@ -399,6 +405,7 @@ namespace Kbtter5.Scenes
                     uips[sel].Y = 120;
                     uips[sel].AddSubOperation(SpritePatterns.Move(15, 0, 0, Easing.OutQuad));
                     uips[sel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.OutQuad));
+                    CommonObjects.SoundMenuSelect.Play();
 
                 }
                 if ((tstate.Direction & GamepadDirection.Down) != 0)
@@ -409,6 +416,7 @@ namespace Kbtter5.Scenes
                     uips[sel].Y = -120;
                     uips[sel].AddSubOperation(SpritePatterns.Move(15, 0, 0, Easing.OutQuad));
                     uips[sel].AddSubOperation(SpritePatterns.Alpha(15, 1, Easing.OutQuad));
+                    CommonObjects.SoundMenuSelect.Play();
                 }
 
                 prevstate = state;
@@ -737,6 +745,7 @@ namespace Kbtter5.Scenes
                         if (tstate.Buttons[1])
                         {
                             Parent.SendChildMessage("ReturnToAccountSelect");
+                            CommonObjects.SoundMenuCancel.Play();
                             for (int i = 0; i < 40; i++)
                             {
                                 Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
@@ -746,6 +755,7 @@ namespace Kbtter5.Scenes
                         }
                         if (tstate.Buttons[0])
                         {
+                            CommonObjects.SoundMenuOK.Play();
                             if (msel < 5)
                             {
                                 GoToOptionOperationSelect();
@@ -791,6 +801,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) msel = tm;
                 } while (!mal[msel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
                 CheckNextTextPosition(ps);
                 return;
             }
@@ -803,6 +814,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) msel = tm;
                 } while (!mal[msel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.VerticalMove(10, mal[msel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
                 CheckNextTextPosition(ps);
                 return;
             }
@@ -849,6 +861,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) opopmsel = tm;
                 } while (!opopmal[opopmsel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.Move(10, opopmal[opopmsel].X, opopmal[opopmsel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
                 return;
             }
             if ((tstate.Direction & GamepadDirection.Right) != 0)
@@ -859,6 +872,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) opopmsel = tm;
                 } while (!opopmal[opopmsel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.Move(10, opopmal[opopmsel].X, opopmal[opopmsel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
                 return;
             }
         }
@@ -886,6 +900,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) ocmsel = tm;
                 } while (!ocmal[ocmsel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.VerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
                 return;
             }
             if ((tstate.Direction & GamepadDirection.Down) != 0)
@@ -896,11 +911,17 @@ namespace Kbtter5.Scenes
                     if (tm != -1) ocmsel = tm;
                 } while (!ocmal[ocmsel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.VerticalMove(10, ocmal[ocmsel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
                 return;
             }
-            if (tstate.Buttons[1]) GoToScreenNameInput();
+            if (tstate.Buttons[1])
+            {
+                GoToScreenNameInput();
+                CommonObjects.SoundMenuCancel.Play();
+            }
             if (tstate.Buttons[0])
             {
+                CommonObjects.SoundMenuOK.Play();
                 switch (ocmsel)
                 {
                     case 0:
@@ -1045,6 +1066,8 @@ namespace Kbtter5.Scenes
         List<StringSprite> uvdesc, ipuvdesc, uvs, seluvs;
         MultiAdditionalCoroutineSprite[] udc;
         MultiAdditionalCoroutineSprite mc;
+        KeyInputObject ki;
+
         List<MenuAllocationInformation> uvsmal;
         int cstate = 0, usel = 0, smsel = 0, avu;
         User[] opts;
@@ -1058,14 +1081,14 @@ namespace Kbtter5.Scenes
             osi = new int[opts.Length];
             oii = new OptionInitializationInformation[opts.Length];
             sum = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "オプション装備編集", X = 230, Y = 8 };
-            type = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備タイプ", X = 160, Y = 32 + 8 };
-            dirc = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備方向", X = 160, Y = 64 + 8 };
-            mode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "モード", X = 160, Y = 96 + 8 };
+            type = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Blue) { Value = "装備タイプ", X = 160, Y = 32 + 8 };
+            dirc = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Green) { Value = "装備方向", X = 160, Y = 64 + 8 };
+            mode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Green) { Value = "モード", X = 160, Y = 96 + 8 };
             uvdesc = new List<StringSprite>()
             {
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション1", X = 160, Y = 128 + 8 },
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション2", X = 160, Y = 160 + 8 },       
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "装備固有オプション3", X = 160, Y = 192 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "装備固有オプション1", X = 160, Y = 128 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "装備固有オプション2", X = 160, Y = 160 + 8 },       
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "装備固有オプション3", X = 160, Y = 192 + 8 },
             };
 
             seltype = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 32 + 8 };
@@ -1073,9 +1096,9 @@ namespace Kbtter5.Scenes
             selmode = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 96 + 8 };
             ipuvdesc = new List<StringSprite>()
             {
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 96 + 8 },
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 128 + 8 },       
-                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 160 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 128 + 8 },
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 160 + 8 },       
+                new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Black) { Value = "", X = 360, Y = 192 + 8 },
             };
 
             uvs = new List<StringSprite>();
@@ -1096,8 +1119,8 @@ namespace Kbtter5.Scenes
                 new MenuAllocationInformation{ X = 144, Y = 80 },
                 new MenuAllocationInformation{ X = 144, Y = 112 },
                 new MenuAllocationInformation{ X = 144, Y = 144 },
-                new MenuAllocationInformation{ X = 144, Y = 172 },
-                new MenuAllocationInformation{ X = 144, Y = 204 },
+                new MenuAllocationInformation{ X = 144, Y = 176 },
+                new MenuAllocationInformation{ X = 144, Y = 208 },
             };
 
             for (int i = 0; i < uvsmal.Count; i++)
@@ -1168,6 +1191,7 @@ namespace Kbtter5.Scenes
                         if (tstate.Buttons[1])
                         {
                             Parent.SendChildMessage("ReturnToOptionEdit");
+                            CommonObjects.SoundMenuCancel.Play();
                             for (int i = 0; i < 40; i++)
                             {
                                 Manager.OffsetX = Easing.OutQuad(i, 40, 0, 640);
@@ -1177,6 +1201,7 @@ namespace Kbtter5.Scenes
                         }
                         if (tstate.Buttons[0])
                         {
+                            CommonObjects.SoundMenuOK.Play();
                             if (usel == selopts.Count - 1)
                             {
                                 Parent.SendChildMessage("StartGame");
@@ -1203,6 +1228,7 @@ namespace Kbtter5.Scenes
                             if (usel < avu) RefreshOptionInformation(false);
                             smsel = 0;
                             mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
+                            CommonObjects.SoundMenuSelect.Play();
                         }
                         if ((tstate.Direction & GamepadDirection.Down) != 0)
                         {
@@ -1215,10 +1241,19 @@ namespace Kbtter5.Scenes
                             if (usel < avu) RefreshOptionInformation(false);
                             smsel = 0;
                             mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
+                            CommonObjects.SoundMenuSelect.Play();
                         }
                         break;
                     case 1:
                         SubMenuOperation();
+                        break;
+                    case 2:
+                        if (!UserValueInputOperation())
+                        {
+                            var ivs = new StringSprite(CommonObjects.FontSystemMedium, CommonObjects.Colors.Red) { Value = "入力値が不正です!", X = seluvs[smsel].X, Y = seluvs[smsel].Y };
+                            ivs.AddSubOperation(SpritePatterns.VerticalFadeOut(60, -64, Easing.OutQuad, Easing.Linear));
+                            Manager.Add(ivs, 3);
+                        }
                         break;
                 }
                 prevstate = state;
@@ -1237,6 +1272,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) smsel = tm;
                 } while (!uvsmal[smsel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
             }
             if ((tstate.Direction & GamepadDirection.Down) != 0)
             {
@@ -1246,6 +1282,7 @@ namespace Kbtter5.Scenes
                     if (tm != -1) smsel = tm;
                 } while (!uvsmal[smsel].IsAvailable);
                 mc.AddSubOperation(SpritePatterns.VerticalMove(10, uvsmal[smsel].Y, Easing.OutQuad));
+                CommonObjects.SoundMenuSelect.Play();
             }
             switch (smsel)
             {
@@ -1254,11 +1291,13 @@ namespace Kbtter5.Scenes
                     {
                         osi[usel] = (osi[usel] + (OptionOperations.SelectionInformation.Count - 1)) % OptionOperations.SelectionInformation.Count;
                         RefreshOptionInformation(true);
+                        CommonObjects.SoundMenuSelect.Play();
                     }
                     if ((tstate.Direction & GamepadDirection.Right) != 0)
                     {
                         osi[usel] = (osi[usel] + 1) % OptionOperations.SelectionInformation.Count;
                         RefreshOptionInformation(true);
+                        CommonObjects.SoundMenuSelect.Play();
                     }
                     break;
                 case 1:
@@ -1266,11 +1305,13 @@ namespace Kbtter5.Scenes
                     {
                         oii[usel].Direction = (OptionDirection)((int)(oii[usel].Direction + (OptionOperations.OptionDirectionDescriptions.Count - 1)) % OptionOperations.OptionDirectionDescriptions.Count);
                         RefreshOptionInformation(true);
+                        CommonObjects.SoundMenuSelect.Play();
                     }
                     if ((tstate.Direction & GamepadDirection.Right) != 0)
                     {
                         oii[usel].Direction = (OptionDirection)((int)(oii[usel].Direction + 1) % OptionOperations.OptionDirectionDescriptions.Count);
                         RefreshOptionInformation(true);
+                        CommonObjects.SoundMenuSelect.Play();
                     }
                     break;
                 case 2:
@@ -1279,23 +1320,97 @@ namespace Kbtter5.Scenes
                     {
                         oii[usel].Mode = (oii[usel].Mode + (tosi.ModeStrings.Count - 1)) % tosi.ModeStrings.Count;
                         RefreshOptionInformation(true);
+                        CommonObjects.SoundMenuSelect.Play();
                     }
                     if ((tstate.Direction & GamepadDirection.Right) != 0)
                     {
                         oii[usel].Mode = (oii[usel].Mode + 1) % tosi.ModeStrings.Count;
                         RefreshOptionInformation(true);
+                        CommonObjects.SoundMenuSelect.Play();
+                    }
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    if (tstate.Buttons[0])
+                    {
+                        ki = new KeyInputObject(CommonObjects.FontSystemMedium, 256, true, false, false) { X = seluvs[smsel].X, Y = seluvs[smsel].Y };
+                        seluvs[smsel].Alpha = 0;
+                        Manager.Add(ki, 2);
+                        cstate = 2;
                     }
                     break;
             }
             if (tstate.Buttons[1])
             {
                 cstate = 0;
+                mc.AvailableSubOperations.Clear();
+                CommonObjects.SoundMenuCancel.Play();
+            }
+        }
+
+        public bool UserValueInputOperation()
+        {
+            if (ki.HasCompleted)
+            {
+                cstate = 1;
+                seluvs[smsel].Alpha = 1.0;
+                return TrySetUserValue();
+            }
+            else if (ki.IsCanceled)
+            {
+                cstate = 1;
+                seluvs[smsel].Alpha = 1.0;
+                return true;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public bool TrySetUserValue()
+        {
+            var toii = oii[usel];
+            var tosi = OptionOperations.SelectionInformation[osi[usel]];
+            var uvi = smsel - 3;
+            try
+            {
+                switch (tosi.ActualUserValues[uvi])
+                {
+                    case OptionSelectionValue.Int32Value1:
+                        toii.UserInt32Value1 = Convert.ToInt32(ki.InputString);
+                        ipuvdesc[uvi].Value = toii.UserInt32Value1.ToString();
+                        break;
+                    case OptionSelectionValue.Int32Value2:
+                        toii.UserInt32Value2 = Convert.ToInt32(ki.InputString);
+                        ipuvdesc[uvi].Value = toii.UserInt32Value2.ToString();
+                        break;
+                    case OptionSelectionValue.DoubleValue1:
+                        toii.UserDoubleValue1 = Convert.ToDouble(ki.InputString);
+                        ipuvdesc[uvi].Value = toii.UserDoubleValue1.ToString();
+                        break;
+                    case OptionSelectionValue.DoubleValue2:
+                        toii.UserDoubleValue2 = Convert.ToDouble(ki.InputString);
+                        ipuvdesc[uvi].Value = toii.UserDoubleValue2.ToString();
+                        break;
+                    case OptionSelectionValue.StringValue:
+                        toii.UserStringValue = ki.InputString;
+                        ipuvdesc[uvi].Value = toii.UserStringValue;
+                        break;
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
         public void GoToEditingMode()
         {
             cstate = 1;
+            mc.AddSubOperation(SpritePatterns.Blink(30, 0.5, Easing.Linear));
         }
 
         public void RefreshOptionInformation(bool changing)
@@ -1307,23 +1422,65 @@ namespace Kbtter5.Scenes
                 seluvs[i].Value = "";
                 uvsmal[i].IsAvailable = false;
             }
+            for (int i = 0; i < uvdesc.Count; i++)
+            {
+                uvdesc[i].Value = String.Format("装備固有オプション{0}", i + 1);
+            }
 
+            seltype.Value = tosi.Name;
+            var uvu = 0;
             foreach (var i in al)
             {
                 switch (i)
                 {
                     case OptionSelectionValue.Direction:
                         uvsmal[1].IsAvailable = true;
+                        seldirc.Value = OptionOperations.OptionDirectionDescriptions[(int)oii[usel].Direction];
                         break;
                     case OptionSelectionValue.Mode:
                         uvsmal[2].IsAvailable = true;
                         selmode.Value = tosi.ModeStrings[oii[usel].Mode];
                         break;
+
+                    case OptionSelectionValue.Int32Value1:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = oii[usel].UserInt32Value1.ToString();
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.Int32Value2:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = oii[usel].UserInt32Value2.ToString();
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.DoubleValue1:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = oii[usel].UserDoubleValue1.ToString();
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.DoubleValue2:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = oii[usel].UserDoubleValue2.ToString();
+                        uvu++;
+                        break;
+                    case OptionSelectionValue.StringValue:
+                        if (uvu >= 3) break;
+                        ApplyUserValue(tosi, uvu, i);
+                        ipuvdesc[uvu].Value = oii[usel].UserStringValue;
+                        uvu++;
+                        break;
                 }
             }
+        }
 
-            seltype.Value = tosi.Name;
-            seldirc.Value = OptionOperations.OptionDirectionDescriptions[(int)oii[usel].Direction];
+        private void ApplyUserValue(OptionSelectionInformation tosi, int uvu, OptionSelectionValue i)
+        {
+            uvsmal[uvu + 3].IsAvailable = true;
+            uvdesc[uvu].Value = tosi.UserValueDescription[i];
+            tosi.ActualUserValues[uvu] = i;
         }
     }
 

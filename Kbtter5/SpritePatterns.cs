@@ -175,6 +175,24 @@ namespace Kbtter5
             sp.Alpha = alpha;
         }
 
+        public static CoroutineFunction<MultiAdditionalCoroutineSprite> VerticalFadeOut(int time, double moving, EasingFunction moveEasing, EasingFunction fadeEasing)
+        {
+            return sp => VerticalFadeOutFunction(sp, time, moving, moveEasing, fadeEasing);
+        }
+
+        private static IEnumerator<bool> VerticalFadeOutFunction(MultiAdditionalCoroutineSprite sp, int time, double moving, EasingFunction moveEasing, EasingFunction fadeEasing)
+        {
+            var sa = sp.Alpha;
+            var sy = sp.Y;
+            for (int i = 0; i < time; i++)
+            {
+                sp.Alpha = fadeEasing(i, time, sa, -sa);
+                sp.Y = moveEasing(i, time, sy, moving);
+                yield return true;
+            }
+            sp.IsDead = true;
+        }
+
         #endregion
     }
 }

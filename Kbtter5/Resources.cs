@@ -24,6 +24,11 @@ namespace Kbtter5
             return Path.Combine("Kbtter5Data", "img", fname);
         }
 
+        public static string GetCommonSoundPath(string fname)
+        {
+            return Path.Combine("Kbtter5Data", "snd", fname);
+        }
+
         public static string GetUserFilePath(string fname)
         {
             return Path.Combine("Kbtter5Data", "user", fname);
@@ -45,7 +50,7 @@ namespace Kbtter5
         public static int ImageTitleMenuQuick = DX.LoadGraph(GetCommonImagePath("title_menu_quick.png"));
         public static int ImageTitleMenuRanking = DX.LoadGraph(GetCommonImagePath("title_menu_ranking.png"));
         public static int ImageTitleMenuOption = DX.LoadGraph(GetCommonImagePath("title_menu_option.png"));
-        
+
         public static int ImageOptionEditEnd = DX.LoadGraph(GetCommonImagePath("option_end.png"));
 
         public static int StageWidth = 640;
@@ -69,6 +74,10 @@ namespace Kbtter5
         public static int FontSystemLarge = DX.CreateFontToHandle("Meiryo", 32, 2, DX.DX_FONTTYPE_ANTIALIASING_4X4);
 
         public static TextureFont TextureFontBullet = new TextureFont("Meiryo20");
+
+        public static Sound SoundMenuSelect = Sound.Load(GetCommonSoundPath("select09.mp3"));
+        public static Sound SoundMenuOK = Sound.Load(GetCommonSoundPath("button01b.mp3"));
+        public static Sound SoundMenuCancel = Sound.Load(GetCommonSoundPath("laser4.mp3"));
 
         static CommonObjects()
         {
@@ -239,6 +248,21 @@ namespace Kbtter5
 
     }
 
+    public struct Sound
+    {
+        public int OriginalHandle;
+
+        public static Sound Load(string fn)
+        {
+            return new Sound { OriginalHandle = DX.LoadSoundMem(fn) };
+        }
+
+        public void Play()
+        {
+            DX.PlaySoundMem(DX.DuplicateSoundMem(OriginalHandle), DX.DX_PLAYTYPE_BACK);
+        }
+    }
+
     public static class UserImageManager
     {
         public static int ImageSize = 32;
@@ -369,7 +393,7 @@ namespace Kbtter5
                 //未キャッシュ
                 if (!File.Exists(target))
                     using (var wc = new WebClient())
-                    using (var st = wc.OpenRead(user.ProfileImageUrlHttps))
+                    using (var st = wc.OpenRead(user.ProfileImageUrlHttps.ToString().ToString().Replace("_normal.png", ".png")))
                     {
                         var bm = new Bitmap(st);
                         var sav = new Bitmap(bm, 96, 96);

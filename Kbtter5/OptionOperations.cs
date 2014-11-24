@@ -62,11 +62,27 @@ namespace Kbtter5
         }
         #endregion
 
+        #region StringAdvertisementOption
+        public static OptionSelectionInformation StringAdvertisementOption = new OptionSelectionInformation()
+        {
+            Name = "文字列表示",
+            Description = "好きな文字列を表示します。",
+            Operation = NoneOption,
+            UserValueCombination = OptionSelectionValue.StringValue | OptionSelectionValue.Int32Value1,
+            UserValueDescription = new Dictionary<OptionSelectionValue, string>
+            {
+                { OptionSelectionValue.StringValue, "表示文字列" },
+                { OptionSelectionValue.Int32Value1, "Int32テスト" }
+            }
+        };
+        #endregion
+
         public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
         {
             NoneOptionInformation,
             LinearLaserOptionInformation,
-            HomingShotOptionInformation
+            HomingShotOptionInformation,
+            StringAdvertisementOption,
         };
 
         #region ユーティリティ
@@ -127,10 +143,20 @@ namespace Kbtter5
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public IList<OptionSelectionValue> ActualUserValues { get; private set; }
         public IReadOnlyList<string> ModeStrings { get; set; }
         public OptionOperation Operation { get; set; }
         public OptionSelectionValue UserValueCombination { get; set; }
         public IReadOnlyDictionary<OptionSelectionValue, string> UserValueDescription { get; set; }
+
+        public OptionSelectionInformation()
+        {
+            Name = "";
+            Description = "";
+            ActualUserValues = new OptionSelectionValue[3];
+            ModeStrings = new List<string>();
+            UserValueDescription = new Dictionary<OptionSelectionValue, string>();
+        }
     }
 
     [Flags]

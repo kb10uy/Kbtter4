@@ -341,11 +341,12 @@ namespace Kbtter4.Models
                     HomeNotificationTimeline.TryAddNotification(new Kbtter4Notification(s));
                 }
             }
+            
             var u = s.DeepCopy();
             if (u != null) UpdateUserInformation(u.Status.User);
 
             Parallel.ForEach(GlobalPlugins, i => s = i.OnStatusDestructive(s.DeepCopy()) ?? s);
-
+            
             lock (HomeStatusTimelineMonitoringToken) HomeStatusTimeline.TryAddStatus(s.Status);
             foreach (var tl in StatusTimelines)
             {
