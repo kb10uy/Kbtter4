@@ -1392,28 +1392,64 @@ namespace Kbtter5.Scenes
                 switch (tosi.ActualUserValues[uvi])
                 {
                     case OptionSelectionValue.Int32Value1:
-                        toii.UserInt32Value1 = Convert.ToInt32(ki.InputString);
-                        ipuvdesc[uvi].Value = toii.UserInt32Value1.ToString();
+                        var vali1 = Convert.ToInt32(ki.InputString);
+                        if (tosi.DefaultValue.UserInt32Value1Validation == null ||
+                            (tosi.DefaultValue.UserInt32Value1Validation != null && tosi.DefaultValue.UserInt32Value1Validation(vali1)))
+                        {
+                            toii.UserInt32Value1 = vali1;
+                            ipuvdesc[uvi].Value = toii.UserInt32Value1.ToString();
+                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.Int32Value2:
-                        toii.UserInt32Value2 = Convert.ToInt32(ki.InputString);
-                        ipuvdesc[uvi].Value = toii.UserInt32Value2.ToString();
+                        var vali2 = Convert.ToInt32(ki.InputString);
+                        if (tosi.DefaultValue.UserInt32Value2Validation == null ||
+                            (tosi.DefaultValue.UserInt32Value2Validation != null && tosi.DefaultValue.UserInt32Value2Validation(vali2)))
+                        {
+                            toii.UserInt32Value2 = vali2;
+                            ipuvdesc[uvi].Value = toii.UserInt32Value2.ToString();
+                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.Int32Value3:
-                        toii.UserInt32Value3 = Convert.ToInt32(ki.InputString);
-                        ipuvdesc[uvi].Value = toii.UserInt32Value3.ToString();
+                        var vali3 = Convert.ToInt32(ki.InputString);
+                        if (tosi.DefaultValue.UserInt32Value3Validation == null ||
+                            (tosi.DefaultValue.UserInt32Value3Validation != null && tosi.DefaultValue.UserInt32Value3Validation(vali3)))
+                        {
+                            toii.UserInt32Value3 = vali3;
+                            ipuvdesc[uvi].Value = toii.UserInt32Value3.ToString();
+                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.DoubleValue1:
-                        toii.UserDoubleValue1 = Convert.ToDouble(ki.InputString);
-                        ipuvdesc[uvi].Value = toii.UserDoubleValue1.ToString();
+                        var vald1 = Convert.ToDouble(ki.InputString);
+                        if (tosi.DefaultValue.UserDoubleValue1Validation == null ||
+                            (tosi.DefaultValue.UserDoubleValue1Validation != null && tosi.DefaultValue.UserDoubleValue1Validation(vald1)))
+                        {
+                            toii.UserDoubleValue1 = vald1;
+                            ipuvdesc[uvi].Value = toii.UserDoubleValue1.ToString();
+                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.DoubleValue2:
-                        toii.UserDoubleValue2 = Convert.ToDouble(ki.InputString);
-                        ipuvdesc[uvi].Value = toii.UserDoubleValue2.ToString();
+                        var vald2 = Convert.ToDouble(ki.InputString);
+                        if (tosi.DefaultValue.UserDoubleValue2Validation == null ||
+                            (tosi.DefaultValue.UserDoubleValue2Validation != null && tosi.DefaultValue.UserDoubleValue2Validation(vald2)))
+                        {
+                            toii.UserDoubleValue2 = vald2;
+                            ipuvdesc[uvi].Value = toii.UserDoubleValue2.ToString();
+                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.DoubleValue3:
-                        toii.UserDoubleValue3 = Convert.ToDouble(ki.InputString);
-                        ipuvdesc[uvi].Value = toii.UserDoubleValue3.ToString();
+                        var vald3 = Convert.ToDouble(ki.InputString);
+                        if (tosi.DefaultValue.UserDoubleValue3Validation == null ||
+                            (tosi.DefaultValue.UserDoubleValue3Validation != null && tosi.DefaultValue.UserDoubleValue3Validation(vald3)))
+                        {
+                            toii.UserDoubleValue1 = vald3;
+                            ipuvdesc[uvi].Value = toii.UserDoubleValue3.ToString();
+                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.StringValue1:
                         if (tosi.DefaultValue.UserStringValue1Validation == null ||
@@ -1422,10 +1458,7 @@ namespace Kbtter5.Scenes
                             toii.UserStringValue1 = ki.InputString;
                             ipuvdesc[uvi].Value = toii.UserStringValue1;
                         }
-                        else
-                        {
-                            throw new InvalidDataException();
-                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.StringValue2:
                         if (tosi.DefaultValue.UserStringValue2Validation == null ||
@@ -1434,10 +1467,7 @@ namespace Kbtter5.Scenes
                             toii.UserStringValue2 = ki.InputString;
                             ipuvdesc[uvi].Value = toii.UserStringValue2;
                         }
-                        else
-                        {
-                            throw new InvalidDataException();
-                        }
+                        else { throw new InvalidDataException(); }
                         break;
                     case OptionSelectionValue.StringValue3:
                         if (tosi.DefaultValue.UserStringValue3Validation == null ||
@@ -1446,10 +1476,7 @@ namespace Kbtter5.Scenes
                             toii.UserStringValue3 = ki.InputString;
                             ipuvdesc[uvi].Value = toii.UserStringValue3;
                         }
-                        else
-                        {
-                            throw new InvalidDataException();
-                        }
+                        else { throw new InvalidDataException(); }
                         break;
                 }
                 return true;

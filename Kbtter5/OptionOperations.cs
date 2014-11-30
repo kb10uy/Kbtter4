@@ -202,17 +202,72 @@ namespace Kbtter5
             Name = "ホーミング",
             Description = "ホーミング弾です",
             Operation = HomingShotOption,
-            ModeStrings = new[] { "ショット性能重視", "カーブ性能重視","バランス重視" },
+            ModeStrings = new[] { "ショット性能重視", "カーブ性能重視", "バランス重視" },
             UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.Mode,
             DefaultValue = new OptionInitializationInformation()
             {
-                Mode = 2
+                Mode = 2,
+                Direction = OptionDirection.Up
             }
         };
 
         private static IEnumerator<bool> HomingShotOption(PlayerOption option, OptionInitializationInformation info)
         {
-            while (true) yield return true;
+            while (true)
+            {
+                if (option.Parent.IsTriggerShottableTiming)
+                {
+                    option.ParentManager.Add(
+                        new PlayerImageBullet(option, Homing(), CommonObjects.ImageShotArrow, option.Information.UserInformation.ShotStrength / 2)
+                        {
+                            X = option.X,
+                            Y = option.Y,
+                            Angle = GetAngle(info.Direction) ?? -Math.PI / 2.0,
+                            HomeX = 6,
+                            HomeY = 12,
+                            CollisionRadius = 6
+                        },
+                        (int)GameLayer.PlayerBullet);
+                }
+                yield return true;
+            }
+        }
+
+        private static CoroutineFunction<UserSprite, PlayerBullet> Homing()
+        {
+            return (sp, b) => HomingFunction(sp, b);
+        }
+
+        private static IEnumerator<bool> HomingFunction(UserSprite us, PlayerBullet b)
+        {
+            var speed = 12.0;
+            var curve = 0.03;
+            var tl = us.ParentManager.OfType<EnemyUser>()
+                .OrderBy(p =>
+                {
+                    var x = p.X - b.X;
+                    var y = p.Y - b.Y;
+                    return Math.Sqrt(x * x + y * y);
+                }).FirstOrDefault();
+            var hm = tl != null;
+            while (true)
+            {
+                if (hm && !tl.IsDead)
+                {
+                    var ta = Math.Atan2(tl.Y - b.Y, tl.X - b.X) - b.Angle;
+                    if (ta <= 0)
+                    {
+                        b.Angle -= curve;
+                    }
+                    else
+                    {
+                        b.Angle += curve;
+                    }
+                }
+                b.X += Math.Cos(b.Angle) * speed;
+                b.Y += Math.Sin(b.Angle) * speed;
+                yield return true;
+            }
         }
         #endregion
 
@@ -262,16 +317,77 @@ namespace Kbtter5
         }
         #endregion
 
+        #region GradiusLaserOption
+        public static OptionSelectionInformation GradiusLaserOptionInformation = new OptionSelectionInformation()
+        {
+            Name = "グラディウス風レーザー",
+            Description = "グラディウスっぽいやつです",
+            Operation = GradiusLaserOption,
+            UserValueCombination = OptionSelectionValue.Direction | OptionSelectionValue.DoubleValue1,
+            UserValueDescription = new Dictionary<OptionSelectionValue, string>
+            {
+                { OptionSelectionValue.DoubleValue1, "移動感知最小値" }
+            },
+            DefaultValue = new OptionInitializationInformation()
+            {
+                Direction = OptionDirection.Up,
+                UserDoubleValue1 = 1.0,
+                UserDoubleValue1Validation = (p) => p >= 0.1
+            }
+        };
+
+        private static IEnumerator<bool> GradiusLaserOption(PlayerOption option, OptionInitializationInformation info)
+        {
+            var sbc = 0;
+            var sb = new Point[30];
+
+            var sp = Point.FromDisplayObject(option.Parent);
+            var threshold = info.UserDoubleValue1;
+            var pp = sp;
+            for (int i = 0; i < sb.Length; i++) sb[i] = sp;
+
+            while (true)
+            {
+                option.PreventParentOperation();
+                var np = Point.FromDisplayObject(option.Parent);
+                if (pp.DistanceTo(np) >= threshold)
+                {
+                    sb[(sbc++) % sb.Length] = np;
+                    option.ApplyPosition(sb[(sbc + sb.Length + 1) % sb.Length]);
+                }
+                pp = np;
+                yield return true;
+            }
+        }
+        #endregion
+
         public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
         {
             NoneOptionInformation,
-            LinearLaserOptionInformation,
-            FollwingAttackOptionInformation,
             HomingShotOptionInformation,
+            LinearLaserOptionInformation,
+            GradiusLaserOptionInformation,
+            FollwingAttackOptionInformation,
             StringAdvertisementOptionInformation,
         };
 
         #region ユーティリティ
+        public static void ApplyPosition(this PlayerOption opt, Point p)
+        {
+            opt.X = p.X;
+            opt.Y = p.Y;
+        }
+
+        public static double DistanceTo(this Point bp, Point tp)
+        {
+            return Math.Sqrt((tp.X - bp.X) * (tp.X - bp.X) + (tp.Y - bp.Y) * (tp.Y - bp.Y));
+        }
+
+        public static double DistanceToWithOutSqrt(this Point bp, Point tp)
+        {
+            return (tp.X - bp.X) * (tp.X - bp.X) + (tp.Y - bp.Y) * (tp.Y - bp.Y);
+        }
+
         private static Xorshift128Random rnd = new Xorshift128Random();
 
         public static IReadOnlyList<OptionSelectionValue> GetDecomposedValues(this OptionSelectionValue v)
@@ -339,6 +455,12 @@ namespace Kbtter5
         public string UserStringValue1 { get; set; }
         public string UserStringValue2 { get; set; }
         public string UserStringValue3 { get; set; }
+        public Predicate<int> UserInt32Value1Validation { get; set; }
+        public Predicate<int> UserInt32Value2Validation { get; set; }
+        public Predicate<int> UserInt32Value3Validation { get; set; }
+        public Predicate<double> UserDoubleValue1Validation { get; set; }
+        public Predicate<double> UserDoubleValue2Validation { get; set; }
+        public Predicate<double> UserDoubleValue3Validation { get; set; }
         public Predicate<string> UserStringValue1Validation { get; set; }
         public Predicate<string> UserStringValue2Validation { get; set; }
         public Predicate<string> UserStringValue3Validation { get; set; }

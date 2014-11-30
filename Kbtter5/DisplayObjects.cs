@@ -485,6 +485,11 @@ namespace Kbtter5
     {
         public double X;
         public double Y;
+
+        public static Point FromDisplayObject(DisplayObject obj)
+        {
+            return new Point { X = obj.X, Y = obj.Y };
+        }
     }
 
     [Flags]
