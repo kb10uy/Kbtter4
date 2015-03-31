@@ -27,7 +27,7 @@ namespace Kbtter5.Scenes
     {
         private Kbtter Kbtter = Kbtter.Instance;
         private Kbtter5 Parent = Kbtter5.Instance;
-        private Tokens tokens;
+        public Tokens TwitterTokens { get; private set; }
         private UserInformation info;
         private List<IDisposable> streams = new List<IDisposable>();
         private Xorshift128Random rnd = new Xorshift128Random();
@@ -53,7 +53,7 @@ namespace Kbtter5.Scenes
         {
             optinfo = opt.Where(p => p != null).ToArray();
             info = ui;
-            tokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
+            TwitterTokens = Tokens.Create(Kbtter.Setting.Consumer.Key, Kbtter.Setting.Consumer.Secret, ac.AccessToken, ac.AccessTokenSecret);
             Player = new PlayerUser(this, ui, PlayerMovingOperations.MouseOperaiton, PlayerShotOperations.Default, PlayerInputMethods.DefaultStyle);
             BackgroundImagePath = CommonObjects.GetUserFilePath("back_" + ui.SourceUser.Id.ToString() + ".png");
             Information = new InformationBox(info, Player)
@@ -68,7 +68,7 @@ namespace Kbtter5.Scenes
                 Value = "Loading"
             };
             options = new List<PlayerOption>();
-            options.AddRange(optinfo.Select(p => new PlayerOption(Player, p)));
+            options.AddRange(optinfo.Select(p => new PlayerOption(Player, p, this)));
         }
 
         ~SceneGame()
@@ -78,7 +78,7 @@ namespace Kbtter5.Scenes
 
         private void StartConnection()
         {
-            var s = tokens.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true")).Publish();
+            var s = TwitterTokens.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true")).Publish();
             streams.Add(s.OfType<StatusMessage>().Subscribe(ProcessStatus));
             streams.Add(s.Connect());
 

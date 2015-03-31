@@ -361,12 +361,65 @@ namespace Kbtter5
         }
         #endregion
 
+        #region FavoriteSniperOption
+        public static OptionSelectionInformation FavoriteSniperOptionInformation = new OptionSelectionInformation()
+        {
+            Name = "？？？？？？",
+            Description = "ココアちゃんの愛液",
+            Operation = FavoriteSniperOption,
+        };
+
+        private static IEnumerator<bool> FavoriteSniperOption(PlayerOption option, OptionInitializationInformation info)
+        {
+            EnemyUser ptl = null;
+            PlayerInputButton pb = 0;
+            while (true)
+            {
+                var tl = option.ParentManager.OfType<EnemyUser>()
+                .Where(p => p.SourceStatus.RetweetedStatus == null)
+                .OrderBy(p =>
+                {
+                    var x = p.X - option.X;
+                    var y = p.Y - option.Y;
+                    return Math.Sqrt(x * x + y * y);
+                }).FirstOrDefault();
+                if (tl != null)
+                {
+                    tl.ScaleX = 1.3;
+                    tl.ScaleY = 1.3;
+                }
+                if (ptl != null && tl != ptl)
+                {
+                    ptl.ScaleX = 1.0;
+                    ptl.ScaleY = 1.0;
+                }
+                var b = option.Parent.CurrentInput.Button;
+                if ((b & PlayerInputButton.Shot) != 0 && (pb & PlayerInputButton.Shot) == 0)
+                {
+                    //一撃死じゃなきゃマズイだろ！？
+                    option.Game.TwitterTokens.Favorites.CreateAsync(id => tl.SourceStatus.Id);
+                    foreach (var i in option.ParentManager
+                        .OfType<EnemyUser>()
+                        .Where(p => p.SourceStatus.Id == tl.SourceStatus.Id))
+                    {
+                        i.Damage(i.TotalHealth);
+                    }
+                }
+
+                ptl = tl;
+                pb = b;
+                yield return true;
+            }
+        }
+        #endregion
+
         public static IReadOnlyList<OptionSelectionInformation> SelectionInformation = new List<OptionSelectionInformation>()
         {
             NoneOptionInformation,
             HomingShotOptionInformation,
             LinearLaserOptionInformation,
             GradiusLaserOptionInformation,
+            FavoriteSniperOptionInformation,
             FollwingAttackOptionInformation,
             StringAdvertisementOptionInformation,
         };

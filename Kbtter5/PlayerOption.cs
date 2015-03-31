@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using DxLibDLL;
 using CoreTweet;
+using Kbtter5.Scenes;
 
 namespace Kbtter5
 {
@@ -18,6 +19,7 @@ namespace Kbtter5
         public IEnumerator<bool> ExecuteCoroutine { get; protected set; }
         private bool IsDefaultOperationPrevented { get; set; }
         public OptionStateRequest RequestedState { get; protected set; }
+        public SceneGame Game { get; private set; }
 
         public PlayerOption()
         {
@@ -30,10 +32,11 @@ namespace Kbtter5
             ExecuteCoroutine = Execute();
         }
 
-        public PlayerOption(PlayerUser p, OptionInformation user)
+        public PlayerOption(PlayerUser p, OptionInformation user,SceneGame game)
             : this()
         {
             Parent = p;
+            Game = game;
             Information = user;
             SourceUser = Information.SourceUser;
             Image = UserImageManager.GetUserImage(SourceUser);
